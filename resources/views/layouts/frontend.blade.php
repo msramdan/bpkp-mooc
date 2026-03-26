@@ -1365,7 +1365,7 @@
             </div>
         </section>
         <!-- Testimonial End -->
-        <!-- Team Start -->
+        {{-- <!-- Team Start -->
         <section class="team-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/team-bg-1.png);">
             <div class="container">
                 <div class="section-title text-center wow fadeInUp" data-wow-delay="100ms">
@@ -1447,7 +1447,7 @@
                 </div>
             </div>
         </section>
-        <!-- Team End -->
+        <!-- Team End --> --}}
         {{-- <!-- Blog Start -->
         <section class="blog-one">
             <div class="container">
@@ -1551,7 +1551,7 @@
             </div>
         </section>
         <!-- Blog End --> --}}
-        <!-- Call To Action Start -->
+        {{-- <!-- Call To Action Start -->
         <section class="cta-one">
             <div class="cta-one__bg" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/cta-bg-1.jpg);"></div>
             <div class="container">
@@ -1602,7 +1602,7 @@
             </div>
         </section>
         <section class="cta-one-space"></section>
-        <!-- Call To Action End -->
+        <!-- Call To Action End --> --}}
 
         <section class="copyright text-center">
             <div class="container wow fadeInUp" data-wow-delay="400ms">
