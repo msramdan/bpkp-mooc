@@ -6,10 +6,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home One || Eduact || HTML Template For Educaton & LMS</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicons/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicons/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicons/favicon-16x16.png" />
-    <link rel="manifest" href="assets/images/favicons/site.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{asset('landing-page')}}/assets/images/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{asset('landing-page')}}/assets/images/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{asset('landing-page')}}/assets/images/favicons/favicon-16x16.png" />
+    <link rel="manifest" href="{{asset('landing-page')}}/assets/images/favicons/site.webmanifest" />
     <meta name="description" content="Eduact HTML Template For Educaton & LMS" />
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
@@ -38,7 +38,7 @@
     <div class="custom-cursor__cursor-two"></div>
 
     <div class="preloader">
-        <div class="preloader__image" style="background-image: url(assets/images/loader.png);"></div>
+        <div class="preloader__image" style="background-image: url({{asset('landing-page')}}/assets/images/loader.png);"></div>
     </div>
 
     <div class="page-wrapper">
@@ -47,7 +47,7 @@
                 <div class="container">
                     <div class="main-menu__logo">
                         <a href="index.html">
-                            <img src="assets/images/logo-light.png" width="183" height="48" alt="Eduact">
+                            <img src="{{asset('landing-page')}}/assets/images/logo-light.png" width="183" height="48" alt="Eduact">
                         </a>
                     </div>
                     <div class="main-menu__nav">
@@ -63,7 +63,7 @@
                                                         <div class="col-lg-3">
                                                             <div class="home-showcase__item">
                                                                 <div class="home-showcase__image">
-                                                                    <img src="assets/images/home-showcase/home-showcase-1-1.jpg" alt="eduact">
+                                                                    <img src="{{asset('landing-page')}}/assets/images/home-showcase/home-showcase-1-1.jpg" alt="eduact">
                                                                     <div class="home-showcase__buttons">
                                                                         <a href="index.html" class="eduact-btn home-showcase__buttons__item">
                                                                             <span class="eduact-btn__curve"></span>
@@ -82,7 +82,7 @@
                                                         <div class="col-lg-3">
                                                             <div class="home-showcase__item">
                                                                 <div class="home-showcase__image">
-                                                                    <img src="assets/images/home-showcase/home-showcase-1-2.jpg" alt="eduact">
+                                                                    <img src="{{asset('landing-page')}}/assets/images/home-showcase/home-showcase-1-2.jpg" alt="eduact">
                                                                     <div class="home-showcase__buttons">
                                                                         <a href="index-2.html" class="eduact-btn home-showcase__buttons__item">
                                                                             <span class="eduact-btn__curve"></span>
@@ -101,7 +101,7 @@
                                                         <div class="col-lg-3">
                                                             <div class="home-showcase__item">
                                                                 <div class="home-showcase__image">
-                                                                    <img src="assets/images/home-showcase/home-showcase-1-3.jpg" alt="eduact">
+                                                                    <img src="{{asset('landing-page')}}/assets/images/home-showcase/home-showcase-1-3.jpg" alt="eduact">
                                                                     <div class="home-showcase__buttons">
                                                                         <a href="index-3.html" class="eduact-btn home-showcase__buttons__item">
                                                                             <span class="eduact-btn__curve"></span>
@@ -120,7 +120,7 @@
                                                         <div class="col-lg-3">
                                                             <div class="home-showcase__item">
                                                                 <div class="home-showcase__image">
-                                                                    <img src="assets/images/home-showcase/home-showcase-1-4.jpg" alt="eduact">
+                                                                    <img src="{{asset('landing-page')}}/assets/images/home-showcase/home-showcase-1-4.jpg" alt="eduact">
                                                                     <div class="home-showcase__buttons">
                                                                         <a href="index-dark.html" class="eduact-btn home-showcase__buttons__item">
                                                                             <span class="eduact-btn__curve"></span>
@@ -239,7 +239,7 @@
             <div class="sticky-header__content"></div><!-- /.sticky-header__content -->
         </div><!-- /.stricky-header -->
         <!--Hero Banner Start-->
-        <section class="hero-banner" style="background-image: url(assets/images/shapes/banner-bg-1.png);">
+        <section class="hero-banner" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/banner-bg-1.png);">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6">
@@ -252,7 +252,7 @@
                             <h2 class="hero-banner__title wow fadeInUp" data-wow-delay="400ms">A Better<br> Learning Journey Future Start Here</h2>
                             <p class="hero-banner__text wow fadeInUp" data-wow-delay="500ms">
                                 All the Lorem Ipsum generators on the Internet tend to repeat<br> predefined chunks as necessary,
-                                <img src="assets/images/shapes/banner-1-shape-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/shapes/banner-1-shape-1.png" alt="eduact">
                             </p>
                             <div class="hero-banner__btn wow fadeInUp" data-wow-delay="600ms">
                                 <a href="contact.html" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Take Now<i class="icon-arrow"></i></a>
@@ -262,17 +262,17 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="hero-banner__thumb wow fadeInUp" data-wow-delay="700ms">
-                            <img src="assets/images/resources/banner-1-1.png" alt="eduact">
-                            <div class="hero-banner__cap wow slideInDown" data-wow-delay="800ms"><img src="assets/images/shapes/banner-cap.png" alt="eduact"></div><!-- banner-cap -->
-                            <div class="hero-banner__star wow slideInDown" data-wow-delay="850ms"><img src="assets/images/shapes/banner-star.png" alt="eduact"></div><!-- banner-star -->
-                            <div class="hero-banner__map wow slideInDown" data-wow-delay="900ms"><img src="assets/images/shapes/banner-map.png" alt="eduact"></div><!-- banner-map -->
-                            <div class="hero-banner__video wow zoomIn" data-wow-delay="950ms" style="background-image: url(assets/images/resources/banner-video.png);">
+                            <img src="{{asset('landing-page')}}/assets/images/resources/banner-1-1.png" alt="eduact">
+                            <div class="hero-banner__cap wow slideInDown" data-wow-delay="800ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-cap.png" alt="eduact"></div><!-- banner-cap -->
+                            <div class="hero-banner__star wow slideInDown" data-wow-delay="850ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star.png" alt="eduact"></div><!-- banner-star -->
+                            <div class="hero-banner__map wow slideInDown" data-wow-delay="900ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-map.png" alt="eduact"></div><!-- banner-map -->
+                            <div class="hero-banner__video wow zoomIn" data-wow-delay="950ms" style="background-image: url({{asset('landing-page')}}/assets/images/resources/banner-video.png);">
                                 <a href="https://www.youtube.com/watch?v=FTOS6cwJNCs" class="video-popup"><span class="icon-play"></span></a>
                             </div><!-- banner-video -->
-                            <div class="hero-banner__book wow slideInUp" data-wow-delay="1000ms"><img src="assets/images/shapes/banner-book.png" alt="eduact"></div><!-- banner-book -->
-                            <div class="hero-banner__star2 wow slideInUp" data-wow-delay="1050ms"><img src="assets/images/shapes/banner-star2.png" alt="eduact"></div><!-- banner-star -->
+                            <div class="hero-banner__book wow slideInUp" data-wow-delay="1000ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-book.png" alt="eduact"></div><!-- banner-book -->
+                            <div class="hero-banner__star2 wow slideInUp" data-wow-delay="1050ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star2.png" alt="eduact"></div><!-- banner-star -->
                             <div class="hero-banner__cart wow slideInUp" data-wow-delay="1100ms">
-                                <div class="hero-banner__cart__thumb"><img src="assets/images/resources/banner-author.png" alt="eduact"></div>
+                                <div class="hero-banner__cart__thumb"><img src="{{asset('landing-page')}}/assets/images/resources/banner-author.png" alt="eduact"></div>
                                 <div class="hero-banner__cart__content">
                                     <div class="hero-banner__cart__content-inner">
                                         <h4 class="hero-banner__cart__title">Latest Work Shop</h4>
@@ -293,7 +293,7 @@
         <!--Hero Banner End-->
         <!-- Service Start -->
         <section class="service-one">
-            <div class="service-one__bg" style="background-image: url(assets/images/shapes/service-bg-1.png);"></div>
+            <div class="service-one__bg" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/service-bg-1.png);"></div>
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="100ms">
@@ -375,13 +375,13 @@
                     <div class="col-xl-6">
                         <div class="about-one__thumb wow fadeInLeft" data-wow-delay="100ms"><!-- about thumb start -->
                             <div class="about-one__thumb__one eduact-tilt" data-tilt-options='{ "glare": false, "maxGlare": 0, "maxTilt": 2, "speed": 700, "scale": 1 }'>
-                                <img src="assets/images/resources/about-1-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/resources/about-1-1.png" alt="eduact">
                             </div>
                             <div class="about-one__thumb__shape1 wow zoomIn" data-wow-delay="300ms">
-                                <img src="assets/images/shapes/about-shape-1-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-1.png" alt="eduact">
                             </div>
                             <div class="about-one__thumb__shape2 wow zoomIn" data-wow-delay="400ms">
-                                <img src="assets/images/shapes/about-shape-1-2.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-2.png" alt="eduact">
                             </div>
                             <div class="about-one__thumb__box wow fadeInLeft" data-wow-delay="600ms">
                                 <div class="about-one__thumb__box__icon"><span class="icon-Headphone-Women"></span></div>
@@ -435,7 +435,7 @@
         </section>
         <!-- About End -->
         <!-- Category Start -->
-        <section class="category-one" style="background-image: url(assets/images/shapes/category-bg-1.jpg);">
+        <section class="category-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-bg-1.jpg);">
             <div class="container">
                 <div class="section-title text-center">
                     <h5 class="section-title__tagline">
@@ -490,8 +490,8 @@
             }'>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-education"></span>
@@ -502,7 +502,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-1.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -516,8 +516,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Technology"></span>
@@ -528,7 +528,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-2.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -542,8 +542,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Digital-marketing"></span>
@@ -554,7 +554,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-3.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -568,8 +568,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Start-up"></span>
@@ -580,7 +580,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-4.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -594,8 +594,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-education"></span>
@@ -606,7 +606,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-1.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -620,8 +620,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Technology"></span>
@@ -632,7 +632,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-2.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -646,8 +646,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Digital-marketing"></span>
@@ -658,7 +658,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-3.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -672,8 +672,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Start-up"></span>
@@ -684,7 +684,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-4.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -698,8 +698,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-education"></span>
@@ -710,7 +710,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-1.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -724,8 +724,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Technology"></span>
@@ -736,7 +736,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-2.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -750,8 +750,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Digital-marketing"></span>
@@ -762,7 +762,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-3.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -776,8 +776,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Start-up"></span>
@@ -788,7 +788,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-4.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -802,8 +802,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-education"></span>
@@ -814,7 +814,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-1.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -828,8 +828,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Technology"></span>
@@ -840,7 +840,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-2.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -854,8 +854,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Digital-marketing"></span>
@@ -866,7 +866,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-3.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -880,8 +880,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Start-up"></span>
@@ -892,7 +892,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-4.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -906,8 +906,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-education"></span>
@@ -918,7 +918,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-1.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -932,8 +932,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Technology"></span>
@@ -944,7 +944,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-2.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -958,8 +958,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Digital-marketing"></span>
@@ -970,7 +970,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-3.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -984,8 +984,8 @@
                     </div>
                     <div class="item">
                         <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url(assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
+                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
+                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div><!-- /.category-thumb -->
                                 <div class="category-one__content">
                                     <div class="category-one__icon">
                                         <span class="icon-Start-up"></span>
@@ -996,7 +996,7 @@
                             </div>
                             <div class="category-one__hover">
                                 <div class="category-one__hover__thumb">
-                                    <img src="assets/images/category/category-hover-4.png" alt="eduact" />
+                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
                                 </div><!-- /.category-thumb -->
                                 <div class="category-one__hover__content">
                                     <div class="category-one__hover__icon">
@@ -1013,7 +1013,7 @@
         </section>
         <!-- Category End -->
         <!-- Course Start -->
-        <section class="course-one" style="background-image: url(assets/images/shapes/course-bg-1.png);">
+        <section class="course-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/course-bg-1.png);">
             <div class="container">
                 <div class="section-title text-center">
                     <h5 class="section-title__tagline">
@@ -1037,7 +1037,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="100ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-1.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1051,7 +1051,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-1.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-1.png" alt="eduact">
                                         <h5 class="course-one__author__name">Guy Hawkins</h5>
                                         <p class="course-one__author__designation">Project Manager</p>
                                     </div>
@@ -1066,7 +1066,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="200ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-2.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-2.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1080,7 +1080,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-2.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-2.png" alt="eduact">
                                         <h5 class="course-one__author__name">Devon Lane</h5>
                                         <p class="course-one__author__designation">ROR Developer</p>
                                     </div>
@@ -1095,7 +1095,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="300ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-3.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-3.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1109,7 +1109,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-3.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-3.png" alt="eduact">
                                         <h5 class="course-one__author__name">Darrell Steward</h5>
                                         <p class="course-one__author__designation">Fronted Developer</p>
                                     </div>
@@ -1124,7 +1124,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="400ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-4.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-4.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1138,7 +1138,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-4.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-4.png" alt="eduact">
                                         <h5 class="course-one__author__name">Jane Cooper</h5>
                                         <p class="course-one__author__designation">React JS Developer</p>
                                     </div>
@@ -1153,7 +1153,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="500ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-5.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-5.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1167,7 +1167,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-5.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-5.png" alt="eduact">
                                         <h5 class="course-one__author__name">Wade Warren</h5>
                                         <p class="course-one__author__designation">Finance</p>
                                     </div>
@@ -1182,7 +1182,7 @@
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="600ms">
                         <div class="course-one__item">
                             <div class="course-one__thumb">
-                                <img src="assets/images/course/course-1-6.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-6.png" alt="eduact">
                                 <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
                             </div><!-- /.course-thumb -->
                             <div class="course-one__content">
@@ -1196,7 +1196,7 @@
                                 </h3>
                                 <div class="course-one__bottom">
                                     <div class="course-one__author">
-                                        <img src="assets/images/course/author-6.png" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/course/author-6.png" alt="eduact">
                                         <h5 class="course-one__author__name">Guy Hawkins</h5>
                                         <p class="course-one__author__designation">Chief Executive Officer</p>
                                     </div>
@@ -1214,7 +1214,7 @@
         <!-- Course End -->
 
         <!-- Counter Start -->
-        <section class="counter-one" style="background-image: url(assets/images/shapes/counter-bg-1.jpg);">
+        <section class="counter-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/counter-bg-1.jpg);">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 wow fadeInLeft" data-wow-delay="200ms">
@@ -1224,7 +1224,7 @@
                                 The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic.
                             </div>
                             <a href="contact.html" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Join Now<i class="icon-arrow"></i></a>
-                            <img src="assets/images/shapes/counter-dot.png" alt="eduact">
+                            <img src="{{asset('landing-page')}}/assets/images/shapes/counter-dot.png" alt="eduact">
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -1292,7 +1292,7 @@
                         <div class="item">
                             <div class="testimonial-one__item">
                                 <div class="testimonial-one__author">
-                                    <img src="assets/images/resources/testimonial-1-author-1.png" alt="eduact">
+                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-1.png" alt="eduact">
                                 </div><!-- testimonial-author -->
                                 <div class="testimonial-one__content">
                                     <div class="testimonial-one__quote">
@@ -1311,7 +1311,7 @@
                         <div class="item">
                             <div class="testimonial-one__item">
                                 <div class="testimonial-one__author">
-                                    <img src="assets/images/resources/testimonial-1-author-2.png" alt="eduact">
+                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-2.png" alt="eduact">
                                 </div><!-- testimonial-author -->
                                 <div class="testimonial-one__content">
                                     <div class="testimonial-one__quote">
@@ -1330,7 +1330,7 @@
                         <div class="item">
                             <div class="testimonial-one__item">
                                 <div class="testimonial-one__author">
-                                    <img src="assets/images/resources/testimonial-1-author-3.png" alt="eduact">
+                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-3.png" alt="eduact">
                                 </div><!-- testimonial-author -->
                                 <div class="testimonial-one__content">
                                     <div class="testimonial-one__quote">
@@ -1347,7 +1347,7 @@
                         <!-- Testimonial Item -->
                     </div>
                     <div class="testimonial-one__thumb wow fadeInUp" data-wow-delay="200ms">
-                        <img src="assets/images/resources/testimonial-1.png" alt="eduact">
+                        <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1.png" alt="eduact">
                         <svg viewBox="0 0 612 563" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M595.211 330.916C584.04 315.536 581.185 295.533 588.393 277.948C591.708 269.857 593.359 260.893 592.899 251.505C591.377 220.18 566.027 194.704 534.708 192.994C534.495 192.982 534.283 192.971 534.071 192.959C520.328 192.346 507.517 185.776 499.106 174.89C498.458 174.053 497.809 173.215 497.148 172.39C485.069 157.234 481.695 137.196 487.463 118.703C489.268 112.9 490.07 106.661 489.634 100.174C487.923 74.7337 467.02 54.3769 441.54 53.2801C426.665 52.6432 413.147 58.4459 403.521 68.129C386.44 85.3367 363.449 95.4207 339.207 95.1495C338.429 95.1377 337.638 95.1377 336.86 95.1377C332.79 95.1377 328.803 95.2674 321.631 94.4418C300.244 91.9768 280.473 82.2348 264.76 67.5039C244.483 48.4916 216.997 37.063 186.846 37.7471C129.15 39.0563 80.9264 88.6391 79.2159 146.325C77.9301 189.774 109.827 226.101 118.757 239.239C145.441 278.431 123.193 329.536 93.867 364.199C75.677 385.7 64.8598 413.652 65.3434 444.14C66.3697 509.161 119.548 562.153 184.581 562.99C207.784 563.285 229.501 557.046 248.021 545.995C285.428 523.668 327.033 509.161 370.031 502.167C393.635 498.323 415.883 490.456 436.043 479.275C458.739 466.69 485.128 461.914 510.702 466.337C516.117 467.268 521.708 467.705 527.429 467.575C573.659 466.537 611.16 428.513 611.584 382.279C611.773 363.067 605.663 345.316 595.211 330.916Z" fill="#4F5DE4" />
                             <path d="M103.524 314.265C122.402 295.39 122.402 264.788 103.524 245.913C84.6458 227.038 54.038 227.038 35.1597 245.913C16.2814 264.788 16.2814 295.39 35.1597 314.265C54.038 333.14 84.6458 333.14 103.524 314.265Z" fill="#4F5DE4" />
@@ -1358,7 +1358,7 @@
                             <path d="M341.696 525.638C343.481 525.638 344.929 524.191 344.929 522.406C344.929 520.621 343.481 519.175 341.696 519.175C339.911 519.175 338.464 520.621 338.464 522.406C338.464 524.191 339.911 525.638 341.696 525.638Z" fill="url(#paint0_linear_187_13357)" />
                         </svg>
                         <div class="testimonial-one__thumb-pen wow fadeInUp" data-wow-delay="400ms">
-                            <img src="assets/images/shapes/testimonial-shape-1.png" alt="eduact">
+                            <img src="{{asset('landing-page')}}/assets/images/shapes/testimonial-shape-1.png" alt="eduact">
                         </div>
                     </div>
                 </div>
@@ -1366,7 +1366,7 @@
         </section>
         <!-- Testimonial End -->
         <!-- Team Start -->
-        <section class="team-one" style="background-image: url(assets/images/shapes/team-bg-1.png);">
+        <section class="team-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/team-bg-1.png);">
             <div class="container">
                 <div class="section-title text-center wow fadeInUp" data-wow-delay="100ms">
                     <h5 class="section-title__tagline">
@@ -1393,7 +1393,7 @@
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="200ms">
                         <div class="team-one__item">
                             <div class="team-one__image">
-                                <img src="assets/images/team/team-1-1.jpg" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/team/team-1-1.jpg" alt="eduact">
                             </div><!-- /.team-image -->
                             <div class="team-one__content">
                                 <h3 class="team-one__title">
@@ -1411,7 +1411,7 @@
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="300ms">
                         <div class="team-one__item">
                             <div class="team-one__image">
-                                <img src="assets/images/team/team-1-2.jpg" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/team/team-1-2.jpg" alt="eduact">
                             </div><!-- /.team-image -->
                             <div class="team-one__content">
                                 <h3 class="team-one__title">
@@ -1429,7 +1429,7 @@
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="400ms">
                         <div class="team-one__item">
                             <div class="team-one__image">
-                                <img src="assets/images/team/team-1-3.jpg" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/team/team-1-3.jpg" alt="eduact">
                             </div><!-- /.team-image -->
                             <div class="team-one__content">
                                 <h3 class="team-one__title">
@@ -1475,7 +1475,7 @@
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="blog-one__image">
-                                        <img src="assets/images/blog/blog-1-1.jpg" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/blog/blog-1-1.jpg" alt="eduact">
                                         <a href="blog-details-right.html"></a>
                                     </div><!-- /.blog-image -->
                                 </div>
@@ -1487,7 +1487,7 @@
                                         </h3><!-- /.blog-title -->
                                         <div class="blog-one__meta">
                                             <div class="blog-one__meta__author">
-                                                <img src="assets/images/blog/author-1.png" alt="eduact" />
+                                                <img src="{{asset('landing-page')}}/assets/images/blog/author-1.png" alt="eduact" />
                                                 <a href="blog-list-right.html">Darrell Steward</a>
                                                 Fronted Developer
                                             </div>
@@ -1501,7 +1501,7 @@
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="blog-one__image">
-                                        <img src="assets/images/blog/blog-1-2.jpg" alt="eduact">
+                                        <img src="{{asset('landing-page')}}/assets/images/blog/blog-1-2.jpg" alt="eduact">
                                         <a href="blog-details-left.html"></a>
                                     </div><!-- /.blog-image -->
                                 </div>
@@ -1513,7 +1513,7 @@
                                         </h3><!-- /.blog-title -->
                                         <div class="blog-one__meta">
                                             <div class="blog-one__meta__author">
-                                                <img src="assets/images/blog/author-2.png" alt="eduact" />
+                                                <img src="{{asset('landing-page')}}/assets/images/blog/author-2.png" alt="eduact" />
                                                 <a href="blog-list-left.html">Wade Warren</a>
                                                 Advisor
                                             </div>
@@ -1525,7 +1525,7 @@
                         </div><!-- /.blog-card-one -->
                     </div>
                     <div class="col-xl-4 wow fadeInRight" data-wow-delay="200ms">
-                        <div class="blog-one__cta" style="background-image: url(assets/images/backgrounds/mail-bg-1.png);">
+                        <div class="blog-one__cta" style="background-image: url({{asset('landing-page')}}/assets/images/backgrounds/mail-bg-1.png);">
                             <div class="blog-one__cta__icon"><span class="icon-Newsletter"></span></div>
                             <h3 class="blog-one__cta__title">Subscribe to Our Newsletter for Daily Updates</h3>
                             <form class="blog-one__cta__email-box mc-form" data-url="MC_FORM_URL" novalidate="novalidate">
@@ -1553,12 +1553,12 @@
         <!-- Blog End -->
         <!-- Call To Action Start -->
         <section class="cta-one">
-            <div class="cta-one__bg" style="background-image: url(assets/images/shapes/cta-bg-1.jpg);"></div>
+            <div class="cta-one__bg" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/cta-bg-1.jpg);"></div>
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-md-7 wow fadeInLeft" data-wow-delay="200ms">
                         <div class="cta-one__left">
-                            <img src="assets/images/shapes/cta-logo.png" alt="eduact" />
+                            <img src="{{asset('landing-page')}}/assets/images/shapes/cta-logo.png" alt="eduact" />
                             <h3 class="cta-one__left__title">Skills Certificate From the Edulerns</h3>
                             <a href="contact.html" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Get Start Now<i class="icon-arrow"></i></a>
                         </div>
@@ -1573,10 +1573,10 @@
                     <div class="col-lg-5 col-md-12">
                         <div class="cta-one__thumb__area wow fadeInUp" data-wow-delay="200ms">
                             <div class="cta-one__thumb eduact-tilt" data-tilt-options='{ "glare": false, "maxGlare": 0, "maxTilt": 4, "speed": 700, "scale": 1 }'>
-                                <img src="assets/images/resources/cta-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/resources/cta-1.png" alt="eduact">
                             </div>
                             <div class="cta-one__thumb__area__dark wow zoomIn" data-wow-delay="400ms"></div>
-                            <div class="cta-one__thumb__area__shape wow fadeInUp" data-wow-delay="500ms" style="background-image: url(assets/images/shapes/cta-shape-1.png);"></div>
+                            <div class="cta-one__thumb__area__shape wow fadeInUp" data-wow-delay="500ms" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/cta-shape-1.png);"></div>
                             <svg viewBox="0 0 611 556" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M555.808 95.8321C526.054 35.589 468.004 11.1869 403.454 20.9135C289.531 38.072 13.8566 185.923 18.9328 335.709C21.1965 402.647 82.6767 445.989 139.184 473.388C225.719 515.342 328.597 544.419 425.405 534.761C459.035 531.405 494.157 521.884 520.961 500.461C549.566 477.6 565.052 440.218 575.067 406.004C587.157 364.666 592.748 319.184 591.976 276.168C590.913 217.123 582.27 149.38 555.808 95.8321Z" fill="url(#paint0_linear_268_9)" />
                                 <path d="M387.299 555.447C286.444 555.447 192.226 520.034 130.952 490.324C46.183 449.226 2.16083 397.425 0.0857661 336.342C-5.4706 172.566 282.449 20.0916 400.642 2.28241C410.708 0.758347 420.758 0.00488281 430.498 0.00488281C493.419 0.00488281 545.261 31.8903 572.717 87.4927C596.624 135.886 609.451 199.263 610.823 275.825C611.646 322.078 605.541 368.913 593.159 411.278C584.053 442.427 567.881 487.07 532.742 515.154C506.35 536.234 470.868 549.146 427.274 553.478C414.292 554.797 400.847 555.447 387.299 555.447ZM387.299 552.023C400.744 552.023 414.069 551.372 426.949 550.087C469.873 545.806 504.755 533.152 530.616 512.483C565 484.998 580.915 441.006 589.884 410.319C602.18 368.279 608.234 321.804 607.41 275.894C606.039 199.828 593.348 136.965 569.665 89.0168C542.792 34.6301 492.082 3.42973 430.516 3.42973C420.946 3.42973 411.068 4.1832 401.173 5.67301C283.838 23.3452 -1.9893 174.278 3.49847 336.223C5.52209 395.935 48.9098 446.743 132.444 487.241C193.392 516.798 287.096 552.023 387.299 552.023Z" fill="url(#paint1_linear_268_9)" />
@@ -1605,13 +1605,13 @@
         <!-- Call To Action End -->
 
         <footer class="main-footer">
-            <div class="main-footer__bg" style="background-image: url(assets/images/shapes/footer-bg-1.png);"></div>
+            <div class="main-footer__bg" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/footer-bg-1.png);"></div>
             <div class="container">
                 <div class="row">
                     <div class="col-xl-3 col-md-5 wow fadeInUp" data-wow-delay="100ms">
                         <div class="main-footer__about">
                             <a href="index.html" class="main-footer__logo">
-                                <img src="assets/images/footer-logo.png" alt="eduact" width="213" height="55">
+                                <img src="{{asset('landing-page')}}/assets/images/footer-logo.png" alt="eduact" width="213" height="55">
                             </a><!-- /.footer-logo -->
                             <p class="main-footer__about__text">It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</p>
                             <div class="main-footer__social">
@@ -1683,7 +1683,7 @@
         <div class="mobile-nav__content">
             <span class="mobile-nav__close mobile-nav__toggler"><i class="fa fa-times"></i></span>
             <div class="logo-box">
-                <a href="index.html" aria-label="logo image"><img src="assets/images/logo-light.png" width="183" height="48" alt="eduact" /></a>
+                <a href="index.html" aria-label="logo image"><img src="{{asset('landing-page')}}/assets/images/logo-light.png" width="183" height="48" alt="eduact" /></a>
             </div>
             <!-- /.logo-box -->
             <div class="mobile-nav__container"></div>
