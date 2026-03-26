@@ -46,15 +46,15 @@
             <nav class="main-menu">
                 <div class="container">
                     <div class="main-menu__logo">
-                        <a href="index.html">
+                        <a href="{{ route('landing-page.index') }}">
                             <img src="{{asset('landing-page')}}/assets/images/logo-light.png" width="183" height="48" alt="Eduact">
                         </a>
                     </div>
                     <div class="main-menu__nav">
                         <ul class="main-menu__list">
-                            <li class="dropdown megamenu">
-                                <a href="index.html">Home</a>
-                                <ul>
+                            <li>
+                                <a href="{{ route('landing-page.index') }}">Home</a>
+                                <ul style="display:none;">
                                     <li>
                                         <section class="home-showcase">
                                             <div class="container">
@@ -139,7 +139,7 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown" style="display:none;">
                                 <a href="#">Pages</a>
                                 <ul>
                                     <li><a href="about.html">About</a></li>
@@ -151,13 +151,13 @@
                                     <li><a href="gallery-carousel.html">Gallery Carousel</a></li>
                                     <li><a href="pricing.html">Pricing</a></li>
                                     <li><a href="faq.html">FAQs</a></li>
-                                    <li><a href="login.html">Login</a></li>
+                                    <li><a href="/login">Login</a></li>
                                     <li><a href="404.html">404 Error</a></li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
-                                <a href="#">Course</a>
-                                <ul>
+                            <li>
+                                <a href="#pelatihan">Daftar Pelatihan</a>
+                                <ul style="display:none;">
                                     <li><a href="course.html">Course Page</a></li>
                                     <li><a href="course-carousel.html">Course Carousel</a></li>
                                     <li><a href="management-consulting.html">Management Consulting</a></li>
@@ -168,7 +168,7 @@
                                     <li><a href="online-business.html">Online Business</a></li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown" style="display:none;">
                                 <a href="#">Shop</a>
                                 <ul class="sub-menu">
                                     <li class="dropdown">
@@ -185,7 +185,7 @@
                                     <li><a href="checkout.html">Checkout</a></li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown" style="display:none;">
                                 <a href="#">Blog</a>
                                 <ul class="sub-menu">
                                     <li class="dropdown">
@@ -215,7 +215,7 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li><a href="contact.html">Contact</a></li>
+                            <li style="display:none;"><a href="contact.html">Contact</a></li>
                         </ul>
                     </div><!-- /.main-menu__nav -->
                     <div class="main-menu__right">
@@ -225,10 +225,10 @@
                         <a href="#" class="main-menu__search search-toggler">
                             <i class="icon-Search"></i>
                         </a><!-- /.search btn -->
-                        <a href="login.html" class="main-menu__login">
+                        <a href="/login" class="main-menu__login" style="display:none;">
                             <i class="icon-account-1"></i>
                         </a><!-- /.login btn -->
-                        <a href="contact.html" class="eduact-btn"><span class="eduact-btn__curve"></span>Get In Touch</a><!-- /.contact btn -->
+                        <a href="/login" class="eduact-btn"><span class="eduact-btn__curve"></span>Login</a><!-- /.contact btn -->
                     </div><!-- /.main-menu__right -->
                 </div><!-- /.container -->
             </nav>
@@ -249,14 +249,14 @@
                                     <div class="hero-banner__bg-round-border"></div>
                                 </div>
                             </div>
-                            <h2 class="hero-banner__title wow fadeInUp" data-wow-delay="400ms">A Better<br> Learning Journey Future Start Here</h2>
+                            <h2 class="hero-banner__title wow fadeInUp" data-wow-delay="400ms">MOOCs Pusdiklatwas BPKP</h2>
                             <p class="hero-banner__text wow fadeInUp" data-wow-delay="500ms">
-                                All the Lorem Ipsum generators on the Internet tend to repeat<br> predefined chunks as necessary,
+                                Kembangkan kompetensi &amp; karir Anda dengan waktu belajar yang fleksibel menggunakan eLearning
                                 <img src="{{asset('landing-page')}}/assets/images/shapes/banner-1-shape-1.png" alt="eduact">
                             </p>
                             <div class="hero-banner__btn wow fadeInUp" data-wow-delay="600ms">
-                                <a href="contact.html" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Take Now<i class="icon-arrow"></i></a>
-                                <a href="course.html" class="eduact-btn"><span class="eduact-btn__curve"></span>Find The Course<i class="icon-arrow"></i></a>
+                                <a href="/login" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Mulai Sekarang<i class="icon-arrow"></i></a>
+                                <a href="#pelatihan" class="eduact-btn"><span class="eduact-btn__curve"></span>Daftar Pelatihan<i class="icon-arrow"></i></a>
                             </div><!-- banner-btn -->
                         </div><!-- banner-content -->
                     </div>
@@ -275,9 +275,9 @@
                                 <div class="hero-banner__cart__thumb"><img src="{{asset('landing-page')}}/assets/images/resources/banner-author.png" alt="eduact"></div>
                                 <div class="hero-banner__cart__content">
                                     <div class="hero-banner__cart__content-inner">
-                                        <h4 class="hero-banner__cart__title">Latest Work Shop</h4>
-                                        <p class="hero-banner__cart__text">Graphic Design</p>
-                                        <a href="shop.html" class="eduact-btn"><span class="eduact-btn__curve"></span>Join Now<i class="icon-arrow"></i></a>
+                                        <h4 class="hero-banner__cart__title">Pelatihan Terbaru</h4>
+                                        <p class="hero-banner__cart__text">MOOCs Pilihan</p>
+                                        <a href="#pelatihan" class="eduact-btn"><span class="eduact-btn__curve"></span>Mulai<i class="icon-arrow"></i></a>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 38">
                                             <path d="M0.702945 55.648L108.145 0.179688L87.0803 78.7928L0.702945 55.648Z" />
                                         </svg>
@@ -1013,11 +1013,11 @@
         </section>
         <!-- Category End -->
         <!-- Course Start -->
-        <section class="course-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/course-bg-1.png);">
+        <section id="pelatihan" class="course-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/course-bg-1.png);">
             <div class="container">
                 <div class="section-title text-center">
                     <h5 class="section-title__tagline">
-                        Best Course
+                        Pelatihan Yang Sedang Berlangsung
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 133 13" fill="none">
                             <path d="M9.76794 0.395L0.391789 9.72833C-0.130596 10.2483 -0.130596 11.095 0.391789 11.615C0.914174 12.135 1.76472 12.135 2.28711 11.615L11.6633 2.28167C12.1856 1.76167 12.1856 0.915 11.6633 0.395C11.1342 -0.131667 10.2903 -0.131667 9.76794 0.395Z" fill="#F1F2FD" />
                             <path d="M23.1625 0.395L13.7863 9.72833C13.2639 10.2483 13.2639 11.095 13.7863 11.615C14.3087 12.135 15.1593 12.135 15.6816 11.615L25.0578 2.28167C25.5802 1.76167 25.5802 0.915 25.0578 0.395C24.5287 -0.131667 23.6849 -0.131667 23.1625 0.395Z" fill="#F1F2FD" />
@@ -1031,7 +1031,7 @@
                             <path d="M130.318 0.395L120.942 9.72833C120.42 10.2483 120.42 11.095 120.942 11.615C121.465 12.135 122.315 12.135 122.838 11.615L132.214 2.28167C132.736 1.76167 132.736 0.915 132.214 0.395C131.685 -0.131667 130.841 -0.131667 130.318 0.395Z" fill="#F1F2FD" />
                         </svg>
                     </h5>
-                    <h2 class="section-title__title">Featured Course On This Month</h2>
+                    <h2 class="section-title__title">Pelatihan Unggulan Bulan Ini</h2>
                 </div><!-- section-title -->
                 <div class="row">
                     <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="100ms">
@@ -1448,7 +1448,7 @@
             </div>
         </section>
         <!-- Team End -->
-        <!-- Blog Start -->
+        {{-- <!-- Blog Start -->
         <section class="blog-one">
             <div class="container">
                 <div class="section-title text-center">
@@ -1476,7 +1476,7 @@
                                 <div class="col-md-5">
                                     <div class="blog-one__image">
                                         <img src="{{asset('landing-page')}}/assets/images/blog/blog-1-1.jpg" alt="eduact">
-                                        <a href="blog-details-right.html"></a>
+                                        <a href="blog-details-right.html" aria-label="Baca artikel"></a>
                                     </div><!-- /.blog-image -->
                                 </div>
                                 <div class="col-md-7 d-flex align-items-center">
@@ -1502,7 +1502,7 @@
                                 <div class="col-md-5">
                                     <div class="blog-one__image">
                                         <img src="{{asset('landing-page')}}/assets/images/blog/blog-1-2.jpg" alt="eduact">
-                                        <a href="blog-details-left.html"></a>
+                                        <a href="blog-details-left.html" aria-label="Baca artikel"></a>
                                     </div><!-- /.blog-image -->
                                 </div>
                                 <div class="col-md-7 d-flex align-items-center">
@@ -1550,7 +1550,7 @@
                 </div>
             </div>
         </section>
-        <!-- Blog End -->
+        <!-- Blog End --> --}}
         <!-- Call To Action Start -->
         <section class="cta-one">
             <div class="cta-one__bg" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/cta-bg-1.jpg);"></div>
@@ -1649,19 +1649,12 @@
                     </div>
                     <div class="col-xl-4 col-md-12 wow fadeInUp" data-wow-delay="400ms">
                         <div class="main-footer__newsletter">
-                            <h3 class="main-footer__title">Contact Us</h3>
+                            <h3 class="main-footer__title">Kontak</h3>
                             <ul class="main-footer__info-list">
-                                <li><span class="icon-Location"></span>6391 Elgin St. Celina, Delaware 10299</li>
-                                <li><span class="icon-Telephone"></span><a href="tel:3035550105">(303) 555-0105</a></li>
-                                <li><span class="icon-Email"></span><a href="mailto:michael.mitc@example.com">michael.mitc@example.com</a></li>
+                                <li><span class="icon-Location"></span><a href="https://mooc.bpkp.go.id" target="_blank" rel="noopener noreferrer">https://mooc.bpkp.go.id</a></li>
+                                <li><span class="icon-Telephone"></span><a href="tel:082260707030">082260707030</a></li>
+                                <li><span class="icon-Email"></span><a href="mailto:elearning@bpkp.go.id">elearning@bpkp.go.id</a></li>
                             </ul>
-                            <form class="main-footer__email-box mc-form" data-url="MC_FORM_URL" novalidate="novalidate">
-                                <div class="main-footer__email-input-box">
-                                    <input type="email" placeholder="Email Address" name="EMAIL">
-                                </div>
-                                <button type="submit" class="eduact-btn"><span class="eduact-btn__curve"></span>Subscribe</button>
-                            </form>
-                            <div class="mc-form__response"></div>
                         </div><!-- /.footer-mailchimp -->
                     </div>
                 </div><!-- /.row -->
@@ -1670,7 +1663,7 @@
 
         <section class="copyright text-center">
             <div class="container wow fadeInUp" data-wow-delay="400ms">
-                <p class="copyright__text">Copyright <span class="dynamic-year"></span><!-- /.dynamic-year --> | Eduact HTML Template. All Rights Reserved</p>
+                <p class="copyright__text">MOOC Support by BPKP Pusdiklatwas © 2026. All Rights Reserved</p>
             </div><!-- /.container -->
         </section><!-- /.copyright -->
 
@@ -1688,22 +1681,9 @@
             <!-- /.logo-box -->
             <div class="mobile-nav__container"></div>
             <!-- /.mobile-nav__container -->
-            <ul class="mobile-nav__contact list-unstyled">
-                <li>
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:needhelp@company.com">needhelp@company.com</a>
-                </li>
-                <li>
-                    <i class="fa fa-phone-alt"></i>
-                    <a href="tel:+9236809850">+92 (3680) - 9850</a>
-                </li>
-            </ul><!-- /.mobile-nav__contact -->
-            <div class="mobile-nav__social">
-                <a href="https://twitter.com/"><i class="fab fa-twitter"></i></a>
-                <a href="https://www.facebook.com/"><i class="fab fa-facebook"></i></a>
-                <a href="https://www.pinterest.com/"><i class="fab fa-pinterest-p"></i></a>
-                <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
-            </div><!-- /.mobile-nav__social -->
+            <div class="mobile-nav__login">
+                <a href="/login" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Login</a>
+            </div>
         </div>
         <!-- /.mobile-nav__content -->
     </div>
