@@ -3422,10 +3422,10 @@
   --eduact-soft4-rgb: 228, 228, 228;
   --eduact-soft5: #F6F6F6;
   --eduact-soft5-rgb: 246, 246, 246;
-  --eduact-base: #4F5DE4;
-  --eduact-base-rgb: 79, 93, 228;
-  --eduact-secondary: #F57005;
-  --eduact-secondary-rgb: 245, 112, 5;
+  --eduact-base: #1A4299;
+  --eduact-base-rgb: 26, 66, 153;
+  --eduact-secondary: #ED1A23;
+  --eduact-secondary-rgb: 237, 26, 35;
   --eduact-black: #2A254D;
   --eduact-black-rgb: 42, 37, 77;
   --eduact-black2: #000000;
@@ -5867,7 +5867,7 @@ body.megamenu-popup-active .mobile-nav__content {
   height: 642px;
   border-radius: 50%;
   padding: 34px;
-  background: linear-gradient(147deg, #FF7200 0%, #6A78FF 100%);
+  background: linear-gradient(147deg, #ED1A23 0%, #1A4299 100%);
   box-shadow: 27px 27px 52px 0px rgba(0, 0, 0, 0.08);
   margin: 0 0 0 95px;
 }
@@ -10628,11 +10628,11 @@ body.megamenu-popup-active .mobile-nav__content {
 }
 
 .counter-one__shapes__path-one {
-  fill: linear-gradient(147deg, rgba(79, 93, 228, 0) 0%, rgba(158, 166, 240, 0.55) 26.94%, rgba(255, 255, 255, 0) 100%);
+  fill: linear-gradient(147deg, rgba(26, 66, 153, 0) 0%, rgba(26, 66, 153, 0.55) 26.94%, rgba(255, 255, 255, 0) 100%);
 }
 
 .counter-one__shapes__path-two {
-  fill: linear-gradient(147deg, #FF7200 0%, rgba(255, 255, 255, 0) 100%);
+  fill: linear-gradient(147deg, #ED1A23 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 @media (max-width: 767px) {
