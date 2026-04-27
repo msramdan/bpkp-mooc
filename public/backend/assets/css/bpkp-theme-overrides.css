@@ -7,3 +7,16 @@
   --primary-rgb: 43, 72, 139;
   --purple-rgb: 43, 72, 139;
 }
+/*
+/* Halaman login (signin-basic): padding kanan agar teks tidak bertabrakan dengan .show-password-button */
+.authentication .position-relative > .form-control-password-toggle {
+  padding-inline-end: 3.25rem;
+}
+
+/* Tombol mata: sama seperti <a> di template, tanpa border default <button> */
+button.show-password-button {
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+} */

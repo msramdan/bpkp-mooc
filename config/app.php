@@ -1,5 +1,11 @@
 <?php
 
+$appName = env('APP_NAME', 'MOOC BPKP');
+$rawBrand = env('APP_BRAND');
+$appBrand = ($rawBrand !== null && $rawBrand !== '') ? $rawBrand : $appName;
+/** Teks merek untuk UI: underscore → spasi (mis. BPKP_MOOC → BPKP MOOC). */
+$appBrandDisplay = str_replace('_', ' ', $appBrand);
+
 return [
 
     /*
@@ -13,7 +19,21 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'MOOC BPKP'),
+    'name' => $appName,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nama merek (UI: login, sidebar, footer)
+    |--------------------------------------------------------------------------
+    */
+    'brand' => $appBrand,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Merek untuk tampilan (underscore diganti spasi)
+    |--------------------------------------------------------------------------
+    */
+    'brand_display' => $appBrandDisplay,
 
     /*
     |--------------------------------------------------------------------------

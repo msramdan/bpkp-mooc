@@ -2,7 +2,7 @@
             <div class="container-fluid px-3">
                 <span class="text-muted small">
                     &copy; <span id="year">{{ now()->year }}</span>
-                    <span class="text-dark fw-medium">{{ config('app.name') }}</span>
+                    <span class="text-dark fw-medium">{{ config('app.brand_display') }}</span>
                     — {{ __('LMS kursus Pusdiklatwas.') }}
                 </span>
             </div>

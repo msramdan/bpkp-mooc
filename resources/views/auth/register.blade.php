@@ -72,14 +72,6 @@
                         <a href="/login" class="font-bold">{{ __(key: 'Log in.') }}</a>
                     </p>
 
-                    @if (Route::has(name: 'password.request'))
-                        <p>
-                            <a class="font-bold" href="{{ route(name: 'password.request') }}">
-                                {{ __(key: 'Forgot password?.') }}
-                            </a>
-                        </p>
-                    @endif
-
                 </div>
             </div>
         </div>
