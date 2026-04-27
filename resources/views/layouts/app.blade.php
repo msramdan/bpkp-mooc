@@ -13,7 +13,24 @@
         type="image/x-icon">
     <link id="style" href="{{ asset('backend') }}/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/css/styles.css" rel="stylesheet">
+    <link href="{{ asset('backend') }}/assets/css/bpkp-theme-overrides.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/css/sidebar-app-overrides.css" rel="stylesheet">
+    <script>
+        (function () {
+            var bpkpPrimary = '43, 72, 139';
+            var zynixDefaultPurple = '115, 93, 255';
+            var prevRgb = [
+                '26, 70, 154', '26,70,154',
+                '26, 68, 150', '26,68,150',
+                '43, 71, 106', '43,71,106',
+            ];
+            var stored = localStorage.getItem('primaryRGB');
+            if (stored === zynixDefaultPurple || stored === '115,93,255' ||
+                prevRgb.indexOf(stored) !== -1) {
+                localStorage.setItem('primaryRGB', bpkpPrimary);
+            }
+        })();
+    </script>
     <link href="{{ asset('backend') }}/assets/icon-fonts/icons.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/libs/node-waves/waves.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/simplebar/simplebar.min.css">

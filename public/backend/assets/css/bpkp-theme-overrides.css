@@ -1,0 +1,9 @@
+/**
+ * MOOC BPKP — biru instansi pilihan: #2b488b (rgb 43, 72, 139).
+ */
+:root,
+[data-theme-mode="light"],
+[data-theme-mode="dark"] {
+  --primary-rgb: 43, 72, 139;
+  --purple-rgb: 43, 72, 139;
+}
