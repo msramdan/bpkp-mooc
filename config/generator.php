@@ -132,24 +132,27 @@ return [
             ],
         ],
         [
-            'header' => 'Users',
+            'header' => 'Utilities',
             'permissions' => ['user view', 'role & permission view'],
             'menus' => [
                 [
-                    'title' => 'Users',
-                    'icon' => '<i class="bi bi-people"></i>',
-                    'route' => '/users',
-                    'permission' => 'user view',
-                    'permissions' => [],
-                    'submenus' => [],
-                ],
-                [
-                    'title' => 'Roles & permissions',
-                    'icon' => '<i class="bi bi-person-check"></i>',
-                    'route' => '/roles',
-                    'permission' => 'role & permission view',
-                    'permissions' => [],
-                    'submenus' => [],
+                    'title' => 'Utilities',
+                    'icon' => '<i class="bi bi-collection"></i>',
+                    'route' => null,
+                    'permission' => null,
+                    'permissions' => ['user view', 'role & permission view'],
+                    'submenus' => [
+                        [
+                            'title' => 'Users',
+                            'route' => '/users',
+                            'permission' => 'user view',
+                        ],
+                        [
+                            'title' => 'Roles & permissions',
+                            'route' => '/roles',
+                            'permission' => 'role & permission view',
+                        ],
+                    ],
                 ],
             ],
         ],
