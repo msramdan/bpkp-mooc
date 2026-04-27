@@ -39,9 +39,11 @@
     <link rel="stylesheet"
         href="{{ asset('backend') }}/assets/libs/%40tarekraafat/autocomplete.js/css/autoComplete.css">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.css">
+    @stack('css')
     <script src="{{ asset('backend') }}/assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ asset('backend') }}/assets/js/main.js"></script>
-    </head>
+</head>
 <body>
     <div id="loader">
         <img src="https://php.spruko.com/zynix/zynix/assets/images/media/loader.svg" alt="">
@@ -60,8 +62,11 @@
         <span class="arrow lh-1"><i class="ti ti-arrow-big-up fs-16"></i></span>
     </div>
     <div id="responsive-overlay"></div>
+    <div id="bpkpToastStack" class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1100"
+        aria-live="polite"></div>
     <script src="{{ asset('backend') }}/assets/libs/%40popperjs/core/umd/popper.min.js"></script>
     <script src="{{ asset('backend') }}/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @include('partials.js.bpkp-bootstrap-toast-api')
     <script src="{{ asset('backend') }}/assets/libs/node-waves/waves.min.js"></script>
     <script src="{{ asset('backend') }}/assets/libs/simplebar/simplebar.min.js"></script>
     <script src="{{ asset('backend') }}/assets/js/simplebar.js"></script>
@@ -71,7 +76,10 @@
     <script src="{{ asset('backend') }}/assets/js/sticky.js"></script>
     <script src="{{ asset('backend') }}/assets/js/defaultmenu.js"></script>
     <script src="{{ asset('backend') }}/assets/js/custom.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>
     @stack('scripts')
+    @include('layouts.partials.flash-toast')
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516"
         integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg=="
         data-cf-beacon='{"version":"2024.11.0","token":"388abf76f0c247f9ae47156bd14a7eb9","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}'

@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -38,18 +39,25 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index(): View|JsonResponse
+    public function index(Request $request): View|JsonResponse
     {
-        if (request()->ajax()) {
-            $users = User::with(relations: ['roles:id,name']);
+        if ($request->ajax()) {
+            $query = User::query()->with(['roles:id,name']);
 
-            return Datatables::of(source: $users)
-                ->addColumn(name: 'action', content: 'users.include.action')
-                ->addColumn(name: 'role', content: fn ($row) => $row->getRoleNames()->toArray() !== [] ? $row->getRoleNames()[0] : '-')
+            return DataTables::eloquent($query)
+                ->addColumn('role', function (User $user) {
+                    $names = $user->getRoleNames();
+
+                    return $names->isNotEmpty() ? e($names->first()) : '—';
+                })
+                ->addColumn('action', fn (User $user) => view('users.include.action', ['model' => $user])->render())
+                ->removeColumn('created_at')
+                ->removeColumn('updated_at')
+                ->rawColumns(['action'])
                 ->toJson();
         }
 
-        return view(view: 'users.index');
+        return view('users.index');
     }
 
     /**
@@ -57,7 +65,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function create(): View
     {
-        return view(view: 'users.create');
+        return view('users.create');
     }
 
     /**
@@ -65,7 +73,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        return DB::transaction(callback: function () use ($request): RedirectResponse {
+        return DB::transaction(function () use ($request): RedirectResponse {
             $validated = $request->validated();
             $validated['avatar'] = $this->imageServiceV2->upload(name: 'avatar', path: $this->avatarPath);
             $validated['password'] = bcrypt(value: $request->password);
@@ -76,18 +84,31 @@ class UserController extends Controller implements HasMiddleware
 
             $user->assignRole(roles: $role->name);
 
-            return to_route(route: 'users.index')->with(key: 'success', value: __(key: 'The user was created successfully.'));
+            return to_route(route: 'users.index')->with(key: 'success', value: __('The user was created successfully.'));
         });
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(User $user): View
+    public function show(Request $request, User $user): RedirectResponse|JsonResponse
     {
         $user->load(relations: ['roles:id,name']);
 
-        return view(view: 'users.show', data: compact('user'));
+        if ($request->expectsJson()) {
+            return response()->json([
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar,
+                'role' => $user->getRoleNames()->isNotEmpty() ? $user->getRoleNames()->first() : null,
+                'email_verified_at' => $user->email_verified_at?->format('Y-m-d H:i'),
+                'created_at' => $user->created_at?->format('Y-m-d H:i'),
+                'updated_at' => $user->updated_at?->format('Y-m-d H:i'),
+                'edit_url' => $request->user()->can('user edit') ? route('users.edit', $user) : null,
+            ]);
+        }
+
+        return to_route('users.index');
     }
 
     /**
@@ -105,7 +126,7 @@ class UserController extends Controller implements HasMiddleware
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        return DB::transaction(callback: function () use ($request, $user): RedirectResponse {
+        return DB::transaction(function () use ($request, $user): RedirectResponse {
             $validated = $request->validated();
             $validated['avatar'] = $this->imageServiceV2->upload(name: 'avatar', path: $this->avatarPath, defaultImage: $user?->avatar);
 
@@ -121,7 +142,7 @@ class UserController extends Controller implements HasMiddleware
 
             $user->syncRoles(roles: $role->name);
 
-            return to_route(route: 'users.index')->with(key: 'success', value: __(key: 'The user was updated successfully.'));
+            return to_route(route: 'users.index')->with(key: 'success', value: __('The user was updated successfully.'));
         });
     }
 
@@ -131,17 +152,17 @@ class UserController extends Controller implements HasMiddleware
     public function destroy(User $user): RedirectResponse
     {
         try {
-            return DB::transaction(callback: function () use ($user): RedirectResponse {
+            return DB::transaction(function () use ($user): RedirectResponse {
                 $avatar = $user->avatar;
 
                 $user->delete();
 
                 $this->imageServiceV2->delete(path: $this->avatarPath, image: $avatar, disk: $this->disk);
 
-                return to_route(route: 'users.index')->with(key: 'success', value: __(key: 'The user was deleted successfully.'));
+                return to_route(route: 'users.index')->with(key: 'success', value: __('The user was deleted successfully.'));
             });
         } catch (\Exception $e) {
-            return to_route(route: 'users.index')->with(key: 'error', value: __(key: "The user can't be deleted because it's related to another table."));
+            return to_route(route: 'users.index')->with(key: 'error', value: __("The user can't be deleted because it's related to another table."));
         }
     }
 }

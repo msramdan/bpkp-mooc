@@ -3,13 +3,6 @@
 @section('title', 'Courses')
 
 @section('content')
-    @if (session('status'))
-        <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
-            {{ session('status') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
                 <!-- Start::page-header -->
                 <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div>

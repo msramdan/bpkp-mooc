@@ -7,6 +7,7 @@ use App\Http\Requests\Roles\UpdateRoleRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ class RoleAndPermissionController extends Controller implements HasMiddleware
         return [
             new Middleware(middleware: 'permission:role & permission view', only: ['index', 'show']),
             new Middleware(middleware: 'permission:role & permission create', only: ['create', 'store']),
-            new Middleware(middleware: 'permission:role & permission edit', only: ['edit', 'store']),
+            new Middleware(middleware: 'permission:role & permission edit', only: ['edit', 'update']),
             new Middleware(middleware: 'permission:role & permission delete', only: ['destroy']),
         ];
     }
@@ -33,19 +34,18 @@ class RoleAndPermissionController extends Controller implements HasMiddleware
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(): View|JsonResponse
+    public function index(Request $request): View|JsonResponse
     {
-        if (request()->ajax()) {
-            $users = Role::query();
-
-            return DataTables::of(source: $users)
-                ->addColumn(name: 'created_at', content: fn ($row) => $row->created_at->format('Y-m-d H:i:s'))
-                ->addColumn(name: 'updated_at', content: fn ($row) => $row->updated_at->format('Y-m-d H:i:s'))
-                ->addColumn(name: 'action', content: 'roles.include.action')
+        if ($request->ajax()) {
+            return DataTables::eloquent(Role::query())
+                ->addColumn('action', fn (Role $role) => view('roles.include.action', ['model' => $role])->render())
+                ->removeColumn('created_at')
+                ->removeColumn('updated_at')
+                ->rawColumns(['action'])
                 ->toJson();
         }
 
-        return view(view: 'roles.index');
+        return view('roles.index');
     }
 
     /**
@@ -72,11 +72,21 @@ class RoleAndPermissionController extends Controller implements HasMiddleware
     /**
      * Display the specified resource.
      */
-    public function show(int $id): View
+    public function show(Request $request, Role $role): RedirectResponse|JsonResponse
     {
-        $role = Role::with(relations: ['permissions'])->findOrFail(id: $id);
+        $role->load('permissions');
 
-        return view(view: 'roles.show', data: compact('role'));
+        if ($request->expectsJson()) {
+            return response()->json([
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name')->values()->all(),
+                'created_at' => $role->created_at?->format('Y-m-d H:i'),
+                'updated_at' => $role->updated_at?->format('Y-m-d H:i'),
+                'edit_url' => $request->user()->can('role & permission edit') ? route('roles.edit', $role) : null,
+            ]);
+        }
+
+        return to_route('roles.index');
     }
 
     /**

@@ -7,16 +7,46 @@
   --primary-rgb: 43, 72, 139;
   --purple-rgb: 43, 72, 139;
 }
-/*
-/* Halaman login (signin-basic): padding kanan agar teks tidak bertabrakan dengan .show-password-button */
+
+/* Halaman login: padding kanan agar teks tidak bertabrakan dengan .show-password-button */
 .authentication .position-relative > .form-control-password-toggle {
   padding-inline-end: 3.25rem;
 }
 
-/* Tombol mata: sama seperti <a> di template, tanpa border default <button> */
 button.show-password-button {
   border: none;
   font: inherit;
   color: inherit;
   cursor: pointer;
-} */
+}
+
+/* SweetAlert2 — toast flash */
+.swal2-toast.bpkp-swal-toast {
+  border-radius: 0.375rem;
+  box-shadow: 0 0.35rem 1rem rgba(15, 23, 42, 0.12);
+}
+
+/* Swal hapus: override primary tema hanya untuk .bpkp-swal-confirm-danger */
+.swal2-container .swal2-popup.bpkp-swal-confirm-danger .swal2-styled.swal2-confirm {
+  background-color: #dc3545 !important;
+  border: 1px solid #b02a37 !important;
+  color: #fff !important;
+}
+
+.swal2-container .swal2-popup.bpkp-swal-confirm-danger .swal2-styled.swal2-confirm:hover {
+  background-color: #bb2d3b !important;
+  border-color: #a52834 !important;
+  color: #fff !important;
+}
+
+.swal2-container .swal2-popup.bpkp-swal-confirm-danger .swal2-styled.swal2-cancel {
+  background-color: #6c757d !important;
+  border: 1px solid #565e64 !important;
+  color: #fff !important;
+}
+
+.swal2-container .swal2-popup.bpkp-swal-confirm-danger .swal2-styled.swal2-cancel:hover {
+  background-color: #5c636a !important;
+  border-color: #4e555b !important;
+  color: #fff !important;
+}

@@ -1,22 +1,20 @@
-<td>
-    <a href="{{ route(name: 'roles.show', parameters: $model->id) }}" class="btn btn-outline-success btn-sm">
-        <i class="fa fa-eye"></i>
-    </a>
+<td class="text-nowrap text-center">
+    <button type="button" class="btn btn-sm btn-success btn-icon btn-wave js-open-role-detail" data-url="{{ route('roles.show', $model) }}" title="{{ __('View') }}">
+        <i class="ri-eye-line"></i>
+    </button>
 
     @can('role & permission edit')
-        <a href="{{ route(name: 'roles.edit', parameters: $model->id) }}" class="btn btn-outline-primary btn-sm">
-            <i class="fa fa-pencil-alt"></i>
+        <a href="{{ route('roles.edit', $model) }}" class="btn btn-sm btn-primary btn-icon btn-wave" title="{{ __('Edit') }}">
+            <i class="ri-pencil-line"></i>
         </a>
     @endcan
 
     @can('role & permission delete')
-        <form action="{{ route(name: 'roles.destroy', parameters: $model->id) }}" method="post" class="d-inline"
-            onsubmit="return confirm('Are you sure to delete this record?')">
+        <form action="{{ route('roles.destroy', $model) }}" method="post" class="d-inline">
             @csrf
             @method('delete')
-
-            <button class="btn btn-outline-danger btn-sm">
-                <i class="ace-icon fa fa-trash-alt"></i>
+            <button type="button" class="btn btn-sm btn-danger btn-icon btn-wave js-delete-confirm" title="{{ __('Delete') }}">
+                <i class="ri-delete-bin-line"></i>
             </button>
         </form>
     @endcan
