@@ -1,0 +1,41 @@
+/**
+ * Sidebar tweaks for Laravel + generator menu (Zynix template).
+ * - Spacing icon ↔ label (template .side-menu__icon margin + flex gap).
+ * - SVG menu icons: stay stroke/outline on active/hover (avoid heavy filled look).
+ * - Extra vertical gap between main menu rows (less cramped).
+ */
+
+.app-sidebar .main-menu > .slide__category {
+  margin-bottom: 0.35rem;
+}
+
+.app-sidebar .main-menu > .slide {
+  margin-bottom: 0.45rem;
+}
+
+.app-sidebar .main-menu > .slide:last-child {
+  margin-bottom: 0;
+}
+
+.app-sidebar .main-menu > .slide > .side-menu__item {
+  column-gap: 0.75rem;
+}
+
+.app-sidebar .main-menu > .slide > .side-menu__item > .side-menu__icon {
+  margin-inline-end: 0 !important;
+}
+
+.app-sidebar .side-menu__item > .side-menu__icon i.bi {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.app-sidebar .side-menu__item.active .side-menu__icon svg,
+.app-sidebar .side-menu__item:hover .side-menu__icon svg {
+  fill: none !important;
+}
+
+.app-sidebar .side-menu__item.active .side-menu__icon svg path,
+.app-sidebar .side-menu__item:hover .side-menu__icon svg path {
+  stroke: currentColor !important;
+}

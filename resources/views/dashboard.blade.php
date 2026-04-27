@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __(key: 'Dashboard'))
+@section('title', __('Dashboard'))
 
 @section('content')
     <div class="page-heading">
@@ -10,9 +10,9 @@
     <div class="page-content">
         <section class="row">
             <div class="col-md-12">
-                @if (session(key: 'status'))
+                @if (session('status'))
                     <div class="alert alert-success alert-dismissible show fade">
-                        {{ session(key: 'status') }}
+                        {{ session('status') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
@@ -20,7 +20,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4>Hi 👋, {{ auth()->user()->name }}</h4>
-                        <p>{{ __(key: 'You are logged in!') }}</p>
+                        <p>{{ __('You are logged in!') }}</p>
                     </div>
                 </div>
             </div>

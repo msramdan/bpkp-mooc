@@ -6,8 +6,8 @@ use Illuminate\Contracts\View\View;
 
 class ProfileController extends Controller
 {
-    public function __invoke(): View
+    public function edit(): View
     {
-        return view(view: 'profile');
+        return view('profile');
     }
 }

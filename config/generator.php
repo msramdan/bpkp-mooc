@@ -88,7 +88,7 @@ return [
      *   menus' => [
      *       [
      *          'title' => 'Main Data',
-     *          'icon' => '<i class="bi bi-collection-fill"></i>',
+     *          'icon' => '<i class="bi bi-collection"></i>',
      *          'route' => null,
      *
      *          // permission always null when isset submenus
@@ -117,7 +117,7 @@ return [
             'menus' => [
                 [
                     'title' => 'Main Data',
-                    'icon' => '<i class="bi bi-collection-fill"></i>',
+                    'icon' => '<i class="bi bi-collection"></i>',
                     'route' => null,
                     'permission' => null,
                     'permissions' => ['test view'],
@@ -137,7 +137,7 @@ return [
             'menus' => [
                 [
                     'title' => 'Users',
-                    'icon' => '<i class="bi bi-people-fill"></i>',
+                    'icon' => '<i class="bi bi-people"></i>',
                     'route' => '/users',
                     'permission' => 'user view',
                     'permissions' => [],
@@ -145,7 +145,7 @@ return [
                 ],
                 [
                     'title' => 'Roles & permissions',
-                    'icon' => '<i class="bi bi-person-check-fill"></i>',
+                    'icon' => '<i class="bi bi-person-check"></i>',
                     'route' => '/roles',
                     'permission' => 'role & permission view',
                     'permissions' => [],

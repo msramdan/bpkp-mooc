@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/home',
+    'home' => '/dashboard',
 
     /*
     |--------------------------------------------------------------------------
@@ -116,7 +116,6 @@ return [
 
     'limiters' => [
         'login' => 'login',
-        'two-factor' => 'two-factor',
     ],
 
     /*
@@ -149,11 +148,6 @@ return [
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication(options: [
-            'confirm' => false,
-            'confirmPassword' => true,
-            // 'window' => 0,
-        ]),
     ],
 
 ];
