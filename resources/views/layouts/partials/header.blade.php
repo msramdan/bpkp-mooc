@@ -19,7 +19,7 @@
 
 
                     <div class="header-element">
-                        <a aria-label="Hide Sidebar" class="sidemenu-toggle header-link" data-bs-toggle="sidebar"
+                        <a aria-label="{{ __('Hide sidebar') }}" class="sidemenu-toggle header-link" data-bs-toggle="sidebar"
                             href="javascript:void(0);">
                             <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon menu-btn" width="32"
                                 height="32" fill="#000000" viewBox="0 0 256 256">
@@ -69,7 +69,7 @@
                                 <div class="header-element header-search d-md-block d-none my-auto">
 
                                     <input type="text" class="header-search-bar form-control" id="header-search"
-                                        placeholder="Cari Kursus" spellcheck=false autocomplete="off"
+                                        placeholder="{{ __('Search courses') }}" spellcheck=false autocomplete="off"
                                         autocapitalize="off">
                                     <a href="javascript:void(0);" class="header-search-icon border-0">
                                         <i class="bi bi-search"></i>
@@ -108,30 +108,38 @@
 
                         <ul class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
                             <li>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0);">
-                                    <div class="d-flex align-items-center">
-                                        <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                            <img src="https://flagcdn.com/w40/id.png" width="24" height="18"
-                                                alt="Bahasa" class="rounded">
-                                        </span>
-                                        Bahasa
-                                    </div>
-                                    <span class="text-muted fs-12">(ID)</span>
-                                </a>
+                                <form action="{{ route('locale.update') }}" method="post" class="m-0">
+                                    @csrf
+                                    <input type="hidden" name="locale" value="id">
+                                    <button type="submit"
+                                        class="dropdown-item d-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start{{ app()->getLocale() === 'id' ? ' active' : '' }}">
+                                        <div class="d-flex align-items-center">
+                                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
+                                                <img src="https://flagcdn.com/w40/id.png" width="24" height="18"
+                                                    alt="" class="rounded">
+                                            </span>
+                                            {{ __('Indonesian') }}
+                                        </div>
+                                        <span class="text-muted fs-12">ID</span>
+                                    </button>
+                                </form>
                             </li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0);">
-                                    <div class="d-flex align-items-center">
-                                        <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
-                                            <img src="{{ asset('backend') }}/assets/images/flags/us_flag.jpg"
-                                                alt="English">
-                                        </span>
-                                        English
-                                    </div>
-                                    <span class="text-muted fs-12">(EN)</span>
-                                </a>
+                                <form action="{{ route('locale.update') }}" method="post" class="m-0">
+                                    @csrf
+                                    <input type="hidden" name="locale" value="en">
+                                    <button type="submit"
+                                        class="dropdown-item d-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start{{ app()->getLocale() === 'en' ? ' active' : '' }}">
+                                        <div class="d-flex align-items-center">
+                                            <span class="avatar avatar-rounded avatar-xs lh-1 me-2">
+                                                <img src="{{ asset('backend') }}/assets/images/flags/us_flag.jpg"
+                                                    width="24" height="18" alt="" class="rounded">
+                                            </span>
+                                            {{ __('English') }}
+                                        </div>
+                                        <span class="text-muted fs-12">EN</span>
+                                    </button>
+                                </form>
                             </li>
                         </ul>
                     </li>
@@ -454,8 +462,8 @@
                 <div class="modal-content">
                     <div class="modal-body">
                         <div class="input-group">
-                            <input type="text" class="form-control border-end-0" placeholder="Cari Kursus"
-                                aria-label="Cari Kursus" aria-describedby="button-addon2">
+                            <input type="text" class="form-control border-end-0" placeholder="{{ __('Search courses') }}"
+                                aria-label="{{ __('Search courses') }}" aria-describedby="button-addon2">
                             <button class="btn btn-primary" type="button" id="button-addon2"><i
                                     class="bi bi-search"></i></button>
                         </div>

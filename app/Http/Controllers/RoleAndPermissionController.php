@@ -127,7 +127,7 @@ class RoleAndPermissionController extends Controller implements HasMiddleware
                 return to_route(route: 'roles.index')->with(key: 'success', value: __(key: 'The role was deleted successfully.'));
             }
 
-            return to_route(route: 'roles.index')->with(key: 'error', value: __(key: 'Can`t delete role.'));
+            return to_route(route: 'roles.index')->with(key: 'error', value: __("Can't delete role."));
         });
     }
 }

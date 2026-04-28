@@ -1,0 +1,18 @@
+Terjemahan bilingual (EN / ID)
+===============================
+
+1) Default bahasa aplikasi: APP_LOCALE di .env (id atau en). Fallback: APP_FALLBACK_LOCALE.
+
+2) Pengguna memilih bahasa lewat menu header (bendera): nilai disimpan di session "locale"
+   dan diterapkan oleh middleware SetLocale (lihat app/Http/Middleware/SetLocale.php).
+
+3) File utama terjemahan Indonesia: lang/id.json
+   - Kunci = string persis yang dipanggil di Blade/PHP: __('Users') -> kunci "Users".
+   - Tambah pasangan "Teks Inggris": "Terjemahan Indonesia".
+
+4) Bahasa Inggris: lang/en.json (kosong {}). Jika kunci tidak ada, Laravel menampilkan kunci (= teks EN).
+
+5) Untuk modul besar ke depan, boleh pecah ke lang/id/nama_modul.php dan ganti view ke
+   __('nama_modul.kunci') agar lebih terstruktur.
+
+6) Daftar locale yang diizinkan: config/localization.php (supported).

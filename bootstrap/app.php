@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(path: __DIR__))
         ViewComposerServiceProvider::class,
     ])
     ->withMiddleware(callback: function (Middleware $middleware): void {
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
         $middleware->alias(aliases: [
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
