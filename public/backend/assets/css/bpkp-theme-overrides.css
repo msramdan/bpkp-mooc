@@ -50,3 +50,39 @@ button.show-password-button {
   border-color: #4e555b !important;
   color: #fff !important;
 }
+
+/* Logo header horizontal (utama: <992px; desktop disembunyikan tema) — branding BPKP */
+@media (max-width: 991.98px) {
+  .app-header .horizontal-logo {
+    padding-block: 0.35rem;
+    padding-inline: 0;
+  }
+}
+
+.app-header .bpkp-header-brand {
+  max-width: none;
+}
+
+.app-header .bpkp-header-brand__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem;
+  border-radius: 0.4rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.app-header .bpkp-header-brand:hover .bpkp-header-brand__chip,
+.app-header .bpkp-header-brand:focus-visible .bpkp-header-brand__chip {
+  filter: brightness(1.05);
+  color: #fff;
+}
+
+.app-header .bpkp-header-brand__icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}

@@ -3,15 +3,13 @@
                 <div class="header-content-left">
                     <div class="header-element">
                         <div class="horizontal-logo">
-                            <a href="{{ route('dashboard') }}" class="header-logo">
-                                <img src="{{ asset('backend') }}/assets/images/brand-logos/desktop-logo.png"
-                                    alt="logo" class="desktop-logo">
-                                <img src="{{ asset('backend') }}/assets/images/brand-logos/toggle-logo.png"
-                                    alt="logo" class="toggle-logo">
-                                <img src="{{ asset('backend') }}/assets/images/brand-logos/desktop-dark.png"
-                                    alt="logo" class="desktop-dark">
-                                <img src="{{ asset('backend') }}/assets/images/brand-logos/toggle-dark.png"
-                                    alt="logo" class="toggle-dark">
+                            <a href="{{ route('dashboard') }}"
+                                class="header-logo bpkp-header-brand text-decoration-none d-inline-flex align-items-center"
+                                aria-label="{{ config('app.brand_display') }}"
+                                title="{{ config('app.brand_display') }}">
+                                <span class="bpkp-header-brand__chip">
+                                    <i class="bi bi-mortarboard-fill bpkp-header-brand__icon" aria-hidden="true"></i>
+                                </span>
                             </a>
                         </div>
                     </div>

@@ -1,16 +1,13 @@
-        <aside class="app-sidebar sticky" id="sidebar">
+        <aside class="app-sidebar sticky bpkp-app-sidebar" id="sidebar">
 
 
-            <div class="main-sidebar-header">
-                <a href="{{ route('dashboard') }}" class="header-logo">
-                    <img src="{{ asset('backend') }}/assets/images/brand-logos/desktop-logo.png" alt="logo"
-                        class="desktop-logo">
-                    <img src="{{ asset('backend') }}/assets/images/brand-logos/toggle-dark.png" alt="logo"
-                        class="toggle-dark">
-                    <img src="{{ asset('backend') }}/assets/images/brand-logos/desktop-dark.png" alt="logo"
-                        class="desktop-dark">
-                    <img src="{{ asset('backend') }}/assets/images/brand-logos/toggle-logo.png" alt="logo"
-                        class="toggle-logo">
+            <div class="main-sidebar-header bpkp-sidebar-header">
+                <a href="{{ route('dashboard') }}" class="header-logo bpkp-sidebar-brand text-decoration-none">
+                    <div class="bpkp-sidebar-brand__row">
+                        <i class="bi bi-mortarboard-fill bpkp-sidebar-brand__icon" aria-hidden="true"></i>
+                        <span class="bpkp-sidebar-brand__title">{{ config('app.brand_display') }}</span>
+                    </div>
+                    <p class="bpkp-sidebar-brand__tagline">{{ __('LMS kursus Pusdiklatwas.') }}</p>
                 </a>
             </div>
 

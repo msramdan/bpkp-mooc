@@ -39,3 +39,87 @@
 .app-sidebar .side-menu__item:hover .side-menu__icon svg path {
   stroke: currentColor !important;
 }
+
+/* Branding sidebar — selaras blok identitas halaman login (biru primer + pola + topi wisuda) */
+.app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header {
+  position: relative;
+  padding: 0.85rem 0.65rem;
+  background-color: var(--primary-color);
+  border-block-end: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattren-3.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand {
+  position: relative;
+  z-index: 1;
+  display: block;
+  color: #fff;
+  text-align: center;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand:hover,
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand:focus-visible {
+  color: #fff;
+  opacity: 0.95;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__tagline {
+  margin: 0.35rem 0 0;
+  padding: 0 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 400;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Sidebar sempit / mode ikon: hanya ikon */
+[data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__tagline,
+[data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__title,
+[data-nav-style=icon-click][data-toggled=icon-click-closed] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__tagline,
+[data-nav-style=icon-click][data-toggled=icon-click-closed] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__title,
+[data-nav-style=icon-hover][data-toggled=icon-hover-closed] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__tagline,
+[data-nav-style=icon-hover][data-toggled=icon-hover-closed] .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__title {
+  display: none;
+}
+
+[data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header,
+[data-nav-style=icon-click][data-toggled=icon-click-closed] .app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header,
+[data-nav-style=icon-hover][data-toggled=icon-hover-closed] .app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header {
+  padding-block: 0.7rem;
+  padding-inline: 0.35rem;
+}
