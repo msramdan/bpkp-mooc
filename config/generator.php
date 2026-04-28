@@ -113,19 +113,24 @@ return [
     'sidebars' => [
         [
             'header' => 'Main',
-            'permissions' => ['test view'],
+            'permissions' => ['learning category view', 'learning tag view'],
             'menus' => [
                 [
                     'title' => 'Main Data',
                     'icon' => '<i class="bi bi-collection"></i>',
                     'route' => null,
                     'permission' => null,
-                    'permissions' => ['test view'],
+                    'permissions' => ['learning category view', 'learning tag view'],
                     'submenus' => [
                         [
-                            'title' => 'Tests',
-                            'route' => '/tests',
-                            'permission' => 'test view',
+                            'title' => 'Learning Categories',
+                            'route' => '/learning-categories',
+                            'permission' => 'learning category view',
+                        ],
+                        [
+                            'title' => 'Learning Tags',
+                            'route' => '/learning-tags',
+                            'permission' => 'learning tag view',
                         ],
                     ],
                 ],
@@ -137,7 +142,7 @@ return [
             'menus' => [
                 [
                     'title' => 'Utilities',
-                    'icon' => '<i class="bi bi-collection"></i>',
+                    'icon' => '<i class="bi bi-gear"></i>',
                     'route' => null,
                     'permission' => null,
                     'permissions' => ['user view', 'role & permission view'],

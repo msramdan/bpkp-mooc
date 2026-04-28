@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\LearningCategoryController;
+use App\Http\Controllers\LearningTagController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +19,8 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     Route::resource('users', App\Http\Controllers\UserController::class);
     Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
+    Route::resource('learning-categories', LearningCategoryController::class);
+    Route::resource('learning-tags', LearningTagController::class);
 });
 
 Route::middleware(['auth', 'permission:test view'])->get('/tests', function () {

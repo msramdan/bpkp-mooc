@@ -15,7 +15,7 @@
         </div>
         @can('user create')
             <a href="{{ route('users.create') }}" class="btn btn-primary btn-wave">
-                <i class="ri-add-line align-middle me-1"></i>{{ __('Create a new user') }}
+                <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah') }}
             </a>
         @endcan
     </div>
@@ -127,7 +127,6 @@
                 loading: 'userDetailModalLoading',
                 error: 'userDetailModalError',
                 content: 'userDetailModalContent',
-                edit: 'userDetailModalEdit',
             };
 
             function byId(id) {
@@ -138,7 +137,6 @@
                 var loading = byId(ids.loading);
                 var err = byId(ids.error);
                 var content = byId(ids.content);
-                var edit = byId(ids.edit);
                 if (loading) {
                     loading.classList.remove('d-none');
                 }
@@ -149,10 +147,6 @@
                 if (content) {
                     content.classList.add('d-none');
                     content.innerHTML = '';
-                }
-                if (edit) {
-                    edit.classList.add('d-none');
-                    edit.href = '#';
                 }
             }
 
@@ -237,13 +231,6 @@
                         if (wrap) {
                             wrap.innerHTML = html;
                             wrap.classList.remove('d-none');
-                        }
-                        if (d.edit_url) {
-                            var ed = byId(ids.edit);
-                            if (ed) {
-                                ed.href = d.edit_url;
-                                ed.classList.remove('d-none');
-                            }
                         }
                     })
                     .catch(function(err) {

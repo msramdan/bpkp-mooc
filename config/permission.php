@@ -223,6 +223,24 @@ return [
             ],
         ],
         [
+            'group' => 'learning categories',
+            'access' => [
+                'learning category view',
+                'learning category create',
+                'learning category edit',
+                'learning category delete',
+            ],
+        ],
+        [
+            'group' => 'learning tags',
+            'access' => [
+                'learning tag view',
+                'learning tag create',
+                'learning tag edit',
+                'learning tag delete',
+            ],
+        ],
+        [
             'group' => 'tests',
             'access' => [
                 'test view',
