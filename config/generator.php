@@ -138,14 +138,14 @@ return [
         ],
         [
             'header' => 'Utilities',
-            'permissions' => ['user view', 'role & permission view'],
+            'permissions' => ['user view', 'role & permission view', 'database backup view'],
             'menus' => [
                 [
                     'title' => 'Utilities',
                     'icon' => '<i class="bi bi-gear"></i>',
                     'route' => null,
                     'permission' => null,
-                    'permissions' => ['user view', 'role & permission view'],
+                    'permissions' => ['user view', 'role & permission view', 'database backup view'],
                     'submenus' => [
                         [
                             'title' => 'Users',
@@ -156,6 +156,11 @@ return [
                             'title' => 'Roles & permissions',
                             'route' => '/roles',
                             'permission' => 'role & permission view',
+                        ],
+                        [
+                            'title' => 'Backup Database',
+                            'route' => '/database-backups',
+                            'permission' => 'database backup view',
                         ],
                     ],
                 ],

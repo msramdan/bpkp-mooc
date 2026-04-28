@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LearningCategoryController;
 use App\Http\Controllers\LearningTagController;
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
     Route::resource('learning-categories', LearningCategoryController::class);
     Route::resource('learning-tags', LearningTagController::class);
+    Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
+    Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');
 });
 
 Route::middleware(['auth', 'permission:test view'])->get('/tests', function () {

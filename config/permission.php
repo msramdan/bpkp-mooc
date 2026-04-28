@@ -241,6 +241,13 @@ return [
             ],
         ],
         [
+            'group' => 'database backups',
+            'access' => [
+                'database backup view',
+                'database backup download',
+            ],
+        ],
+        [
             'group' => 'tests',
             'access' => [
                 'test view',
