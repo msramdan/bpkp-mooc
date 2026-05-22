@@ -2,32 +2,43 @@
 
 @section('title', __('Sertifikat'))
 
+@push('css')
+    <link href="{{ asset('backend') }}/assets/css/peserta-sertifikat.css" rel="stylesheet">
+@endpush
+
 @section('content')
     @include('peserta.partials.page-header', ['title' => __('Sertifikat')])
 
-    <div class="row">
-        @foreach ($items as $item)
-            <div class="col-xl-6">
-                <div class="card custom-card border">
-                    <div class="card-body d-flex gap-3 align-items-start">
-                        <span class="avatar avatar-lg bg-success-transparent">
-                            <i class="bi bi-award fs-20"></i>
-                        </span>
-                        <div class="flex-fill">
-                            <h5 class="fw-semibold mb-1">{{ $item['kursus'] }}</h5>
-                            <p class="text-muted fs-13 mb-2">{{ __('Nomor sertifikat') }}: <code>{{ $item['nomor'] }}</code></p>
-                            <div class="d-flex flex-wrap gap-3 fs-13">
-                                <span>{{ __('Tanggal terbit') }}: {{ $item['tanggal'] }}</span>
-                                <span>{{ __('Nilai akhir') }}: {{ $item['nilai'] }}</span>
-                            </div>
-                            <div class="mt-2">@include('peserta.partials.status-badge', ['status' => $item['status']])</div>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-primary-light" @disabled($item['status'] !== 'Terbit')>
-                            {{ __('Unduh PDF') }}
-                        </button>
-                    </div>
-                </div>
+    <div class="peserta-sertifikat-wrap">
+    <div class="peserta-sertifikat-stats">
+        <div class="peserta-sertifikat-stat peserta-sertifikat-stat--issued">
+            <span class="peserta-sertifikat-stat__icon"><i class="bi bi-patch-check-fill"></i></span>
+            <div>
+                <span class="text-muted fs-12 d-block">{{ __('Sertifikat terbit') }}</span>
+                <h4 class="fw-semibold mb-0">{{ $stats['terbit'] }}</h4>
             </div>
-        @endforeach
+        </div>
+        <div class="peserta-sertifikat-stat peserta-sertifikat-stat--pending">
+            <span class="peserta-sertifikat-stat__icon"><i class="bi bi-clock-history"></i></span>
+            <div>
+                <span class="text-muted fs-12 d-block">{{ __('Menunggu kelulusan') }}</span>
+                <h4 class="fw-semibold mb-0">{{ $stats['menunggu'] }}</h4>
+            </div>
+        </div>
+    </div>
+
+    @if ($items->isEmpty())
+        <div class="peserta-sertifikat-empty">
+            <i class="bi bi-award fs-1 d-block mb-3 opacity-50"></i>
+            <h5 class="fw-semibold">{{ __('Belum ada sertifikat') }}</h5>
+            <p class="mb-0 fs-13">{{ __('Selesaikan kursus dan lulus ujian untuk mendapatkan sertifikat.') }}</p>
+        </div>
+    @else
+        <div class="peserta-sertifikat-grid">
+            @foreach ($items as $item)
+                @include('peserta.sertifikat._card', ['item' => $item])
+            @endforeach
+        </div>
+    @endif
     </div>
 @endsection

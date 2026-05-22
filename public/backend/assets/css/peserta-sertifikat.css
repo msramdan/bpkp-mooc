@@ -1,0 +1,299 @@
+/* Sertifikat — token warna (light & dark) */
+.peserta-sertifikat-stats,
+.peserta-sertifikat-grid {
+    --sert-bg: var(--custom-white, #fff);
+    --sert-border: var(--default-border, #e9edf4);
+    --sert-text: var(--default-text-color, #536485);
+    --sert-muted: var(--text-muted, #6c757d);
+    --sert-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    --sert-issued-bg: linear-gradient(145deg, #1a3568 0%, #2b478b 50%, #3a5a9e 100%);
+    --sert-issued-text: #fff;
+    --sert-pending-bg: linear-gradient(160deg, #e8eef8 0%, #f4f7fc 55%, #eef2f9 100%);
+    --sert-pending-text: var(--default-text-color, #536485);
+    --sert-pending-border: rgba(var(--primary-rgb, 43, 72, 139), 0.22);
+    --sert-nomor-bg: rgba(255, 255, 255, 0.18);
+    --sert-medal-pending-bg: #dce4f0;
+    --sert-medal-pending-color: rgb(var(--primary-rgb, 43, 72, 139));
+}
+
+[data-theme-mode='dark'] .peserta-sertifikat-stats,
+[data-theme-mode='dark'] .peserta-sertifikat-grid {
+    --sert-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    --sert-issued-bg: linear-gradient(145deg, #152a52 0%, #243d72 45%, #2f4f85 100%);
+    --sert-pending-bg: linear-gradient(160deg, #2a3142 0%, #323848 50%, #2d3444 100%);
+    --sert-pending-text: rgba(255, 255, 255, 0.88);
+    --sert-pending-border: rgba(255, 255, 255, 0.12);
+    --sert-nomor-bg: rgba(255, 255, 255, 0.1);
+    --sert-medal-pending-bg: rgba(255, 255, 255, 0.08);
+    --sert-medal-pending-color: rgba(255, 255, 255, 0.55);
+}
+
+.peserta-sertifikat-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.peserta-sertifikat-stat {
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--sert-border);
+    background: var(--sert-bg);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.peserta-sertifikat-stat__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+
+.peserta-sertifikat-stat--issued .peserta-sertifikat-stat__icon {
+    background: rgba(var(--success-rgb, 12, 199, 99), 0.15);
+    color: rgb(var(--success-rgb, 12, 199, 99));
+}
+
+.peserta-sertifikat-stat--pending .peserta-sertifikat-stat__icon {
+    background: var(--primary01, rgba(var(--primary-rgb), 0.1));
+    color: var(--primary-color);
+}
+
+.peserta-sertifikat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.peserta-sertifikat-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--sert-bg);
+    border: 1px solid var(--sert-border);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.peserta-sertifikat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sert-shadow);
+}
+
+.peserta-sertifikat-card--issued {
+    border-color: rgba(var(--success-rgb, 12, 199, 99), 0.3);
+}
+
+.peserta-sertifikat-card--pending {
+    border: 1px dashed var(--sert-pending-border);
+}
+
+.peserta-sertifikat-card__preview {
+    position: relative;
+    padding: 1.5rem 1.25rem 1.25rem;
+    min-height: 200px;
+    overflow: hidden;
+    color: var(--sert-issued-text);
+}
+
+.peserta-sertifikat-card--issued .peserta-sertifikat-card__preview {
+    background: var(--sert-issued-bg);
+}
+
+.peserta-sertifikat-card--pending .peserta-sertifikat-card__preview {
+    background: var(--sert-pending-bg);
+    color: var(--sert-pending-text);
+}
+
+.peserta-sertifikat-card__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: radial-gradient(circle at 20% 30%, currentColor 1px, transparent 1px);
+    background-size: 22px 22px;
+    pointer-events: none;
+}
+
+.peserta-sertifikat-card__ribbon {
+    position: absolute;
+    top: 14px;
+    right: -32px;
+    transform: rotate(45deg);
+    background: linear-gradient(90deg, #c9a227, #e8c547);
+    color: #2a2000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 4px 40px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    z-index: 2;
+}
+
+.peserta-sertifikat-card__medal {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 1.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.peserta-sertifikat-card--issued .peserta-sertifikat-card__medal {
+    background: linear-gradient(145deg, #f0c14d, #c9a227);
+    color: #2a2000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.peserta-sertifikat-card--pending .peserta-sertifikat-card__medal {
+    background: var(--sert-medal-pending-bg);
+    color: var(--sert-medal-pending-color);
+    border: 1px solid var(--sert-pending-border);
+}
+
+.peserta-sertifikat-card__brand {
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 0.35rem;
+    position: relative;
+    z-index: 1;
+}
+
+.peserta-sertifikat-card__title {
+    text-align: center;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 0.75rem;
+    position: relative;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.peserta-sertifikat-card__nomor {
+    text-align: center;
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    background: var(--sert-nomor-bg);
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+    margin: 0 auto;
+}
+
+.peserta-sertifikat-card--pending .peserta-sertifikat-card__nomor {
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.peserta-sertifikat-card__meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 0.85rem;
+    font-size: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.peserta-sertifikat-card__meta-item {
+    text-align: center;
+}
+
+.peserta-sertifikat-card__meta-item span {
+    display: block;
+    opacity: 0.7;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.peserta-sertifikat-card__meta-item strong {
+    font-size: 0.875rem;
+}
+
+.peserta-sertifikat-card--pending .peserta-sertifikat-card__meta-item strong {
+    opacity: 0.65;
+}
+
+.peserta-sertifikat-card__footer {
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--sert-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--sert-bg);
+}
+
+.peserta-sertifikat-card__course-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.peserta-sertifikat-card__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--default-background, #f0f2f5);
+    border: 1px solid var(--sert-border);
+}
+
+.peserta-sertifikat-card__course-kode {
+    font-size: 0.7rem;
+    color: var(--sert-muted);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.peserta-sertifikat-card__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.peserta-sertifikat-card__actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.peserta-sertifikat-empty {
+    text-align: center;
+    padding: 4rem 1.5rem;
+    border-radius: 16px;
+    border: 1px dashed var(--sert-border);
+    color: var(--sert-muted);
+    background: var(--sert-bg);
+}
+
+@media (max-width: 575.98px) {
+    .peserta-sertifikat-grid {
+        grid-template-columns: 1fr;
+    }
+}

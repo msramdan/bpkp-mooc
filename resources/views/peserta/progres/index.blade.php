@@ -2,60 +2,55 @@
 
 @section('title', __('Nilai & Progres'))
 
+@push('css')
+    <link href="{{ asset('backend') }}/assets/css/peserta-progres.css" rel="stylesheet">
+@endpush
+
 @section('content')
-    @include('peserta.partials.page-header', ['title' => __('Nilai & Progres')])
+    <div class="peserta-progres-page">
+        @include('peserta.partials.page-header', ['title' => __('Nilai & Progres')])
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card custom-card">
-                <div class="card-body text-center">
-                    <span class="text-muted d-block mb-1">{{ __('Rata-rata progres') }}</span>
-                    <h2 class="fw-semibold mb-0 text-primary">{{ $rata_progress }}%</h2>
-                </div>
-            </div>
+        <div class="peserta-progres-summary">
+            <span class="peserta-progres-summary__item peserta-progres-summary__item--accent">
+                {{ __('Rata-rata progres') }}
+                <strong>{{ $rata_progress }}%</strong>
+            </span>
+            <span class="peserta-progres-summary__item">
+                {{ __('Kursus') }}
+                <strong>{{ $enrollments->count() }}</strong>
+            </span>
+            <span class="peserta-progres-summary__item">
+                {{ __('Berlangsung') }}
+                <strong>{{ $berlangsung }}</strong>
+            </span>
+            <span class="peserta-progres-summary__item">
+                {{ __('Selesai') }}
+                <strong>{{ $selesai }}</strong>
+            </span>
         </div>
-    </div>
 
-    <div class="card custom-card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 align-middle">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">{{ __('Kursus') }}</th>
-                            <th>{{ __('Detail') }}</th>
-                            <th>{{ __('Modul') }}</th>
-                            <th>{{ __('Progres') }}</th>
-                            <th>{{ __('Status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($enrollments as $enrollment)
-                            @php $course = $enrollment->course; @endphp
-                            <tr>
-                                <td>
-                                    <img src="{{ $course->thumbnail }}" alt=""
-                                        class="rounded"
-                                        style="width: 88px; aspect-ratio: 16/9; object-fit: cover;"
-                                        onerror="this.src='https://placehold.co/88x50/2b478b/ffffff?text=MOOC'">
-                                </td>
-                                <td>
-                                    <span class="fw-medium d-block">{{ $course->judul }}</span>
-                                    <small class="text-muted">{{ $course->kode }} · {{ $course->instruktur }}</small>
-                                </td>
-                                <td>{{ $enrollment->modulLabel() }}</td>
-                                <td style="min-width: 160px;">
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar" style="width: {{ $enrollment->progress }}%"></div>
-                                    </div>
-                                    <small>{{ $enrollment->progress }}%</small>
-                                </td>
-                                <td>@include('peserta.partials.status-badge', ['status' => $enrollment->status])</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="peserta-progres-list">
+            @foreach ($enrollments as $enrollment)
+                @php $course = $enrollment->course; @endphp
+                <article class="peserta-progres-card">
+                    <img src="{{ $course->thumbnail }}" alt="" class="peserta-progres-card__thumb"
+                        onerror="this.src='https://placehold.co/160x90/2b478b/ffffff?text={{ urlencode($course->kode) }}'">
+                    <div class="peserta-progres-card__main">
+                        <h3 class="peserta-progres-card__title">{{ $course->judul }}</h3>
+                        <p class="peserta-progres-card__meta">{{ $course->kode }} · {{ $course->instruktur }}</p>
+                    </div>
+                    <div class="peserta-progres-card__progress">
+                        <div class="peserta-progres-card__bar">
+                            <span style="width: {{ $enrollment->progress }}%"></span>
+                        </div>
+                        <span class="peserta-progres-card__pct">{{ $enrollment->progress }}%</span>
+                    </div>
+                    <div class="peserta-progres-card__side">
+                        <span class="peserta-progres-card__modul">{{ __('Modul') }} {{ $enrollment->modulLabel() }}</span>
+                        @include('peserta.partials.status-badge', ['status' => $enrollment->status])
+                    </div>
+                </article>
+            @endforeach
         </div>
     </div>
 @endsection

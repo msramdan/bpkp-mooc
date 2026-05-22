@@ -19,16 +19,15 @@ class PortalController extends Controller implements HasMiddleware
 
     public function dashboard(): View
     {
-        $kursus = auth()->user()
+        $allEnrollments = auth()->user()
             ->courseEnrollments()
             ->with('course')
             ->orderByDesc('updated_at')
-            ->limit(3)
             ->get();
+
+        $kursus = $allEnrollments->take(3);
         $tugas = config('peserta.dummy.tugas', []);
         $ujian = config('peserta.dummy.ujian', []);
-
-        $allEnrollments = auth()->user()->courseEnrollments()->get();
 
         $stats = [
             'kursus_aktif' => $allEnrollments->where('status', 'Berlangsung')->count(),
@@ -37,10 +36,21 @@ class PortalController extends Controller implements HasMiddleware
             'ujian_mendatang' => collect($ujian)->whereIn('status', ['Terjadwal', 'Bisa dikerjakan'])->count(),
         ];
 
+        $chartProgress = [
+            'labels' => $allEnrollments->map(fn ($e) => \Illuminate\Support\Str::limit($e->course->judul, 22))->values()->all(),
+            'series' => $allEnrollments->pluck('progress')->values()->all(),
+        ];
+
         return view('peserta.dashboard', [
             'stats' => $stats,
             'kursus' => $kursus,
-            'jadwal' => array_slice(config('peserta.dummy.jadwal', []), 0, 3),
+            'jadwal' => array_slice(config('peserta.dummy.jadwal', []), 0, 4),
+            'rata_progress' => (int) round($allEnrollments->avg('progress') ?: 0),
+            'chartProgress' => $chartProgress,
+            'chartStatus' => [
+                (int) $stats['kursus_aktif'],
+                (int) $stats['kursus_selesai'],
+            ],
         ]);
     }
 
@@ -100,13 +110,28 @@ class PortalController extends Controller implements HasMiddleware
         return view('peserta.progres.index', [
             'enrollments' => $enrollments,
             'rata_progress' => (int) round($enrollments->avg('progress') ?: 0),
+            'berlangsung' => $enrollments->where('status', 'Berlangsung')->count(),
+            'selesai' => $enrollments->where('status', 'Selesai')->count(),
         ]);
     }
 
     public function sertifikat(): View
     {
+        $items = collect(config('peserta.dummy.sertifikat', []))->map(function (array $item): array {
+            $course = Course::query()->where('judul', $item['kursus'])->first();
+            $item['thumbnail'] = $course?->thumbnail;
+            $item['kode'] = $course?->kode;
+            $item['is_terbit'] = $item['status'] === 'Terbit';
+
+            return $item;
+        });
+
         return view('peserta.sertifikat.index', [
-            'items' => config('peserta.dummy.sertifikat', []),
+            'items' => $items,
+            'stats' => [
+                'terbit' => $items->where('is_terbit', true)->count(),
+                'menunggu' => $items->where('is_terbit', false)->count(),
+            ],
         ]);
     }
 
