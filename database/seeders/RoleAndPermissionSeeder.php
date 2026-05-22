@@ -17,6 +17,7 @@ class RoleAndPermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $roleAdmin = Role::firstOrCreate(['name' => 'admin']);
+        $rolePeserta = Role::firstOrCreate(['name' => 'peserta']);
 
         foreach (config(key: 'permission.permissions') as $permission) {
             foreach ($permission['access'] as $access) {
@@ -24,10 +25,22 @@ class RoleAndPermissionSeeder extends Seeder
             }
         }
 
-        $userAdmin = User::first();
+        $pesertaPermissions = Permission::query()
+            ->where('name', 'like', 'peserta %')
+            ->pluck('name')
+            ->all();
+
+        $adminPermissions = Permission::query()
+            ->where('name', 'not like', 'peserta %')
+            ->pluck('name')
+            ->all();
+
+        $roleAdmin->syncPermissions($adminPermissions);
+        $rolePeserta->syncPermissions($pesertaPermissions);
+
+        $userAdmin = User::where('email', 'admin@example.com')->first();
         if ($userAdmin) {
-            $userAdmin->assignRole('admin');
+            $userAdmin->syncRoles(['admin']);
         }
-        $roleAdmin->syncPermissions(Permission::all());
     }
 }

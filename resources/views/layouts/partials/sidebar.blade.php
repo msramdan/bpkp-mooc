@@ -2,7 +2,7 @@
 
 
             <div class="main-sidebar-header bpkp-sidebar-header">
-                <a href="{{ route('dashboard') }}" class="header-logo bpkp-sidebar-brand text-decoration-none">
+                <a href="{{ user_home_route() }}" class="header-logo bpkp-sidebar-brand text-decoration-none">
                     <div class="bpkp-sidebar-brand__row">
                         <i class="bi bi-mortarboard-fill bpkp-sidebar-brand__icon" aria-hidden="true"></i>
                         <span class="bpkp-sidebar-brand__title">{{ config('app.brand_display') }}</span>
@@ -24,7 +24,13 @@
                         </svg>
                     </div>
                     <ul class="main-menu">
-                        @include('layouts.partials.sidebar-menu')
+                        @role('admin')
+                            @include('layouts.partials.sidebar-menu')
+                        @else
+                            @role('peserta')
+                                @include('layouts.partials.sidebar-peserta-menu')
+                            @endrole
+                        @endrole
                     </ul>
                     <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191"
                             width="24" height="24" viewBox="0 0 24 24">

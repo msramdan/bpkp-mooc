@@ -112,11 +112,11 @@ return [
      */
     'sidebars' => [
         [
-            'header' => 'Main',
+            'header' => 'Utama',
             'permissions' => ['learning category view', 'learning tag view'],
             'menus' => [
                 [
-                    'title' => 'Main Data',
+                    'title' => 'Data Utama',
                     'icon' => '<i class="bi bi-collection"></i>',
                     'route' => null,
                     'permission' => null,
@@ -137,11 +137,11 @@ return [
             ],
         ],
         [
-            'header' => 'Utilities',
+            'header' => 'Utilitas',
             'permissions' => ['user view', 'role & permission view', 'database backup view'],
             'menus' => [
                 [
-                    'title' => 'Utilities',
+                    'title' => 'Utilitas',
                     'icon' => '<i class="bi bi-gear"></i>',
                     'route' => null,
                     'permission' => null,
@@ -153,7 +153,7 @@ return [
                             'permission' => 'user view',
                         ],
                         [
-                            'title' => 'Roles & permissions',
+                            'title' => 'Peran & izin',
                             'route' => '/roles',
                             'permission' => 'role & permission view',
                         ],

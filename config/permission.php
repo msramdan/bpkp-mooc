@@ -253,5 +253,18 @@ return [
                 'test view',
             ],
         ],
+        [
+            'group' => 'portal peserta',
+            'access' => [
+                'peserta dashboard view',
+                'peserta kursus view',
+                'peserta katalog view',
+                'peserta tugas view',
+                'peserta ujian view',
+                'peserta progres view',
+                'peserta sertifikat view',
+                'peserta jadwal view',
+            ],
+        ],
     ],
 ];

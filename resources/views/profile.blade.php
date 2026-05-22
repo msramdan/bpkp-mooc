@@ -10,7 +10,7 @@
         </div>
         <nav aria-label="breadcrumb" class="mb-0">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ user_home_route() }}">{{ __('Dashboard') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ __('Profile') }}</li>
             </ol>
         </nav>

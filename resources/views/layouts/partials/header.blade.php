@@ -3,7 +3,7 @@
                 <div class="header-content-left">
                     <div class="header-element">
                         <div class="horizontal-logo">
-                            <a href="{{ route('dashboard') }}"
+                            <a href="{{ user_home_route() }}"
                                 class="header-logo bpkp-header-brand text-decoration-none d-inline-flex align-items-center"
                                 aria-label="{{ config('app.brand_display') }}"
                                 title="{{ config('app.brand_display') }}">
