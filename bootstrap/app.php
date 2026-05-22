@@ -31,5 +31,12 @@ return Application::configure(basePath: dirname(path: __DIR__))
         ]);
     })
     ->withExceptions(using: function (Exceptions $e): void {
-        //
+        $e->render(function (\Illuminate\Auth\Access\AuthorizationException $exception, $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            return redirect(user_home_route())
+                ->with('error', $exception->getMessage() ?: __('Akses ditolak.'));
+        });
     })->create();

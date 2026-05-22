@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Peserta;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Support\PesertaAccess;
 use Illuminate\Contracts\View\View;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -19,15 +20,15 @@ class PortalController extends Controller implements HasMiddleware
 
     public function dashboard(): View
     {
-        $allEnrollments = auth()->user()
+        $allEnrollments = PesertaAccess::user()
             ->courseEnrollments()
             ->with('course')
             ->orderByDesc('updated_at')
             ->get();
 
         $kursus = $allEnrollments->take(3);
-        $tugas = config('peserta.dummy.tugas', []);
-        $ujian = config('peserta.dummy.ujian', []);
+        $tugas = PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.tugas', []));
+        $ujian = PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.ujian', []));
 
         $stats = [
             'kursus_aktif' => $allEnrollments->where('status', 'Berlangsung')->count(),
@@ -44,7 +45,11 @@ class PortalController extends Controller implements HasMiddleware
         return view('peserta.dashboard', [
             'stats' => $stats,
             'kursus' => $kursus,
-            'jadwal' => array_slice(config('peserta.dummy.jadwal', []), 0, 4),
+            'jadwal' => array_slice(
+                PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.jadwal', [])),
+                0,
+                4
+            ),
             'rata_progress' => (int) round($allEnrollments->avg('progress') ?: 0),
             'chartProgress' => $chartProgress,
             'chartStatus' => [
@@ -56,7 +61,7 @@ class PortalController extends Controller implements HasMiddleware
 
     public function kursus(): View
     {
-        $enrollments = auth()->user()
+        $enrollments = PesertaAccess::user()
             ->courseEnrollments()
             ->with('course')
             ->orderByDesc('updated_at')
@@ -69,10 +74,9 @@ class PortalController extends Controller implements HasMiddleware
 
     public function kursusShow(Course $course): View
     {
-        $enrollment = auth()->user()
-            ->courseEnrollments()
-            ->where('course_id', $course->id)
-            ->firstOrFail();
+        $this->authorize('view', $course);
+
+        $enrollment = PesertaAccess::enrollmentForCourse($course);
 
         $course->load([
             'modules' => fn ($query) => $query->orderBy('urutan')->with([
@@ -98,7 +102,7 @@ class PortalController extends Controller implements HasMiddleware
 
     public function katalog(): View
     {
-        $enrolledIds = auth()->user()->courseEnrollments()->pluck('course_id');
+        $enrolledIds = PesertaAccess::user()->courseEnrollments()->pluck('course_id');
 
         $courses = Course::query()
             ->where('is_published', true)
@@ -117,20 +121,20 @@ class PortalController extends Controller implements HasMiddleware
     public function tugas(): View
     {
         return view('peserta.tugas.index', [
-            'items' => config('peserta.dummy.tugas', []),
+            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.tugas', [])),
         ]);
     }
 
     public function ujian(): View
     {
         return view('peserta.ujian.index', [
-            'items' => config('peserta.dummy.ujian', []),
+            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.ujian', [])),
         ]);
     }
 
     public function progres(): View
     {
-        $enrollments = auth()->user()
+        $enrollments = PesertaAccess::user()
             ->courseEnrollments()
             ->with('course')
             ->orderByDesc('progress')
@@ -146,14 +150,15 @@ class PortalController extends Controller implements HasMiddleware
 
     public function sertifikat(): View
     {
-        $items = collect(config('peserta.dummy.sertifikat', []))->map(function (array $item): array {
-            $course = Course::query()->where('judul', $item['kursus'])->first();
-            $item['thumbnail'] = $course?->thumbnail;
-            $item['kode'] = $course?->kode;
-            $item['is_terbit'] = $item['status'] === 'Terbit';
+        $items = collect(PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.sertifikat', [])))
+            ->map(function (array $item): array {
+                $course = Course::query()->where('judul', $item['kursus'])->first();
+                $item['thumbnail'] = $course?->thumbnail;
+                $item['kode'] = $course?->kode;
+                $item['is_terbit'] = $item['status'] === 'Terbit';
 
-            return $item;
-        });
+                return $item;
+            });
 
         return view('peserta.sertifikat.index', [
             'items' => $items,
@@ -167,7 +172,7 @@ class PortalController extends Controller implements HasMiddleware
     public function jadwal(): View
     {
         return view('peserta.jadwal.index', [
-            'items' => config('peserta.dummy.jadwal', []),
+            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.jadwal', [])),
         ]);
     }
 }

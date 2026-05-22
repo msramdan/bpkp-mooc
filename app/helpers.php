@@ -64,6 +64,6 @@ if (! function_exists('user_home_route')) {
             return route('peserta.dashboard');
         }
 
-        return route('dashboard');
+        return route('profile');
     }
 }

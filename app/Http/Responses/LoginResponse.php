@@ -13,14 +13,23 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
+        $hasAdmin = $user?->hasRole('admin');
+        $hasPeserta = $user?->hasRole('peserta');
+
         $redirect = match (true) {
-            $user?->hasRole('admin') => route('dashboard'),
-            $user?->hasRole('peserta') => route('peserta.dashboard'),
-            default => config('fortify.home'),
+            $hasAdmin => route('dashboard'),
+            $hasPeserta => route('peserta.dashboard'),
+            default => route('profile'),
         };
 
-        return $request->wantsJson()
+        $response = $request->wantsJson()
             ? new JsonResponse(['two_factor' => false], 200)
             : new RedirectResponse($redirect);
+
+        if (! $hasAdmin && ! $hasPeserta && ! $request->wantsJson()) {
+            session()->flash('error', __('Akun Anda belum memiliki peran. Hubungi administrator.'));
+        }
+
+        return $response;
     }
 }

@@ -241,6 +241,16 @@ return [
             ],
         ],
         [
+            'group' => 'courses',
+            'access' => [
+                'course view',
+                'course create',
+                'course edit',
+                'course delete',
+                'course enrollment manage',
+            ],
+        ],
+        [
             'group' => 'database backups',
             'access' => [
                 'database backup view',

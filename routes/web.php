@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseEnrollmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\LandingPageController;
@@ -18,7 +20,9 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
 
     Route::middleware('role:peserta')->prefix('peserta')->name('peserta.')->group(function () {
-        Route::get('/dashboard', [PortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [PortalController::class, 'dashboard'])
+            ->middleware('permission:peserta dashboard view')
+            ->name('dashboard');
         Route::get('/kursus', [PortalController::class, 'kursus'])->middleware('permission:peserta kursus view')->name('kursus.index');
         Route::get('/kursus/{course}', [PortalController::class, 'kursusShow'])->middleware('permission:peserta kursus view')->name('kursus.show');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
@@ -34,6 +38,12 @@ Route::middleware(['auth', 'web'])->group(function () {
 
         Route::resource('users', App\Http\Controllers\UserController::class);
         Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
+        Route::resource('courses', CourseController::class);
+        Route::post('courses/{course}/enrollments', [CourseEnrollmentController::class, 'store'])
+            ->name('courses.enrollments.store');
+        Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
+            ->name('courses.enrollments.destroy');
+
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');

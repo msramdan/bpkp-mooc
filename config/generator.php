@@ -112,6 +112,20 @@ return [
      */
     'sidebars' => [
         [
+            'header' => 'MOOC',
+            'permissions' => ['course view', 'course enrollment manage'],
+            'menus' => [
+                [
+                    'title' => 'Kursus',
+                    'icon' => '<i class="bi bi-mortarboard"></i>',
+                    'route' => 'courses',
+                    'permission' => 'course view',
+                    'permissions' => ['course view'],
+                    'submenus' => [],
+                ],
+            ],
+        ],
+        [
             'header' => 'Utama',
             'permissions' => ['learning category view', 'learning tag view'],
             'menus' => [
