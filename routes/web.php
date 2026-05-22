@@ -20,6 +20,7 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::middleware('role:peserta')->prefix('peserta')->name('peserta.')->group(function () {
         Route::get('/dashboard', [PortalController::class, 'dashboard'])->name('dashboard');
         Route::get('/kursus', [PortalController::class, 'kursus'])->middleware('permission:peserta kursus view')->name('kursus.index');
+        Route::get('/kursus/{course}', [PortalController::class, 'kursusShow'])->middleware('permission:peserta kursus view')->name('kursus.show');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
         Route::get('/tugas', [PortalController::class, 'tugas'])->middleware('permission:peserta tugas view')->name('tugas.index');
         Route::get('/ujian', [PortalController::class, 'ujian'])->middleware('permission:peserta ujian view')->name('ujian.index');

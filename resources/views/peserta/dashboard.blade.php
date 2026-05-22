@@ -75,7 +75,7 @@
                     <div class="peserta-dash-panel__body py-2">
                         @foreach ($kursus as $enrollment)
                             @php $course = $enrollment->course; @endphp
-                            <a href="{{ route('peserta.kursus.index') }}" class="peserta-dash-kursus-item">
+                            <a href="{{ route('peserta.kursus.show', $course) }}" class="peserta-dash-kursus-item">
                                 <img src="{{ $course->thumbnail }}" alt="" class="peserta-dash-kursus-item__thumb"
                                     onerror="this.src='https://placehold.co/144x80/2b478b/ffffff?text=MOOC'">
                                 <div class="peserta-dash-kursus-item__body">

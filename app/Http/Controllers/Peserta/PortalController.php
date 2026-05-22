@@ -67,6 +67,35 @@ class PortalController extends Controller implements HasMiddleware
         ]);
     }
 
+    public function kursusShow(Course $course): View
+    {
+        $enrollment = auth()->user()
+            ->courseEnrollments()
+            ->where('course_id', $course->id)
+            ->firstOrFail();
+
+        $course->load([
+            'modules' => fn ($query) => $query->orderBy('urutan')->with([
+                'lessons' => fn ($q) => $q->orderBy('urutan'),
+            ]),
+        ]);
+
+        $totalLessons = $course->modules->sum(fn ($m) => $m->lessons->count());
+        $moduleCount = $course->modules->count();
+        $completedModules = min($enrollment->modul_selesai, $moduleCount);
+        $activeModule = $course->modules->firstWhere('urutan', $completedModules + 1)
+            ?? $course->modules->last();
+
+        return view('peserta.kursus.show', [
+            'course' => $course,
+            'enrollment' => $enrollment,
+            'totalLessons' => $totalLessons,
+            'completedModules' => $completedModules,
+            'moduleCount' => $moduleCount,
+            'activeModule' => $activeModule,
+        ]);
+    }
+
     public function katalog(): View
     {
         $enrolledIds = auth()->user()->courseEnrollments()->pluck('course_id');

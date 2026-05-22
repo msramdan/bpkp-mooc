@@ -38,4 +38,9 @@ class Course extends Model
     {
         return $this->hasMany(CourseEnrollment::class);
     }
+
+    public function modules(): HasMany
+    {
+        return $this->hasMany(CourseModule::class)->orderBy('urutan');
+    }
 }

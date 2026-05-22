@@ -31,7 +31,7 @@
                                             @endcan
                                         @else
                                             <li
-                                                class="slide has-sub{{ $subOpen ? ' open' : '' }}{{ is_active_menu(collect($menu['submenus'])->pluck('route')->all()) }}">
+                                                class="slide has-sub{{ $subOpen ? ' open active' : '' }}{{ is_active_menu(collect($menu['submenus'])->pluck('route')->filter()->all()) }}">
                                                 <a href="javascript:void(0);"
                                                     class="side-menu__item{{ $subOpen ? ' active' : '' }}">
                                                     <span class="side-menu__icon">{!! $menu['icon'] !!}</span>

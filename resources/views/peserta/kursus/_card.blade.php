@@ -7,7 +7,8 @@
     };
 @endphp
 
-<article class="peserta-kursus-card peserta-kursus-item" data-status="{{ $enrollment->status }}"
+<a href="{{ route('peserta.kursus.show', $course) }}" class="peserta-kursus-card peserta-kursus-card--link peserta-kursus-item"
+    data-status="{{ $enrollment->status }}"
     data-kategori="{{ $course->kategori }}"
     data-search="{{ strtolower($course->judul.' '.$course->kode.' '.$course->kategori.' '.$course->instruktur) }}">
     <div class="peserta-kursus-card__thumb">
@@ -37,4 +38,4 @@
             @endif
         </div>
     </div>
-</article>
+</a>

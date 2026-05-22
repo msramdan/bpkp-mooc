@@ -2,6 +2,21 @@
 
 use Illuminate\Support\Facades\Auth;
 
+if (! function_exists('menu_route_is_active')) {
+    function menu_route_is_active(string $routeName): bool
+    {
+        if (request()->routeIs($routeName)) {
+            return true;
+        }
+
+        if (preg_match('/^(.+)\.(index|show|create|edit|update|destroy)$/', $routeName, $matches)) {
+            return request()->routeIs($matches[1].'.*');
+        }
+
+        return request()->routeIs($routeName.'.*');
+    }
+}
+
 if (! function_exists('is_active_menu')) {
     /**
      * Return CSS class suffix for active sidebar item.
@@ -15,11 +30,9 @@ if (! function_exists('is_active_menu')) {
         }
 
         if (is_array($routeOrPermissions)) {
-            foreach ($routeOrPermissions as $permission) {
-                if (is_string($permission) && str_contains($permission, '.')) {
-                    if (request()->routeIs($permission) || request()->routeIs($permission.'.*')) {
-                        return ' active';
-                    }
+            foreach ($routeOrPermissions as $item) {
+                if (is_string($item) && str_contains($item, '.') && menu_route_is_active($item)) {
+                    return ' active';
                 }
             }
 
@@ -27,9 +40,7 @@ if (! function_exists('is_active_menu')) {
         }
 
         if (str_contains($routeOrPermissions, '.')) {
-            return request()->routeIs($routeOrPermissions) || request()->routeIs($routeOrPermissions.'.*')
-                ? ' active'
-                : '';
+            return menu_route_is_active($routeOrPermissions) ? ' active' : '';
         }
 
         $routeBase = str($routeOrPermissions)->remove('/')->singular()->plural()->toString();
