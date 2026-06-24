@@ -1,7 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'MOOC - Landing Page')
+@section('title', 'MOOCs BPKP')
 
 @section('content')
-
 @endsection

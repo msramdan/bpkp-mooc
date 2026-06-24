@@ -4,20 +4,18 @@
     'summary' => '',
 ])
 
-<div class="peserta-kursus-search">
-    <div class="input-group">
-        <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-search text-muted"></i>
-        </span>
-        <input type="search" class="form-control border-start-0 ps-0" data-search-input
+<div class="peserta-course-panel__search">
+    <label class="peserta-course-search" for="pesertaCourseSearch">
+        <i class="bi bi-search peserta-course-search__icon" aria-hidden="true"></i>
+        <input type="search" id="pesertaCourseSearch" class="peserta-course-search__input" data-search-input
             placeholder="{{ $placeholder }}" autocomplete="off"
             aria-label="{{ __('Cari kursus') }}">
-        <button type="button" class="btn btn-light border d-none" data-search-clear
+        <button type="button" class="peserta-course-search__clear d-none" data-search-clear
             aria-label="{{ __('Hapus pencarian') }}">
             <i class="bi bi-x-lg"></i>
         </button>
-    </div>
+    </label>
 </div>
-<p class="text-muted mb-0 fs-13 mt-2" data-result-summary data-label-template="{{ $summary }}">
+<p class="peserta-course-panel__summary" data-result-summary data-label-template="{{ $summary }}">
     {{ $summary }}
 </p>

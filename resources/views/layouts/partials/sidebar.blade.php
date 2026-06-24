@@ -24,7 +24,7 @@
                         </svg>
                     </div>
                     <ul class="main-menu">
-                        @role('admin')
+                        @role('super_admin')
                             @include('layouts.partials.sidebar-menu')
                         @else
                             @role('peserta')

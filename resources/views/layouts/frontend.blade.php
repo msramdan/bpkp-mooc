@@ -100,6 +100,147 @@
             width: 120px;
         }
 
+        .course-one__thumb img,
+        .course-one__thumb .course-thumbnail-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            background-color: #e9ecef;
+        }
+
+        .category-one__thumb img,
+        .category-one__hover__thumb img {
+            object-fit: cover;
+            background-color: #e9ecef;
+        }
+
+        .course-one .row > [class*="col-"] {
+            display: flex;
+        }
+
+        .landing-course-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .landing-course-card__body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+
+        .landing-course-card__main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .landing-course-card__title {
+            min-height: 58px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 22px;
+        }
+
+        .landing-course-card__title a {
+            display: inline;
+        }
+
+        .landing-course-card__footer {
+            margin-top: auto;
+        }
+
+        .landing-course-card__footer .course-one__author {
+            padding-left: 0;
+        }
+
+        .landing-stats {
+            padding: 72px 0;
+        }
+
+        .landing-stats .counter-one__left {
+            padding-top: 0;
+        }
+
+        .landing-stats .counter-one__left__content::after {
+            display: none;
+        }
+
+        .landing-stats__intro-text {
+            font-size: 17px;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .landing-stats__panel {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 18px 50px rgba(15, 35, 80, 0.18);
+            max-width: 460px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .landing-stats__grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0;
+        }
+
+        .landing-stats__item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 22px 16px;
+            min-height: 118px;
+        }
+
+        .landing-stats__item:nth-child(1),
+        .landing-stats__item:nth-child(2) {
+            border-bottom: 1px solid #e8edf5;
+        }
+
+        .landing-stats__item:nth-child(odd) {
+            border-right: 1px solid #e8edf5;
+        }
+
+        .landing-stats__value {
+            display: block;
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 700;
+            line-height: 1.1;
+            color: #214B9A;
+            margin-bottom: 6px;
+        }
+
+        .landing-stats__label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #5c6b82;
+            max-width: 140px;
+        }
+
+        @media (max-width: 991px) {
+            .landing-stats {
+                padding: 56px 0;
+            }
+
+            .landing-stats__panel {
+                max-width: 100%;
+            }
+        }
+
         .copyright {
             background-color: #214B9A;
             padding: 22px 0;
@@ -220,7 +361,7 @@
                     </div>
                     <div class="main-menu__nav">
                         <ul class="main-menu__list">
-                            <li><a href="{{ route('landing-page.index') }}">Home</a></li>
+                            <li><a href="{{ route('landing-page.index') }}">Beranda</a></li>
                             <li><a href="#pelatihan">Daftar Pelatihan</a></li>
                         </ul>
                     </div>
@@ -261,29 +402,33 @@
                                 <img src="{{asset('landing-page')}}/assets/images/shapes/banner-1-shape-1.png" alt="eduact">
                             </p>
                             <div class="hero-banner__btn wow fadeInUp" data-wow-delay="600ms">
-                                <a href="/login" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Mulai Sekarang<i class="icon-arrow"></i></a>
-                                <a href="#pelatihan" class="eduact-btn"><span class="eduact-btn__curve"></span>Daftar Pelatihan<i class="icon-arrow"></i></a>
+                                <a href="#pelatihan" class="eduact-btn"><span class="eduact-btn__curve"></span>Lihat Pelatihan<i class="icon-arrow"></i></a>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="hero-banner__thumb wow fadeInUp" data-wow-delay="700ms">
-                            <img src="{{asset('landing-page')}}/assets/images/resources/banner-1-1.png" alt="eduact">
-                            <div class="hero-banner__cap wow slideInDown" data-wow-delay="800ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-cap.png" alt="eduact"></div>
-                            <div class="hero-banner__star wow slideInDown" data-wow-delay="850ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star.png" alt="eduact"></div>
-                            <div class="hero-banner__map wow slideInDown" data-wow-delay="900ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-map.png" alt="eduact"></div>
-                            <div class="hero-banner__video wow zoomIn" data-wow-delay="950ms" style="background-image: url({{asset('landing-page')}}/assets/images/resources/banner-video.png);">
-                                <a href="https://www.youtube.com/watch?v=FTOS6cwJNCs" class="video-popup"><span class="icon-play"></span></a>
+                            <img src="{{ asset('landing-page') }}/assets/images/resources/banner-1-1.png" alt="MOOCs BPKP">
+                            <div class="hero-banner__cap wow slideInDown" data-wow-delay="800ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-cap.png" alt=""></div>
+                            <div class="hero-banner__star wow slideInDown" data-wow-delay="850ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star.png" alt=""></div>
+                            <div class="hero-banner__map wow slideInDown" data-wow-delay="900ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-map.png" alt=""></div>
+                            <div class="hero-banner__video wow zoomIn" data-wow-delay="950ms" style="background-image: url({{ asset('landing-page') }}/assets/images/resources/banner-video.png);">
+                                <a href="#pelatihan" class="video-popup"><span class="icon-play"></span></a>
                             </div>
-                            <div class="hero-banner__book wow slideInUp" data-wow-delay="1000ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-book.png" alt="eduact"></div>
-                            <div class="hero-banner__star2 wow slideInUp" data-wow-delay="1050ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star2.png" alt="eduact"></div>
+                            <div class="hero-banner__book wow slideInUp" data-wow-delay="1000ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-book.png" alt=""></div>
+                            <div class="hero-banner__star2 wow slideInUp" data-wow-delay="1050ms"><img src="{{asset('landing-page')}}/assets/images/shapes/banner-star2.png" alt=""></div>
                             <div class="hero-banner__cart wow slideInUp" data-wow-delay="1100ms">
-                                <div class="hero-banner__cart__thumb"><img src="{{asset('landing-page')}}/assets/images/resources/banner-author.png" alt="eduact"></div>
+                                <div class="hero-banner__cart__thumb"><img src="{{ asset('landing-page') }}/assets/images/resources/banner-author.png" alt=""></div>
                                 <div class="hero-banner__cart__content">
                                     <div class="hero-banner__cart__content-inner">
-                                        <h4 class="hero-banner__cart__title">Pelatihan Terbaru</h4>
-                                        <p class="hero-banner__cart__text">MOOCs Pilihan</p>
-                                        <a href="#pelatihan" class="eduact-btn"><span class="eduact-btn__curve"></span>Mulai<i class="icon-arrow"></i></a>
+                                        <h4 class="hero-banner__cart__title">{{ __('Pelatihan Terbaru') }}</h4>
+                                        <p class="hero-banner__cart__text">
+                                            @if ($highlightCourse)
+                                                <a href="#pelatihan" class="text-reset text-decoration-none">{{ \Illuminate\Support\Str::limit($highlightCourse->judul, 42) }}</a>
+                                            @else
+                                                MOOCs Pilihan
+                                            @endif
+                                        </p>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 38">
                                             <path d="M0.702945 55.648L108.145 0.179688L87.0803 78.7928L0.702945 55.648Z" />
                                         </svg>
@@ -309,10 +454,10 @@
                                     <span class="icon-education"></span>
                                 </div>
                                 <h3 class="service-one__title">
-                                    <a href="team.html">Exclusive Coach</a>
+                                    <a href="#pelatihan">Katalog Kursus</a>
                                 </h3>
-                                <p class="service-one__text">Lorem ipsum dolor sit amet consectetur. Convallis ornare semper id hendrerit diam. Mauris cursus suscipit</p>
-                                <a class="service-one__rm" href="team.html">Read More<span class="icon-caret-right"></span></a>
+                                <p class="service-one__text">Jelajahi pelatihan daring yang dipublikasikan dan pilih kursus sesuai kebutuhan kompetensi Anda.</p>
+                                <a class="service-one__rm" href="#pelatihan">Selengkapnya<span class="icon-caret-right"></span></a>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118 129" fill="none">
                                     <path d="M0.582052 143.759C135.395 113.682 145.584 0.974413 145.584 0.974413L173.881 89.6286C173.881 89.6286 0.582054 322.604 0.582052 143.759Z" fill="#F1F2FD" />
                                 </svg>
@@ -326,10 +471,10 @@
                                     <span class="icon-business"></span>
                                 </div>
                                 <h3 class="service-one__title">
-                                    <a href="team-become.html">Creative Minds</a>
+                                    <a href="#pelatihan">Belajar Mandiri</a>
                                 </h3>
-                                <p class="service-one__text">Lorem ipsum dolor sit amet consectetur. Convallis ornare semper id hendrerit diam. Mauris cursus suscipit</p>
-                                <a class="service-one__rm" href="team-become.html">Read More<span class="icon-caret-right"></span></a>
+                                <p class="service-one__text">Akses materi video, bacaan, dan PDF kapan saja. Tandai materi selesai untuk melacak progres belajar.</p>
+                                <a class="service-one__rm" href="#pelatihan">Selengkapnya<span class="icon-caret-right"></span></a>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118 129" fill="none">
                                     <path d="M0.582052 143.759C135.395 113.682 145.584 0.974413 145.584 0.974413L173.881 89.6286C173.881 89.6286 0.582054 322.604 0.582052 143.759Z" fill="#F1F2FD" />
                                 </svg>
@@ -343,10 +488,10 @@
                                     <span class="icon-webinar"></span>
                                 </div>
                                 <h3 class="service-one__title">
-                                    <a href="course.html">Video Tutorials</a>
+                                    <a href="#pelatihan">Progres & Sertifikat</a>
                                 </h3>
-                                <p class="service-one__text">Lorem ipsum dolor sit amet consectetur. Convallis ornare semper id hendrerit diam. Mauris cursus suscipit</p>
-                                <a class="service-one__rm" href="course.html">Read More<span class="icon-caret-right"></span></a>
+                                <p class="service-one__text">Pantau progres per kursus dan dapatkan sertifikat digital setelah menyelesaikan seluruh materi wajib.</p>
+                                <a class="service-one__rm" href="#pelatihan">Selengkapnya<span class="icon-caret-right"></span></a>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118 129" fill="none">
                                     <path d="M0.582052 143.759C135.395 113.682 145.584 0.974413 145.584 0.974413L173.881 89.6286C173.881 89.6286 0.582054 322.604 0.582052 143.759Z" fill="#F1F2FD" />
                                 </svg>
@@ -360,10 +505,10 @@
                                     <span class="icon-neural"></span>
                                 </div>
                                 <h3 class="service-one__title">
-                                    <a href="about.html">Worlds Record</a>
+                                    <a href="#pelatihan">Pendaftaran Mandiri</a>
                                 </h3>
-                                <p class="service-one__text">Lorem ipsum dolor sit amet consectetur. Convallis ornare semper id hendrerit diam. Mauris cursus suscipit</p>
-                                <a class="service-one__rm" href="about.html">Read More<span class="icon-caret-right"></span></a>
+                                <p class="service-one__text">Daftar kursus langsung dari katalog tanpa menunggu persetujuan admin, seperti pengalaman belajar di MOOC.</p>
+                                <a class="service-one__rm" href="#pelatihan">Selengkapnya<span class="icon-caret-right"></span></a>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 118 129" fill="none">
                                     <path d="M0.582052 143.759C135.395 113.682 145.584 0.974413 145.584 0.974413L173.881 89.6286C173.881 89.6286 0.582054 322.604 0.582052 143.759Z" fill="#F1F2FD" />
                                 </svg>
@@ -381,18 +526,18 @@
                     <div class="col-xl-6">
                         <div class="about-one__thumb wow fadeInLeft" data-wow-delay="100ms">
                             <div class="about-one__thumb__one eduact-tilt" data-tilt-options='{ "glare": false, "maxGlare": 0, "maxTilt": 2, "speed": 700, "scale": 1 }'>
-                                <img src="{{asset('landing-page')}}/assets/images/resources/about-1-1.png" alt="eduact">
+                                <img src="{{ asset('landing-page') }}/assets/images/resources/about-1-1.png" alt="MOOCs BPKP">
                             </div>
                             <div class="about-one__thumb__shape1 wow zoomIn" data-wow-delay="300ms">
-                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-1.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-1.png" alt="">
                             </div>
                             <div class="about-one__thumb__shape2 wow zoomIn" data-wow-delay="400ms">
-                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-2.png" alt="eduact">
+                                <img src="{{asset('landing-page')}}/assets/images/shapes/about-shape-1-2.png" alt="">
                             </div>
                             <div class="about-one__thumb__box wow fadeInLeft" data-wow-delay="600ms">
                                 <div class="about-one__thumb__box__icon"><span class="icon-Headphone-Women"></span></div>
-                                <h4 class="about-one__thumb__box__title">Need to Know More Details?</h4>
-                                <p class="about-one__thumb__box__text"><a href="tel:6845550102">+(684) 555-0102</a></p>
+                                <h4 class="about-one__thumb__box__title">Butuh Informasi?</h4>
+                                <p class="about-one__thumb__box__text"><a href="mailto:elearning@bpkp.go.id">elearning@bpkp.go.id</a></p>
                             </div>
                         </div>
                     </div>
@@ -400,7 +545,7 @@
                         <div class="about-one__content">
                             <div class="section-title">
                                 <h5 class="section-title__tagline">
-                                    About Us
+                                    Tentang Kami
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 133 13" fill="none">
                                         <path d="M9.76794 0.395L0.391789 9.72833C-0.130596 10.2483 -0.130596 11.095 0.391789 11.615C0.914174 12.135 1.76472 12.135 2.28711 11.615L11.6633 2.28167C12.1856 1.76167 12.1856 0.915 11.6633 0.395C11.1342 -0.131667 10.2903 -0.131667 9.76794 0.395Z" fill="#F1F2FD" />
                                         <path d="M23.1625 0.395L13.7863 9.72833C13.2639 10.2483 13.2639 11.095 13.7863 11.615C14.3087 12.135 15.1593 12.135 15.6816 11.615L25.0578 2.28167C25.5802 1.76167 25.5802 0.915 25.0578 0.395C24.5287 -0.131667 23.6849 -0.131667 23.1625 0.395Z" fill="#F1F2FD" />
@@ -414,602 +559,23 @@
                                         <path d="M130.318 0.395L120.942 9.72833C120.42 10.2483 120.42 11.095 120.942 11.615C121.465 12.135 122.315 12.135 122.838 11.615L132.214 2.28167C132.736 1.76167 132.736 0.915 132.214 0.395C131.685 -0.131667 130.841 -0.131667 130.318 0.395Z" fill="#F1F2FD" />
                                     </svg>
                                 </h5>
-                                <h2 class="section-title__title">Creating a Lifelong Learning Best Community</h2>
+                                <h2 class="section-title__title">Platform Pembelajaran Daring BPKP</h2>
                             </div>
                             <p class="about-one__content__text">
-                                It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks
+                                MOOCs BPKP menghadirkan pelatihan daring terstruktur dengan modul materi, pelacakan progres, dan sertifikat kelulusan untuk mendukung peningkatan kompetensi ASN dan mitra BPKP.
                             </p>
                             <div class="about-one__box">
                                 <div class="about-one__box__wrapper">
                                     <div class="about-one__box__icon"><span class="icon-Presentation"></span></div>
-                                    <h4 class="about-one__box__title">Flexible Classes</h4>
-                                    <p class="about-one__box__text">The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.</p>
+                                    <h4 class="about-one__box__title">{{ number_format($stats['courses'] ?? 0) }} Kursus Aktif</h4>
+                                    <p class="about-one__box__text">Pelatihan dipublikasikan dan siap diikuti peserta terdaftar.</p>
                                 </div>
                             </div>
                             <div class="about-one__box">
                                 <div class="about-one__box__wrapper">
                                     <div class="about-one__box__icon"><span class="icon-Online-learning"></span></div>
-                                    <h4 class="about-one__box__title">Live Class From anywhere</h4>
-                                    <p class="about-one__box__text">The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.</p>
-                                </div>
-                            </div>
-                            <a href="about.html" class="eduact-btn"><span class="eduact-btn__curve"></span>Discover More<i class="icon-arrow"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        
-        <section class="category-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-bg-1.jpg);">
-            <div class="container">
-                <div class="section-title text-center">
-                    <h5 class="section-title__tagline">
-                        Category
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 133 13" fill="none">
-                            <path d="M9.76794 0.395L0.391789 9.72833C-0.130596 10.2483 -0.130596 11.095 0.391789 11.615C0.914174 12.135 1.76472 12.135 2.28711 11.615L11.6633 2.28167C12.1856 1.76167 12.1856 0.915 11.6633 0.395C11.1342 -0.131667 10.2903 -0.131667 9.76794 0.395Z" fill="#F1F2FD" />
-                            <path d="M23.1625 0.395L13.7863 9.72833C13.2639 10.2483 13.2639 11.095 13.7863 11.615C14.3087 12.135 15.1593 12.135 15.6816 11.615L25.0578 2.28167C25.5802 1.76167 25.5802 0.915 25.0578 0.395C24.5287 -0.131667 23.6849 -0.131667 23.1625 0.395Z" fill="#F1F2FD" />
-                            <path d="M36.5569 0.395L27.1807 9.72833C26.6583 10.2483 26.6583 11.095 27.1807 11.615C27.7031 12.135 28.5537 12.135 29.076 11.615L38.4522 2.28167C38.9746 1.76167 38.9746 0.915 38.4522 0.395C37.9231 -0.131667 37.0793 -0.131667 36.5569 0.395Z" fill="#F1F2FD" />
-                            <path d="M49.9514 0.395L40.5753 9.72833C40.0529 10.2483 40.0529 11.095 40.5753 11.615C41.0976 12.135 41.9482 12.135 42.4706 11.615L51.8467 2.28167C52.3691 1.76167 52.3691 0.915 51.8467 0.395C51.3176 -0.131667 50.4738 -0.131667 49.9514 0.395Z" fill="#F1F2FD" />
-                            <path d="M63.3459 0.395L53.9698 9.72833C53.4474 10.2483 53.4474 11.095 53.9698 11.615C54.4922 12.135 55.3427 12.135 55.8651 11.615L65.2413 2.28167C65.7636 1.76167 65.7636 0.915 65.2413 0.395C64.7122 -0.131667 63.8683 -0.131667 63.3459 0.395Z" fill="#F1F2FD" />
-                            <path d="M76.7405 0.395L67.3643 9.72833C66.8419 10.2483 66.8419 11.095 67.3643 11.615C67.8867 12.135 68.7373 12.135 69.2596 11.615L78.6358 2.28167C79.1582 1.76167 79.1582 0.915 78.6358 0.395C78.1067 -0.131667 77.2629 -0.131667 76.7405 0.395Z" fill="#F1F2FD" />
-                            <path d="M90.1349 0.395L80.7587 9.72833C80.2363 10.2483 80.2363 11.095 80.7587 11.615C81.2811 12.135 82.1317 12.135 82.6541 11.615L92.0302 2.28167C92.5526 1.76167 92.5526 0.915 92.0302 0.395C91.5011 -0.131667 90.6573 -0.131667 90.1349 0.395Z" fill="#F1F2FD" />
-                            <path d="M103.529 0.395L94.1533 9.72833C93.6309 10.2483 93.6309 11.095 94.1533 11.615C94.6756 12.135 95.5262 12.135 96.0486 11.615L105.425 2.28167C105.947 1.76167 105.947 0.915 105.425 0.395C104.896 -0.131667 104.052 -0.131667 103.529 0.395Z" fill="#F1F2FD" />
-                            <path d="M116.924 0.395L107.548 9.72833C107.025 10.2483 107.025 11.095 107.548 11.615C108.07 12.135 108.921 12.135 109.443 11.615L118.819 2.28167C119.342 1.76167 119.342 0.915 118.819 0.395C118.29 -0.131667 117.446 -0.131667 116.924 0.395Z" fill="#F1F2FD" />
-                            <path d="M130.318 0.395L120.942 9.72833C120.42 10.2483 120.42 11.095 120.942 11.615C121.465 12.135 122.315 12.135 122.838 11.615L132.214 2.28167C132.736 1.76167 132.736 0.915 132.214 0.395C131.685 -0.131667 130.841 -0.131667 130.318 0.395Z" fill="#F1F2FD" />
-                        </svg>
-                    </h5>
-                    <h2 class="section-title__title">Favorite Topics To Learn</h2>
-                </div>
-                <div class="category-one__slider eduact-owl__carousel owl-with-shadow owl-theme owl-carousel" data-owl-options='{
-            "items": 4,
-            "margin": 30,
-            "smartSpeed": 700,
-            "loop":true,
-            "autoplay": true,
-            "nav":false,
-            "dots":true,
-            "navText": ["<span class=\"icon-arrow-left\"></span>","<span class=\"icon-arrow\"></span>"],
-            "responsive":{
-                "0":{
-                    "items":1,
-                    "nav":true,
-                    "dots":false,
-                    "margin": 0
-                },
-                "670":{
-                    "nav":true,
-                    "dots":false,
-                    "items": 2
-                },
-                "992":{
-                    "items": 3
-                },
-                "1200":{
-                    "items": 3
-                },
-                "1400":{
-                    "items": 4,
-                    "margin": 36
-                }
-            }
-            }'>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Analysis</h3>
-                                    <p class="category-one__text">8 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Analysis</a></h3>
-                                    <p class="category-one__hover__text">8 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Data Science</h3>
-                                    <p class="category-one__text">6 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Data Science</a></h3>
-                                    <p class="category-one__hover__text">6 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Digital Marketing</h3>
-                                    <p class="category-one__text">5 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Digital Marketing</a></h3>
-                                    <p class="category-one__hover__text">5 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Ideas</h3>
-                                    <p class="category-one__text">9 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Ideas</a></h3>
-                                    <p class="category-one__hover__text">9 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Analysis</h3>
-                                    <p class="category-one__text">8 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Analysis</a></h3>
-                                    <p class="category-one__hover__text">8 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Data Science</h3>
-                                    <p class="category-one__text">6 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Data Science</a></h3>
-                                    <p class="category-one__hover__text">6 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Digital Marketing</h3>
-                                    <p class="category-one__text">5 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Digital Marketing</a></h3>
-                                    <p class="category-one__hover__text">5 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Ideas</h3>
-                                    <p class="category-one__text">9 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Ideas</a></h3>
-                                    <p class="category-one__hover__text">9 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Analysis</h3>
-                                    <p class="category-one__text">8 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Analysis</a></h3>
-                                    <p class="category-one__hover__text">8 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Data Science</h3>
-                                    <p class="category-one__text">6 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Data Science</a></h3>
-                                    <p class="category-one__hover__text">6 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Digital Marketing</h3>
-                                    <p class="category-one__text">5 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Digital Marketing</a></h3>
-                                    <p class="category-one__hover__text">5 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Ideas</h3>
-                                    <p class="category-one__text">9 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Ideas</a></h3>
-                                    <p class="category-one__hover__text">9 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Analysis</h3>
-                                    <p class="category-one__text">8 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Analysis</a></h3>
-                                    <p class="category-one__hover__text">8 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Data Science</h3>
-                                    <p class="category-one__text">6 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Data Science</a></h3>
-                                    <p class="category-one__hover__text">6 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Digital Marketing</h3>
-                                    <p class="category-one__text">5 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Digital Marketing</a></h3>
-                                    <p class="category-one__hover__text">5 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Ideas</h3>
-                                    <p class="category-one__text">9 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Ideas</a></h3>
-                                    <p class="category-one__hover__text">9 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-1.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Analysis</h3>
-                                    <p class="category-one__text">8 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-1.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-education"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Analysis</a></h3>
-                                    <p class="category-one__hover__text">8 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-2.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Data Science</h3>
-                                    <p class="category-one__text">6 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-2.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Technology"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Data Science</a></h3>
-                                    <p class="category-one__hover__text">6 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-3.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Digital Marketing</h3>
-                                    <p class="category-one__text">5 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-3.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Digital-marketing"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Digital Marketing</a></h3>
-                                    <p class="category-one__hover__text">5 Courses</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="category-one__item">
-                            <div class="category-one__wrapper" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/category-shape.png);">
-                                <div class="category-one__thumb"><img src="{{asset('landing-page')}}/assets/images/category/category-normal-4.png" alt="eduact" /></div>
-                                <div class="category-one__content">
-                                    <div class="category-one__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__title">Business Ideas</h3>
-                                    <p class="category-one__text">9 Courses</p>
-                                </div>
-                            </div>
-                            <div class="category-one__hover">
-                                <div class="category-one__hover__thumb">
-                                    <img src="{{asset('landing-page')}}/assets/images/category/category-hover-4.png" alt="eduact" />
-                                </div>
-                                <div class="category-one__hover__content">
-                                    <div class="category-one__hover__icon">
-                                        <span class="icon-Start-up"></span>
-                                    </div>
-                                    <h3 class="category-one__hover__title"><a href="about.html">Business Ideas</a></h3>
-                                    <p class="category-one__hover__text">9 Courses</p>
+                                    <h4 class="about-one__box__title">{{ number_format($stats['certificates'] ?? 0) }} Sertifikat Terbit</h4>
+                                    <p class="about-one__box__text">Bukti penyelesaian pelatihan yang dapat diunduh peserta.</p>
                                 </div>
                             </div>
                         </div>
@@ -1019,358 +585,12 @@
         </section>
         
         
-        <section id="pelatihan" class="course-one" style="background-image: url({{asset('landing-page')}}/assets/images/shapes/course-bg-1.png);">
-            <div class="container">
-                <div class="section-title text-center">
-                    <h5 class="section-title__tagline">
-                        Pelatihan Yang Sedang Berlangsung
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 133 13" fill="none">
-                            <path d="M9.76794 0.395L0.391789 9.72833C-0.130596 10.2483 -0.130596 11.095 0.391789 11.615C0.914174 12.135 1.76472 12.135 2.28711 11.615L11.6633 2.28167C12.1856 1.76167 12.1856 0.915 11.6633 0.395C11.1342 -0.131667 10.2903 -0.131667 9.76794 0.395Z" fill="#F1F2FD" />
-                            <path d="M23.1625 0.395L13.7863 9.72833C13.2639 10.2483 13.2639 11.095 13.7863 11.615C14.3087 12.135 15.1593 12.135 15.6816 11.615L25.0578 2.28167C25.5802 1.76167 25.5802 0.915 25.0578 0.395C24.5287 -0.131667 23.6849 -0.131667 23.1625 0.395Z" fill="#F1F2FD" />
-                            <path d="M36.5569 0.395L27.1807 9.72833C26.6583 10.2483 26.6583 11.095 27.1807 11.615C27.7031 12.135 28.5537 12.135 29.076 11.615L38.4522 2.28167C38.9746 1.76167 38.9746 0.915 38.4522 0.395C37.9231 -0.131667 37.0793 -0.131667 36.5569 0.395Z" fill="#F1F2FD" />
-                            <path d="M49.9514 0.395L40.5753 9.72833C40.0529 10.2483 40.0529 11.095 40.5753 11.615C41.0976 12.135 41.9482 12.135 42.4706 11.615L51.8467 2.28167C52.3691 1.76167 52.3691 0.915 51.8467 0.395C51.3176 -0.131667 50.4738 -0.131667 49.9514 0.395Z" fill="#F1F2FD" />
-                            <path d="M63.3459 0.395L53.9698 9.72833C53.4474 10.2483 53.4474 11.095 53.9698 11.615C54.4922 12.135 55.3427 12.135 55.8651 11.615L65.2413 2.28167C65.7636 1.76167 65.7636 0.915 65.2413 0.395C64.7122 -0.131667 63.8683 -0.131667 63.3459 0.395Z" fill="#F1F2FD" />
-                            <path d="M76.7405 0.395L67.3643 9.72833C66.8419 10.2483 66.8419 11.095 67.3643 11.615C67.8867 12.135 68.7373 12.135 69.2596 11.615L78.6358 2.28167C79.1582 1.76167 79.1582 0.915 78.6358 0.395C78.1067 -0.131667 77.2629 -0.131667 76.7405 0.395Z" fill="#F1F2FD" />
-                            <path d="M90.1349 0.395L80.7587 9.72833C80.2363 10.2483 80.2363 11.095 80.7587 11.615C81.2811 12.135 82.1317 12.135 82.6541 11.615L92.0302 2.28167C92.5526 1.76167 92.5526 0.915 92.0302 0.395C91.5011 -0.131667 90.6573 -0.131667 90.1349 0.395Z" fill="#F1F2FD" />
-                            <path d="M103.529 0.395L94.1533 9.72833C93.6309 10.2483 93.6309 11.095 94.1533 11.615C94.6756 12.135 95.5262 12.135 96.0486 11.615L105.425 2.28167C105.947 1.76167 105.947 0.915 105.425 0.395C104.896 -0.131667 104.052 -0.131667 103.529 0.395Z" fill="#F1F2FD" />
-                            <path d="M116.924 0.395L107.548 9.72833C107.025 10.2483 107.025 11.095 107.548 11.615C108.07 12.135 108.921 12.135 109.443 11.615L118.819 2.28167C119.342 1.76167 119.342 0.915 118.819 0.395C118.29 -0.131667 117.446 -0.131667 116.924 0.395Z" fill="#F1F2FD" />
-                            <path d="M130.318 0.395L120.942 9.72833C120.42 10.2483 120.42 11.095 120.942 11.615C121.465 12.135 122.315 12.135 122.838 11.615L132.214 2.28167C132.736 1.76167 132.736 0.915 132.214 0.395C131.685 -0.131667 130.841 -0.131667 130.318 0.395Z" fill="#F1F2FD" />
-                        </svg>
-                    </h5>
-                    <h2 class="section-title__title">Pelatihan Unggulan Bulan Ini</h2>
-                </div>
-                <div class="row">
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="100ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-1.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">20 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="management-consulting.html">Management Consultants in Competitive Markets</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-1.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Guy Hawkins</h5>
-                                        <p class="course-one__author__designation">Project Manager</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$473.00</h4>
-                                        <p class="course-one__meta__class">15 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="200ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-2.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">40 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="web-development.html">The Ultimate Developer Course For Future Learner</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-2.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Devon Lane</h5>
-                                        <p class="course-one__author__designation">ROR Developer</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$943.00</h4>
-                                        <p class="course-one__meta__class">10 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="300ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-3.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">13 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="frontend-development.html">The Special HTML & CSS Bootcamp Edition</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-3.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Darrell Steward</h5>
-                                        <p class="course-one__author__designation">Fronted Developer</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$767.00</h4>
-                                        <p class="course-one__meta__class">13 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="400ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-4.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">25 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="uiux-design.html">Building Responsive User Interfaces to Implementing</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-4.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Jane Cooper</h5>
-                                        <p class="course-one__author__designation">React JS Developer</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$739.65</h4>
-                                        <p class="course-one__meta__class">15 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="500ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-5.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">12 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="digital-photography.html">Photography Crash Course for Beginners</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-5.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Wade Warren</h5>
-                                        <p class="course-one__author__designation">Finance</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$351.02</h4>
-                                        <p class="course-one__meta__class">13 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 wow fadeInUp" data-wow-delay="600ms">
-                        <div class="course-one__item">
-                            <div class="course-one__thumb">
-                                <img src="{{asset('landing-page')}}/assets/images/course/course-1-6.png" alt="eduact">
-                                <a class="course-one__like" href="javascript:void(0);"><span class="icon-like"></span></a>
-                            </div>
-                            <div class="course-one__content">
-                                <div class="course-one__time">33 Hours</div>
-                                <div class="course-one__ratings">
-                                    <span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span><span class="icon-star"></span>
-                                    <div class="course-one__ratings__reviews">(25 Reviews)</div>
-                                </div>
-                                <h3 class="course-one__title">
-                                    <a href="online-business.html">Sales and Marketing For Online Businesses</a>
-                                </h3>
-                                <div class="course-one__bottom">
-                                    <div class="course-one__author">
-                                        <img src="{{asset('landing-page')}}/assets/images/course/author-6.png" alt="eduact">
-                                        <h5 class="course-one__author__name">Guy Hawkins</h5>
-                                        <p class="course-one__author__designation">Chief Executive Officer</p>
-                                    </div>
-                                    <div class="course-one__meta">
-                                        <h4 class="course-one__meta__price">$475.22</h4>
-                                        <p class="course-one__meta__class">13 Lessons</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
+        @include('frontend.partials.landing-categories')
 
-        
-        <section class="counter-one" style="background-image: linear-gradient(rgba(33, 75, 154, 0.88), rgba(33, 75, 154, 0.88)), url({{asset('landing-page')}}/assets/images/shapes/counter-bg-1.jpg);">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 wow fadeInLeft" data-wow-delay="200ms">
-                        <div class="counter-one__left">
-                            <h4 class="counter-one__left__title">Create Your Free Account</h4>
-                            <div class="counter-one__left__content">
-                                The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic.
-                            </div>
-                            <a href="contact.html" class="eduact-btn eduact-btn-second"><span class="eduact-btn__curve"></span>Join Now<i class="icon-arrow"></i></a>
-                            <img src="{{asset('landing-page')}}/assets/images/shapes/counter-dot.png" alt="eduact">
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="counter-one__shapes wow fadeInUp" data-wow-delay="200ms">
-                            <svg viewBox="0 0 581 596" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M161.37 12.301C221.003 -53.0048 563.794 156.411 579.671 299.209C595.548 442.007 237.88 668.171 135.305 571.868C46.2938 488.252 -0.524429 189.658 161.37 12.301Z" fill="url(#paint0_linear_227_946)" />
-                                <path d="M289.511 579.243C203.626 594.241 -34.778 302.771 4.28926 182.908C43.3565 63.0458 313.639 12.301 483.973 114.853C666.745 224.904 435.092 553.933 289.511 579.243Z" fill="url(#paint1_linear_227_946)" />
-                                <defs>
-                                    <linearGradient id="paint0_linear_227_946" x1="172.303" y1="27.9012" x2="521.418" y2="508.929" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stop-color="#214B9A" stop-opacity="0" />
-                                        <stop offset="0.269374" stop-color="#214B9A" stop-opacity="0.550859" />
-                                        <stop offset="1" stop-color="white" stop-opacity="0" />
-                                    </linearGradient>
-                                    <linearGradient id="paint1_linear_227_946" x1="123.876" y1="84.092" x2="408.261" y2="553.853" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0" stop-color="#E24A55" />
-                                        <stop offset="1" stop-color="white" stop-opacity="0" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                        </div>
-                        <div class="counter-one__area wow zoomIn" data-wow-delay="400ms">
-                            <h5 class="counter-one__title">Register Now and<br> Get a <span>50% Discount</span></h5>
-                            <ul class="counter-one__list list-unstyled" data-leading-zeros="true" data-enable-days="true" data-deadline-date="dynamicDate">
-                                
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        
-        <section class="testimonial-one">
-            <div class="container">
-                <div class="section-title text-center">
-                    <h5 class="section-title__tagline">
-                        Testimonial
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 133 13" fill="none">
-                            <path d="M9.76794 0.395L0.391789 9.72833C-0.130596 10.2483 -0.130596 11.095 0.391789 11.615C0.914174 12.135 1.76472 12.135 2.28711 11.615L11.6633 2.28167C12.1856 1.76167 12.1856 0.915 11.6633 0.395C11.1342 -0.131667 10.2903 -0.131667 9.76794 0.395Z" fill="#F1F2FD" />
-                            <path d="M23.1625 0.395L13.7863 9.72833C13.2639 10.2483 13.2639 11.095 13.7863 11.615C14.3087 12.135 15.1593 12.135 15.6816 11.615L25.0578 2.28167C25.5802 1.76167 25.5802 0.915 25.0578 0.395C24.5287 -0.131667 23.6849 -0.131667 23.1625 0.395Z" fill="#F1F2FD" />
-                            <path d="M36.5569 0.395L27.1807 9.72833C26.6583 10.2483 26.6583 11.095 27.1807 11.615C27.7031 12.135 28.5537 12.135 29.076 11.615L38.4522 2.28167C38.9746 1.76167 38.9746 0.915 38.4522 0.395C37.9231 -0.131667 37.0793 -0.131667 36.5569 0.395Z" fill="#F1F2FD" />
-                            <path d="M49.9514 0.395L40.5753 9.72833C40.0529 10.2483 40.0529 11.095 40.5753 11.615C41.0976 12.135 41.9482 12.135 42.4706 11.615L51.8467 2.28167C52.3691 1.76167 52.3691 0.915 51.8467 0.395C51.3176 -0.131667 50.4738 -0.131667 49.9514 0.395Z" fill="#F1F2FD" />
-                            <path d="M63.3459 0.395L53.9698 9.72833C53.4474 10.2483 53.4474 11.095 53.9698 11.615C54.4922 12.135 55.3427 12.135 55.8651 11.615L65.2413 2.28167C65.7636 1.76167 65.7636 0.915 65.2413 0.395C64.7122 -0.131667 63.8683 -0.131667 63.3459 0.395Z" fill="#F1F2FD" />
-                            <path d="M76.7405 0.395L67.3643 9.72833C66.8419 10.2483 66.8419 11.095 67.3643 11.615C67.8867 12.135 68.7373 12.135 69.2596 11.615L78.6358 2.28167C79.1582 1.76167 79.1582 0.915 78.6358 0.395C78.1067 -0.131667 77.2629 -0.131667 76.7405 0.395Z" fill="#F1F2FD" />
-                            <path d="M90.1349 0.395L80.7587 9.72833C80.2363 10.2483 80.2363 11.095 80.7587 11.615C81.2811 12.135 82.1317 12.135 82.6541 11.615L92.0302 2.28167C92.5526 1.76167 92.5526 0.915 92.0302 0.395C91.5011 -0.131667 90.6573 -0.131667 90.1349 0.395Z" fill="#F1F2FD" />
-                            <path d="M103.529 0.395L94.1533 9.72833C93.6309 10.2483 93.6309 11.095 94.1533 11.615C94.6756 12.135 95.5262 12.135 96.0486 11.615L105.425 2.28167C105.947 1.76167 105.947 0.915 105.425 0.395C104.896 -0.131667 104.052 -0.131667 103.529 0.395Z" fill="#F1F2FD" />
-                            <path d="M116.924 0.395L107.548 9.72833C107.025 10.2483 107.025 11.095 107.548 11.615C108.07 12.135 108.921 12.135 109.443 11.615L118.819 2.28167C119.342 1.76167 119.342 0.915 118.819 0.395C118.29 -0.131667 117.446 -0.131667 116.924 0.395Z" fill="#F1F2FD" />
-                            <path d="M130.318 0.395L120.942 9.72833C120.42 10.2483 120.42 11.095 120.942 11.615C121.465 12.135 122.315 12.135 122.838 11.615L132.214 2.28167C132.736 1.76167 132.736 0.915 132.214 0.395C131.685 -0.131667 130.841 -0.131667 130.318 0.395Z" fill="#F1F2FD" />
-                        </svg>
-                    </h5>
-                    <h2 class="section-title__title">What Our Student Feedback</h2>
-                </div>
-                <div class="testimonial-one__area">
-                    <div class="testimonial-one__carousel eduact-owl__carousel owl-with-shadow owl-theme owl-carousel" data-owl-options='{
-                "items": 1,
-                "margin": 0,
-                "smartSpeed": 700,
-                "loop":true,
-                "autoplay": true,
-                "nav":true,
-                "dots":false,
-                "navText": ["<span class=\"icon-arrow-left\"></span>","<span class=\"icon-arrow\"></span>"]
-                }'>
-                        
-                        <div class="item">
-                            <div class="testimonial-one__item">
-                                <div class="testimonial-one__author">
-                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-1.png" alt="eduact">
-                                </div>
-                                <div class="testimonial-one__content">
-                                    <div class="testimonial-one__quote">
-                                        Flexible Classes refers to the process of acquiring knowledge or skills through the use of digital technologies and the internet.
-                                        Flexible Classes refers to the process flexible Classes refers to the process
-                                    </div>
-                                    <div class="testimonial-one__meta">
-                                        <h5 class="testimonial-one__title">Savannah Nguyen</h5>
-                                        <span class="testimonial-one__designation">UI/UX Designer</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        
-                        <div class="item">
-                            <div class="testimonial-one__item">
-                                <div class="testimonial-one__author">
-                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-2.png" alt="eduact">
-                                </div>
-                                <div class="testimonial-one__content">
-                                    <div class="testimonial-one__quote">
-                                        Flexible Classes refers to the process of acquiring knowledge or skills through the use of digital technologies and the internet.
-                                        Flexible Classes refers to the process flexible Classes refers to the process
-                                    </div>
-                                    <div class="testimonial-one__meta">
-                                        <h5 class="testimonial-one__title">Christine eve</h5>
-                                        <span class="testimonial-one__designation">Web Developer</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        
-                        <div class="item">
-                            <div class="testimonial-one__item">
-                                <div class="testimonial-one__author">
-                                    <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1-author-3.png" alt="eduact">
-                                </div>
-                                <div class="testimonial-one__content">
-                                    <div class="testimonial-one__quote">
-                                        Flexible Classes refers to the process of acquiring knowledge or skills through the use of digital technologies and the internet.
-                                        Flexible Classes refers to the process flexible Classes refers to the process
-                                    </div>
-                                    <div class="testimonial-one__meta">
-                                        <h5 class="testimonial-one__title">Sarah Taylor</h5>
-                                        <span class="testimonial-one__designation">Seo Expert</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    <div class="testimonial-one__thumb wow fadeInUp" data-wow-delay="200ms">
-                        <img src="{{asset('landing-page')}}/assets/images/resources/testimonial-1.png" alt="eduact">
-                        <svg viewBox="0 0 612 563" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M595.211 330.916C584.04 315.536 581.185 295.533 588.393 277.948C591.708 269.857 593.359 260.893 592.899 251.505C591.377 220.18 566.027 194.704 534.708 192.994C534.495 192.982 534.283 192.971 534.071 192.959C520.328 192.346 507.517 185.776 499.106 174.89C498.458 174.053 497.809 173.215 497.148 172.39C485.069 157.234 481.695 137.196 487.463 118.703C489.268 112.9 490.07 106.661 489.634 100.174C487.923 74.7337 467.02 54.3769 441.54 53.2801C426.665 52.6432 413.147 58.4459 403.521 68.129C386.44 85.3367 363.449 95.4207 339.207 95.1495C338.429 95.1377 337.638 95.1377 336.86 95.1377C332.79 95.1377 328.803 95.2674 321.631 94.4418C300.244 91.9768 280.473 82.2348 264.76 67.5039C244.483 48.4916 216.997 37.063 186.846 37.7471C129.15 39.0563 80.9264 88.6391 79.2159 146.325C77.9301 189.774 109.827 226.101 118.757 239.239C145.441 278.431 123.193 329.536 93.867 364.199C75.677 385.7 64.8598 413.652 65.3434 444.14C66.3697 509.161 119.548 562.153 184.581 562.99C207.784 563.285 229.501 557.046 248.021 545.995C285.428 523.668 327.033 509.161 370.031 502.167C393.635 498.323 415.883 490.456 436.043 479.275C458.739 466.69 485.128 461.914 510.702 466.337C516.117 467.268 521.708 467.705 527.429 467.575C573.659 466.537 611.16 428.513 611.584 382.279C611.773 363.067 605.663 345.316 595.211 330.916Z" fill="#214B9A" />
-                            <path d="M103.524 314.265C122.402 295.39 122.402 264.788 103.524 245.913C84.6458 227.038 54.038 227.038 35.1597 245.913C16.2814 264.788 16.2814 295.39 35.1597 314.265C54.038 333.14 84.6458 333.14 103.524 314.265Z" fill="#214B9A" />
-                            <path d="M519.408 173.899C529.715 173.899 538.07 165.546 538.07 155.241C538.07 144.936 529.715 136.582 519.408 136.582C509.101 136.582 500.746 144.936 500.746 155.241C500.746 165.546 509.101 173.899 519.408 173.899Z" fill="#214B9A" />
-                            <path d="M404.941 42.6715C408.221 39.3921 408.221 34.0752 404.941 30.7958C401.661 27.5164 396.343 27.5164 393.063 30.7958C389.783 34.0752 389.783 39.3921 393.063 42.6715C396.343 45.9509 401.661 45.9509 404.941 42.6715Z" fill="#214B9A" />
-                            <path d="M450.459 39.6567C457.747 32.3702 457.747 20.5565 450.459 13.27C443.171 5.98349 431.355 5.9835 424.067 13.27C416.78 20.5565 416.78 32.3703 424.067 39.6568C431.355 46.9433 443.171 46.9432 450.459 39.6567Z" fill="#214B9A" />
-                            <path d="M469.475 508.914C476.947 508.914 483.005 502.857 483.005 495.386C483.005 487.914 476.947 481.858 469.475 481.858C462.002 481.858 455.944 487.914 455.944 495.386C455.944 502.857 462.002 508.914 469.475 508.914Z" fill="#214B9A" />
-                            <path d="M341.696 525.638C343.481 525.638 344.929 524.191 344.929 522.406C344.929 520.621 343.481 519.175 341.696 519.175C339.911 519.175 338.464 520.621 338.464 522.406C338.464 524.191 339.911 525.638 341.696 525.638Z" fill="url(#paint0_linear_187_13357)" />
-                        </svg>
-                        <div class="testimonial-one__thumb-pen wow fadeInUp" data-wow-delay="400ms">
-                            <img src="{{asset('landing-page')}}/assets/images/shapes/testimonial-shape-1.png" alt="eduact">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
+        @include('frontend.partials.landing-courses')
+
+        @include('frontend.partials.landing-stats')
+
         <section class="copyright text-center">
             <div class="container wow fadeInUp" data-wow-delay="400ms">
                 <div class="footer-main">

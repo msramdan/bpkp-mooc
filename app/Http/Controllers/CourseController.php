@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Roles;
 use App\Http\Requests\Courses\StoreCourseRequest;
 use App\Http\Requests\Courses\UpdateCourseRequest;
 use App\Models\Course;
@@ -20,7 +21,7 @@ class CourseController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('role:admin'),
+            new Middleware('role:'.Roles::SUPER_ADMIN),
             new Middleware('permission:course view', only: ['index', 'show']),
             new Middleware('permission:course create', only: ['create', 'store']),
             new Middleware('permission:course edit', only: ['edit', 'update']),
@@ -34,11 +35,12 @@ class CourseController extends Controller implements HasMiddleware
             return DataTables::eloquent(
                 Course::query()->withCount(['enrollments', 'modules'])
             )
+                ->addColumn('card', fn (Course $course) => view('courses.partials.grid-card', compact('course'))->render())
                 ->addColumn('published_label', fn (Course $course) => $course->is_published
                     ? '<span class="badge bg-success-transparent">'.__('Dipublikasikan').'</span>'
                     : '<span class="badge bg-secondary-transparent">'.__('Draft').'</span>')
                 ->addColumn('action', fn (Course $course) => view('courses.include.action', ['model' => $course])->render())
-                ->rawColumns(['published_label', 'action'])
+                ->rawColumns(['card', 'published_label', 'action'])
                 ->toJson();
         }
 
@@ -69,7 +71,9 @@ class CourseController extends Controller implements HasMiddleware
         $this->authorize('view', $course);
 
         $course->load([
-            'modules' => fn ($q) => $q->orderBy('urutan')->withCount('lessons'),
+            'modules' => fn ($q) => $q->orderBy('urutan')->with([
+                'lessons' => fn ($l) => $l->orderBy('urutan'),
+            ]),
             'enrollments.user',
         ]);
 

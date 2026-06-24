@@ -13,6 +13,13 @@ class UpdateCourseRequest extends FormRequest
         return $this->user()->can('course edit');
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->thumbnail === '' || $this->thumbnail === null) {
+            $this->merge(['thumbnail' => null]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */

@@ -13,12 +13,13 @@
         'parentRoute' => 'peserta.kursus.index',
     ])
 
+    <x-alert />
+
     <div class="peserta-course-detail" data-peserta-course-detail>
         {{-- Hero ringkas --}}
         <div class="peserta-course-detail__hero card custom-card">
             <div class="peserta-course-detail__hero-inner">
-                <img src="{{ $course->thumbnail }}" alt="" class="peserta-course-detail__hero-thumb"
-                    onerror="this.src='https://placehold.co/120x68/2b478b/ffffff?text={{ urlencode($course->kode) }}'">
+                <x-course-thumbnail :course="$course" class="peserta-course-detail__hero-thumb" />
                 <div class="peserta-course-detail__hero-main">
                     <div class="peserta-course-detail__hero-badges">
                         <span class="badge bg-light text-dark">{{ $course->kode }}</span>
@@ -62,7 +63,11 @@
                 <nav class="peserta-course-detail__nav" data-module-nav aria-label="{{ __('Navigasi modul') }}">
                     @foreach ($course->modules as $module)
                         @php
-                            $moduleDone = $module->urutan <= $completedModules;
+                            $moduleLessons = $module->lessons;
+                            $moduleRequired = $moduleLessons->where('is_required', true);
+                            $moduleDone = $moduleRequired->isNotEmpty()
+                                ? $moduleRequired->every(fn ($l) => $completedIds->contains($l->id))
+                                : $moduleLessons->isEmpty();
                             $moduleCurrent = $module->id === $activeModule?->id;
                             $navState = $moduleDone ? 'done' : ($moduleCurrent ? 'current' : 'locked');
                         @endphp
@@ -98,8 +103,12 @@
             <main class="peserta-course-detail__main">
                 @foreach ($course->modules as $module)
                     @php
-                        $moduleDone = $module->urutan <= $completedModules;
-                        $moduleCurrent = $module->urutan === $completedModules + 1;
+                        $moduleLessons = $module->lessons;
+                        $moduleRequired = $moduleLessons->where('is_required', true);
+                        $moduleDone = $moduleRequired->isNotEmpty()
+                            ? $moduleRequired->every(fn ($l) => $completedIds->contains($l->id))
+                            : $moduleLessons->isEmpty();
+                        $moduleCurrent = $module->id === $activeModule?->id;
                         $isActivePanel = $module->id === $activeModule?->id;
                     @endphp
                     <section class="peserta-course-detail__panel {{ $isActivePanel ? 'is-visible' : '' }}"
@@ -127,11 +136,11 @@
                         <div class="peserta-course-detail__lessons">
                             @foreach ($module->lessons as $lesson)
                                 @php
-                                    $lessonDone = $moduleDone;
-                                    $lessonCurrent = $moduleCurrent && $loop->first;
-                                    $lessonLocked = ! $moduleDone && ! $lessonCurrent;
+                                    $lessonDone = $completedIds->contains($lesson->id);
+                                    $lessonAccessible = $progressService->isLessonAccessible(auth()->user(), $course, $lesson, $completedIds);
+                                    $lessonLocked = ! $lessonAccessible;
                                 @endphp
-                                <div class="peserta-course-detail__lesson {{ $lessonLocked ? 'is-locked' : '' }} {{ $lessonCurrent ? 'is-current' : '' }}">
+                                <div class="peserta-course-detail__lesson {{ $lessonLocked ? 'is-locked' : '' }} {{ $lessonAccessible && ! $lessonDone ? 'is-current' : '' }}">
                                     <span class="peserta-course-detail__lesson-order">{{ $lesson->urutan }}</span>
                                     <span class="peserta-course-detail__lesson-icon {{ $lesson->tipe }}">
                                         <i class="bi {{ $lesson->iconClass() }}"></i>
@@ -148,13 +157,15 @@
                                     </div>
                                     <div class="peserta-course-detail__lesson-action">
                                         @if ($lessonDone)
-                                            <span class="peserta-course-detail__lesson-btn is-done" title="{{ __('Selesai') }}">
+                                            <a href="{{ route('peserta.kursus.lessons.show', [$course, $lesson]) }}"
+                                                class="peserta-course-detail__lesson-btn is-done" title="{{ __('Lihat lagi') }}">
                                                 <i class="bi bi-check-lg"></i>
-                                            </span>
-                                        @elseif ($lessonCurrent)
-                                            <button type="button" class="peserta-course-detail__lesson-btn is-play" disabled>
+                                            </a>
+                                        @elseif ($lessonAccessible)
+                                            <a href="{{ route('peserta.kursus.lessons.show', [$course, $lesson]) }}"
+                                                class="peserta-course-detail__lesson-btn is-play">
                                                 <i class="bi bi-play-fill"></i> {{ __('Mulai') }}
-                                            </button>
+                                            </a>
                                         @else
                                             <span class="peserta-course-detail__lesson-btn is-lock">
                                                 <i class="bi bi-lock"></i>

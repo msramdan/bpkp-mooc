@@ -1,0 +1,354 @@
+/* ==========================================================================
+   Admin — Kursus grid (thumbnail cards)
+   ========================================================================== */
+
+.admin-courses-page {
+    --admin-course-radius: 14px;
+    --admin-course-radius-sm: 10px;
+    --admin-course-surface: var(--custom-white, #fff);
+    --admin-course-muted: var(--text-muted, #64748b);
+    --admin-course-shadow: var(--bpkp-surface-shadow, 0 1px 3px rgba(15, 23, 42, 0.04), 0 6px 20px rgba(15, 23, 42, 0.05));
+    --admin-course-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.06), 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme-mode='dark'] .admin-courses-page {
+    --admin-course-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.2), 0 14px 32px rgba(0, 0, 0, 0.24);
+}
+
+.admin-courses-page .page-header-breadcrumb {
+    margin-block: 0.75rem 0.85rem !important;
+}
+
+/* ---- Toolbar panel ---- */
+.admin-course-panel {
+    padding: 1rem 1.05rem;
+    margin-bottom: 0.85rem;
+    border-radius: var(--admin-course-radius);
+    background: var(--admin-course-surface);
+    box-shadow: var(--admin-course-shadow);
+}
+
+.admin-course-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.admin-course-toolbar .dataTables_length label,
+.admin-course-toolbar .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--admin-course-muted);
+    font-weight: 500;
+}
+
+.admin-course-toolbar .dataTables_length select {
+    width: auto;
+    min-width: 4.5rem;
+    border-radius: 8px;
+    border-color: var(--default-border);
+    font-size: 0.8rem;
+    padding: 0.35rem 1.75rem 0.35rem 0.65rem;
+}
+
+.admin-course-toolbar .dataTables_filter input {
+    border-radius: 10px;
+    border-color: var(--default-border);
+    font-size: 0.84rem;
+    padding: 0.45rem 0.85rem;
+    min-width: min(100%, 14rem);
+    background: var(--default-background, #f8fafc);
+}
+
+.admin-course-toolbar .dataTables_filter input:focus {
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 43, 72, 139), 0.15);
+}
+
+.admin-course-toolbar__info {
+    margin: 0.65rem 0 0;
+    font-size: 0.75rem;
+    color: var(--admin-course-muted);
+}
+
+/* ---- Grid ---- */
+.admin-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+    min-height: 8rem;
+}
+
+.admin-courses-grid__loading {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 2.5rem 1rem;
+    color: var(--admin-course-muted);
+    font-size: 0.85rem;
+}
+
+.admin-courses-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    border-radius: var(--admin-course-radius);
+    background: var(--admin-course-surface);
+    box-shadow: var(--admin-course-shadow);
+}
+
+.admin-courses-empty i {
+    font-size: 2rem;
+    color: var(--admin-course-muted);
+    opacity: 0.55;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.admin-courses-empty p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--admin-course-muted);
+}
+
+/* ---- Card ---- */
+.admin-course-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--admin-course-surface);
+    border-radius: var(--admin-course-radius);
+    box-shadow: var(--admin-course-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-course-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--admin-course-shadow-hover);
+}
+
+.admin-course-card__media-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.admin-course-card__media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--default-background, #e8edf3);
+}
+
+.admin-course-card__image,
+.admin-course-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.admin-course-card:hover .admin-course-card__image,
+.admin-course-card:hover .admin-course-card__media img {
+    transform: scale(1.04);
+}
+
+.admin-course-card__media-shade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.55), transparent);
+    pointer-events: none;
+}
+
+.admin-course-card__status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    padding: 0.22rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.admin-course-card__status--published {
+    background: rgb(var(--success-rgb, 33, 206, 158));
+    color: #fff;
+}
+
+.admin-course-card__status--draft {
+    background: rgba(15, 23, 42, 0.65);
+    color: #fff;
+}
+
+.admin-course-card__level {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 2;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.64rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--default-text-color, #0f172a);
+}
+
+[data-theme-mode='dark'] .admin-course-card__level {
+    background: rgba(15, 23, 42, 0.82);
+    color: #f1f5f9;
+}
+
+.admin-course-card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 0.85rem 0.95rem 0.9rem;
+    gap: 0.35rem;
+}
+
+.admin-course-card__category {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--primary-color);
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.admin-course-card__title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.admin-course-card__title a {
+    color: var(--default-text-color, #0f172a);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.admin-course-card__title a:hover {
+    color: var(--primary-color);
+}
+
+.admin-course-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.85rem;
+    margin-top: 0.15rem;
+}
+
+.admin-course-card__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.74rem;
+    color: var(--admin-course-muted);
+}
+
+.admin-course-card__stat i {
+    font-size: 0.82rem;
+    opacity: 0.75;
+}
+
+.admin-course-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.65rem;
+}
+
+.admin-course-card__code {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--admin-course-muted);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.admin-course-card__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+/* ---- Pagination ---- */
+.admin-course-pagination {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-course-pagination .pagination {
+    margin: 0;
+}
+
+.admin-course-pagination .page-link {
+    border-radius: 8px !important;
+    margin-inline: 0.12rem;
+    font-size: 0.8rem;
+}
+
+/* Hide raw DataTable */
+.admin-courses-page #courses-table_wrapper .dataTables_scroll,
+.admin-courses-page #courses-table_wrapper table.dataTable,
+.admin-courses-page #courses-table_wrapper .dataTables_info {
+    display: none !important;
+}
+
+@media (max-width: 575.98px) {
+    .admin-courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-course-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-course-toolbar .dataTables_filter {
+        text-align: left;
+    }
+
+    .admin-course-toolbar .dataTables_filter label {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-course-toolbar .dataTables_filter input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .admin-course-pagination {
+        justify-content: center;
+    }
+}

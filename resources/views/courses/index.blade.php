@@ -3,40 +3,61 @@
 @section('title', __('Kursus'))
 
 @section('content')
-    <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <div>
-            <h1 class="page-title fw-medium fs-18 mb-2">{{ __('Kursus') }}</h1>
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ __('Kursus') }}</li>
-            </ol>
-        </div>
-        @can('course create')
-            <button type="button" class="btn btn-primary btn-wave" data-bs-toggle="modal" data-bs-target="#courseCreateModal">
-                <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah kursus') }}
-            </button>
-        @endcan
-    </div>
-
-    <div class="card custom-card">
-        <div class="card-body">
-            <x-alert />
-            <div class="table-responsive">
-                <table id="courses-table" class="table table-striped table-bordered text-nowrap w-100">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Kode') }}</th>
-                            <th>{{ __('Judul') }}</th>
-                            <th>{{ __('Kategori') }}</th>
-                            <th>{{ __('Level') }}</th>
-                            <th>{{ __('Modul') }}</th>
-                            <th>{{ __('Peserta') }}</th>
-                            <th>{{ __('Status') }}</th>
-                            <th class="text-center">{{ __('Aksi') }}</th>
-                        </tr>
-                    </thead>
-                </table>
+    <div class="admin-courses-page">
+        <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h1 class="page-title fw-medium fs-18 mb-2">{{ __('Kursus') }}</h1>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ __('Kursus') }}</li>
+                </ol>
             </div>
+            @can('course create')
+                <button type="button" class="btn btn-primary btn-wave" data-bs-toggle="modal" data-bs-target="#courseCreateModal">
+                    <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah kursus') }}
+                </button>
+            @endcan
+        </div>
+
+        <x-alert />
+
+        <div class="admin-course-panel">
+            <div class="admin-course-toolbar">
+                <div id="courses-length"></div>
+                <div id="courses-search"></div>
+            </div>
+            <p class="admin-course-toolbar__info" id="courses-info"></p>
+        </div>
+
+        <div id="courses-grid" class="admin-courses-grid">
+            <div class="admin-courses-grid__loading">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {{ __('Memuat kursus...') }}
+            </div>
+        </div>
+
+        <div id="courses-grid-empty" class="admin-courses-empty d-none">
+            <i class="bi bi-journal-x"></i>
+            <p>{{ __('Tidak ada kursus yang cocok dengan pencarian.') }}</p>
+        </div>
+
+        <div class="admin-course-pagination" id="courses-pagination"></div>
+
+        <div class="visually-hidden">
+            <table id="courses-table" class="table w-100" data-ajax-url="{{ route('courses.index') }}">
+                <thead>
+                    <tr>
+                        <th>{{ __('Kursus') }}</th>
+                        <th>{{ __('Judul') }}</th>
+                        <th>{{ __('Kode') }}</th>
+                        <th>{{ __('Kategori') }}</th>
+                        <th>{{ __('Level') }}</th>
+                        <th>{{ __('Modul') }}</th>
+                        <th>{{ __('Peserta') }}</th>
+                        <th>{{ __('Status') }}</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 
@@ -66,31 +87,11 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/admin-courses-grid.css') }}">
 @endpush
 
 @push('scripts')
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            $('#courses-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: @json(route('courses.index')),
-                pageLength: 10,
-                order: [[0, 'asc']],
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
-                columns: [
-                    { data: 'kode', name: 'kode' },
-                    { data: 'judul', name: 'judul' },
-                    { data: 'kategori', name: 'kategori' },
-                    { data: 'level', name: 'level' },
-                    { data: 'modul_total', name: 'modul_total' },
-                    { data: 'enrollments_count', name: 'enrollments_count', searchable: false },
-                    { data: 'published_label', name: 'is_published', orderable: false, searchable: false },
-                    { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' },
-                ],
-            });
-        });
-    </script>
+    <script src="{{ asset('backend/assets/js/admin-courses-grid.js') }}"></script>
 @endpush

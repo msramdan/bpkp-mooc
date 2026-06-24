@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Peserta;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Services\CertificateService;
+use App\Services\LearningProgressService;
 use App\Support\PesertaAccess;
 use Illuminate\Contracts\View\View;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -26,16 +28,18 @@ class PortalController extends Controller implements HasMiddleware
             ->orderByDesc('updated_at')
             ->get();
 
-        $kursus = $allEnrollments->take(3);
-        $tugas = PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.tugas', []));
-        $ujian = PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.ujian', []));
+        $kursus = $allEnrollments->take(4);
+        $user = PesertaAccess::user();
 
         $stats = [
             'kursus_aktif' => $allEnrollments->where('status', 'Berlangsung')->count(),
             'kursus_selesai' => $allEnrollments->where('status', 'Selesai')->count(),
-            'tugas_pending' => collect($tugas)->where('status', 'Belum dikumpulkan')->count(),
-            'ujian_mendatang' => collect($ujian)->whereIn('status', ['Terjadwal', 'Bisa dikerjakan'])->count(),
+            'sertifikat' => $user->certificates()->count(),
+            'terdaftar' => $allEnrollments->count(),
         ];
+
+        $lanjutkan = $allEnrollments->firstWhere('status', 'Berlangsung')
+            ?? $allEnrollments->first();
 
         $chartProgress = [
             'labels' => $allEnrollments->map(fn ($e) => \Illuminate\Support\Str::limit($e->course->judul, 22))->values()->all(),
@@ -45,11 +49,12 @@ class PortalController extends Controller implements HasMiddleware
         return view('peserta.dashboard', [
             'stats' => $stats,
             'kursus' => $kursus,
-            'jadwal' => array_slice(
-                PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.jadwal', [])),
-                0,
-                4
-            ),
+            'lanjutkan' => $lanjutkan,
+            'sertifikatTerbaru' => $user->certificates()
+                ->with('course')
+                ->orderByDesc('issued_at')
+                ->take(4)
+                ->get(),
             'rata_progress' => (int) round($allEnrollments->avg('progress') ?: 0),
             'chartProgress' => $chartProgress,
             'chartStatus' => [
@@ -72,10 +77,11 @@ class PortalController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function kursusShow(Course $course): View
+    public function kursusShow(Course $course, LearningProgressService $progress): View
     {
         $this->authorize('view', $course);
 
+        $user = PesertaAccess::user();
         $enrollment = PesertaAccess::enrollmentForCourse($course);
 
         $course->load([
@@ -84,11 +90,18 @@ class PortalController extends Controller implements HasMiddleware
             ]),
         ]);
 
-        $totalLessons = $course->modules->sum(fn ($m) => $m->lessons->count());
+        $completedIds = $progress->completedLessonIds($user, $course);
+        $ordered = $progress->orderedLessons($course);
+        $totalLessons = $ordered->count();
         $moduleCount = $course->modules->count();
         $completedModules = min($enrollment->modul_selesai, $moduleCount);
-        $activeModule = $course->modules->firstWhere('urutan', $completedModules + 1)
-            ?? $course->modules->last();
+
+        $activeModule = $course->modules->first(function ($module) use ($progress, $user, $course, $completedIds) {
+            return $module->lessons->contains(
+                fn ($lesson) => $progress->isLessonAccessible($user, $course, $lesson, $completedIds)
+                    && ! $completedIds->contains($lesson->id)
+            );
+        }) ?? $course->modules->last();
 
         return view('peserta.kursus.show', [
             'course' => $course,
@@ -97,6 +110,8 @@ class PortalController extends Controller implements HasMiddleware
             'completedModules' => $completedModules,
             'moduleCount' => $moduleCount,
             'activeModule' => $activeModule,
+            'completedIds' => $completedIds,
+            'progressService' => $progress,
         ]);
     }
 
@@ -118,20 +133,6 @@ class PortalController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function tugas(): View
-    {
-        return view('peserta.tugas.index', [
-            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.tugas', [])),
-        ]);
-    }
-
-    public function ujian(): View
-    {
-        return view('peserta.ujian.index', [
-            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.ujian', [])),
-        ]);
-    }
-
     public function progres(): View
     {
         $enrollments = PesertaAccess::user()
@@ -148,31 +149,57 @@ class PortalController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function sertifikat(): View
+    public function sertifikat(CertificateService $certificateService): View
     {
-        $items = collect(PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.sertifikat', [])))
-            ->map(function (array $item): array {
-                $course = Course::query()->where('judul', $item['kursus'])->first();
-                $item['thumbnail'] = $course?->thumbnail;
-                $item['kode'] = $course?->kode;
-                $item['is_terbit'] = $item['status'] === 'Terbit';
+        $user = PesertaAccess::user();
 
-                return $item;
-            });
+        $enrollments = $user->courseEnrollments()
+            ->with('course')
+            ->get();
+
+        foreach ($enrollments->where('progress', '>=', 100) as $enrollment) {
+            $certificateService->issueForCompletedEnrollment($user, $enrollment->course, $enrollment);
+        }
+
+        $issued = $user->certificates()
+            ->with('course')
+            ->orderByDesc('issued_at')
+            ->get();
+
+        $issuedCourseIds = $issued->pluck('course_id');
+
+        $pending = $enrollments
+            ->filter(fn ($e) => ! $issuedCourseIds->contains($e->course_id))
+            ->map(fn ($enrollment) => [
+                'kursus' => $enrollment->course->judul,
+                'kode' => $enrollment->course->kode,
+                'thumbnail' => $enrollment->course->thumbnail_url,
+                'status' => $enrollment->progress >= 100 ? 'Menunggu penerbitan' : 'Berlangsung',
+                'nomor' => null,
+                'tanggal' => '—',
+                'nilai' => $enrollment->progress >= 100 ? $enrollment->progress.'%' : '—',
+                'is_terbit' => false,
+                'course' => $enrollment->course,
+            ]);
+
+        $items = $issued->map(fn ($certificate) => [
+            'certificate' => $certificate,
+            'kursus' => $certificate->course->judul,
+            'kode' => $certificate->course->kode,
+            'thumbnail' => $certificate->course->thumbnail_url,
+            'status' => 'Terbit',
+            'nomor' => $certificate->nomor,
+            'tanggal' => $certificate->issued_at?->format('d M Y'),
+            'nilai' => $certificate->nilai_akhir.'%',
+            'is_terbit' => true,
+        ])->concat($pending);
 
         return view('peserta.sertifikat.index', [
             'items' => $items,
             'stats' => [
-                'terbit' => $items->where('is_terbit', true)->count(),
-                'menunggu' => $items->where('is_terbit', false)->count(),
+                'terbit' => $issued->count(),
+                'menunggu' => $pending->count(),
             ],
-        ]);
-    }
-
-    public function jadwal(): View
-    {
-        return view('peserta.jadwal.index', [
-            'items' => PesertaAccess::filterDummyByEnrolledCourses(config('peserta.dummy.jadwal', [])),
         ]);
     }
 }

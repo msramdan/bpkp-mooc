@@ -5,6 +5,7 @@ use App\Providers\ViewComposerServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -38,5 +39,18 @@ return Application::configure(basePath: dirname(path: __DIR__))
 
             return redirect(user_home_route())
                 ->with('error', $exception->getMessage() ?: __('Akses ditolak.'));
+        });
+
+        $e->render(function (UnauthorizedException $exception, $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            if (auth()->check()) {
+                return redirect(user_home_route())
+                    ->with('error', __('Anda tidak memiliki akses ke halaman tersebut.'));
+            }
+
+            return redirect()->route('login');
         });
     })->create();

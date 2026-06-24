@@ -2,26 +2,36 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Support\Roles;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleAndPermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $roleAdmin = Role::firstOrCreate(['name' => 'admin']);
-        $rolePeserta = Role::firstOrCreate(['name' => 'peserta']);
+        $roleSuperAdmin = Role::firstOrCreate(
+            ['name' => Roles::SUPER_ADMIN, 'guard_name' => 'web']
+        );
+        $rolePeserta = Role::firstOrCreate(
+            ['name' => Roles::PESERTA, 'guard_name' => 'web']
+        );
+
+        if (Schema::hasTable('roles')) {
+            DB::table('roles')
+                ->where('name', 'admin')
+                ->where('guard_name', 'web')
+                ->update(['name' => Roles::SUPER_ADMIN]);
+        }
 
         foreach (config(key: 'permission.permissions') as $permission) {
             foreach ($permission['access'] as $access) {
-                Permission::firstOrCreate(['name' => $access]);
+                Permission::firstOrCreate(['name' => $access, 'guard_name' => 'web']);
             }
         }
 
@@ -30,17 +40,12 @@ class RoleAndPermissionSeeder extends Seeder
             ->pluck('name')
             ->all();
 
-        $adminPermissions = Permission::query()
+        $superAdminPermissions = Permission::query()
             ->where('name', 'not like', 'peserta %')
             ->pluck('name')
             ->all();
 
-        $roleAdmin->syncPermissions($adminPermissions);
+        $roleSuperAdmin->syncPermissions($superAdminPermissions);
         $rolePeserta->syncPermissions($pesertaPermissions);
-
-        $userAdmin = User::where('email', 'admin@example.com')->first();
-        if ($userAdmin) {
-            $userAdmin->syncRoles(['admin']);
-        }
     }
 }

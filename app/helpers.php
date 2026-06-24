@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Roles;
 use Illuminate\Support\Facades\Auth;
 
 if (! function_exists('menu_route_is_active')) {
@@ -56,11 +57,11 @@ if (! function_exists('user_home_route')) {
     {
         $user = Auth::user();
 
-        if ($user?->hasRole('admin')) {
+        if ($user?->hasRole(Roles::SUPER_ADMIN)) {
             return route('dashboard');
         }
 
-        if ($user?->hasRole('peserta')) {
+        if ($user?->hasRole(Roles::PESERTA)) {
             return route('peserta.dashboard');
         }
 

@@ -43,4 +43,42 @@ class Course extends Model
     {
         return $this->hasMany(CourseModule::class)->orderBy('urutan');
     }
+
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function getThumbnailUrlAttribute(): string
+    {
+        return $this->thumbnailUrl();
+    }
+
+    public function thumbnailUrl(): string
+    {
+        if ($this->hasUsableThumbnail()) {
+            return trim((string) $this->thumbnail);
+        }
+
+        return asset((string) config('mooc.course_placeholder', 'images/course-no-image.png'));
+    }
+
+    public function hasUsableThumbnail(): bool
+    {
+        $thumbnail = trim((string) ($this->thumbnail ?? ''));
+
+        if ($thumbnail === '') {
+            return false;
+        }
+
+        if (str_contains($thumbnail, 'pluginfile.php')) {
+            return false;
+        }
+
+        if (str_contains($thumbnail, 'images.unsplash.com')) {
+            return false;
+        }
+
+        return true;
+    }
 }

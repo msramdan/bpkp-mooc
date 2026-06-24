@@ -41,4 +41,9 @@ class CoursePolicy
     {
         return $user->can('course delete');
     }
+
+    public function manageEnrollments(User $user, Course $course): bool
+    {
+        return $user->can('course enrollment manage');
+    }
 }

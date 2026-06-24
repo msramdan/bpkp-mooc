@@ -43,10 +43,18 @@
 /* Branding sidebar — selaras blok identitas halaman login (biru primer + pola + topi wisuda) */
 .app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header {
   position: relative;
-  padding: 0.85rem 0.65rem;
+  height: auto;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
   background-color: var(--primary-color);
   border-block-end: 1px solid rgba(255, 255, 255, 0.12);
   overflow: hidden;
+}
+
+/* Header sudah di document flow (relative); hilangkan offset template untuk fixed header */
+.app-sidebar.bpkp-app-sidebar .main-sidebar {
+  margin-block-start: 0;
+  padding-block-start: 0.25rem;
 }
 
 .app-sidebar.bpkp-app-sidebar .main-sidebar-header.bpkp-sidebar-header::before {
@@ -99,7 +107,7 @@
 }
 
 .app-sidebar.bpkp-app-sidebar .bpkp-sidebar-brand__tagline {
-  margin: 0.35rem 0 0;
+  margin: 0.2rem 0 0;
   padding: 0 0.25rem;
   font-size: 0.65rem;
   font-weight: 400;

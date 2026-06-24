@@ -29,7 +29,7 @@
     <div class="col-12">
         <label class="form-label">{{ __('URL thumbnail') }}</label>
         <input type="url" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror"
-            value="{{ old('thumbnail', $course?->thumbnail) }}" required>
+            value="{{ old('thumbnail', $course?->thumbnail) }}" placeholder="{{ __('Kosongkan untuk gambar default') }}">
         @error('thumbnail')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="col-md-3">

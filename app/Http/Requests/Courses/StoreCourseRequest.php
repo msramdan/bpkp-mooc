@@ -12,6 +12,13 @@ class StoreCourseRequest extends FormRequest
         return $this->user()->can('course create');
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->thumbnail === '' || $this->thumbnail === null) {
+            $this->merge(['thumbnail' => null]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -22,7 +29,7 @@ class StoreCourseRequest extends FormRequest
             'judul' => ['required', 'string', 'max:255'],
             'kategori' => ['required', 'string', 'max:120'],
             'instruktur' => ['required', 'string', 'max:255'],
-            'thumbnail' => ['required', 'url', 'max:500'],
+            'thumbnail' => ['nullable', 'url', 'max:500'],
             'durasi_jam' => ['required', 'integer', 'min:1', 'max:500'],
             'modul_total' => ['required', 'integer', 'min:1', 'max:30'],
             'level' => ['required', 'string', 'max:30', Rule::in(['Pemula', 'Menengah', 'Lanjutan'])],

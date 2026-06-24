@@ -20,6 +20,7 @@ class CourseLesson extends Model
         'durasi_menit',
         'video_url',
         'file_url',
+        'body',
         'is_preview',
         'is_required',
     ];
@@ -61,5 +62,38 @@ class CourseLesson extends Model
             'live' => __('Live session'),
             default => ucfirst($this->tipe),
         };
+    }
+
+    public function sanitizedBody(): ?string
+    {
+        if ($this->body === null || trim($this->body) === '') {
+            return null;
+        }
+
+        return strip_tags($this->body, '<p><br><strong><em><ul><ol><li><h1><h2><h3><h4><a><img><table><tr><td><th><thead><tbody><span><div>');
+    }
+
+    public function embedVideoUrl(): ?string
+    {
+        if ($this->video_url === null || $this->video_url === '') {
+            return null;
+        }
+
+        $url = $this->video_url;
+
+        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $url, $m)) {
+            return 'https://www.youtube.com/embed/'.$m[1];
+        }
+
+        if (preg_match('/vimeo\.com\/(\d+)/', $url, $m)) {
+            return 'https://player.vimeo.com/video/'.$m[1];
+        }
+
+        return $url;
+    }
+
+    public function isPlayable(): bool
+    {
+        return in_array($this->tipe, ['video', 'dokumen', 'reading', 'kuis', 'live'], true);
     }
 }

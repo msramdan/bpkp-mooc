@@ -1,12 +1,125 @@
 /**
- * MOOC BPKP — biru instansi pilihan: #2b488b (rgb 43, 72, 139).
+ * MOOC BPKP — biru instansi #2b488b (rgb 43, 72, 139).
+ * Palet premium: slate lembut (light & dark), tidak terlalu pekat.
  */
 :root,
 [data-theme-mode="light"],
 [data-theme-mode="dark"] {
   --primary-rgb: 43, 72, 139;
   --purple-rgb: 43, 72, 139;
+  --bpkp-surface-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px rgba(15, 23, 42, 0.05);
 }
+
+/* ---- Light mode ---- */
+[data-theme-mode="light"] {
+  --body-bg-rgb: 244, 247, 251;
+  --body-bg-rgb2: 244, 247, 251;
+  --default-body-bg-color: rgb(var(--body-bg-rgb));
+  --default-background: #f1f5f9;
+  --default-border: #e2e8f2;
+  --default-text-color: #1e293b;
+  --text-muted: #64748b;
+  --custom-white: #ffffff;
+  --header-bg: #ffffff;
+  --header-border-color: #e8edf4;
+  --header-prime-color: #64748b;
+  --menu-bg: #ffffff;
+  --menu-border-color: #e8edf4;
+  --menu-prime-color: #5c6b82;
+  --list-hover-focus-bg: #f1f5f9;
+  --input-border: #dde3ed;
+  --form-control-bg: #ffffff;
+  --bootstrap-card-border: #e8edf4;
+}
+
+/* ---- Dark mode — slate navy, kontras bertingkat ---- */
+[data-theme-mode="dark"] {
+  --body-bg-rgb: 32, 38, 50;
+  --body-bg-rgb2: 18, 22, 30;
+  --default-body-bg-color: rgb(var(--body-bg-rgb2));
+  --default-background: rgb(24, 28, 38);
+  --custom-white: rgb(var(--body-bg-rgb));
+  --custom-black: #f1f5f9;
+  --header-bg: rgb(22, 26, 34);
+  --header-border-color: rgba(148, 163, 184, 0.1);
+  --header-prime-color: #94a3b8;
+  --menu-bg: rgb(22, 26, 34);
+  --menu-border-color: rgba(148, 163, 184, 0.1);
+  --menu-prime-color: #94a3b8;
+  --default-border: rgba(148, 163, 184, 0.12);
+  --default-text-color: #e2e8f0;
+  --text-muted: #94a3b8;
+  --list-hover-focus-bg: rgba(148, 163, 184, 0.08);
+  --input-border: rgba(148, 163, 184, 0.16);
+  --form-control-bg: rgb(28, 33, 44);
+  --bootstrap-card-border: rgba(148, 163, 184, 0.1);
+  --light-rgb: 38, 44, 58;
+  --success-rgb: 52, 211, 153;
+  --info-rgb: 96, 165, 250;
+  --warning-rgb: 251, 191, 36;
+  --bpkp-surface-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 8px 24px rgba(0, 0, 0, 0.22);
+  color-scheme: dark;
+}
+
+/* Menu aktif di dark — highlight lembut, bukan blok biru pekat */
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide.active > .side-menu__item,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide:hover > .side-menu__item {
+  background-color: rgba(var(--primary-rgb), 0.14) !important;
+}
+
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide.active > .side-menu__item .side-menu__icon,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide.active > .side-menu__item .side-menu__label,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide.active > .side-menu__item .side-menu__angle,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide:hover > .side-menu__item .side-menu__icon,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide:hover > .side-menu__item .side-menu__label,
+[data-menu-styles="light"][data-nav-layout="vertical"][data-theme-mode="dark"] .main-menu > .slide:hover > .side-menu__item .side-menu__angle {
+  color: #b8cce8 !important;
+}
+
+[data-theme-mode="dark"] .app-sidebar .side-menu__item.active .side-menu__icon {
+  color: #b8cce8 !important;
+  fill: #b8cce8 !important;
+}
+
+/* Kartu & panel template — tanpa border keras di dark */
+[data-theme-mode="dark"] .card,
+[data-theme-mode="dark"] .card.custom-card {
+  border-color: var(--default-border);
+  background-color: var(--custom-white);
+  box-shadow: var(--bpkp-surface-shadow);
+}
+
+[data-theme-mode="dark"] .app-header {
+  border-block-end-color: var(--header-border-color);
+}
+
+[data-theme-mode="dark"] .app-sidebar {
+  border-inline-end-color: var(--menu-border-color);
+}
+
+[data-theme-mode="dark"] .btn-light {
+  background-color: rgb(38, 44, 58);
+  border-color: rgba(148, 163, 184, 0.14);
+  color: #e2e8f0;
+}
+
+[data-theme-mode="dark"] .btn-light:hover,
+[data-theme-mode="dark"] .btn-light:focus {
+  background-color: rgb(44, 50, 64);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: #f1f5f9;
+}
+
+[data-theme-mode="dark"] .badge.bg-light {
+  background-color: rgb(38, 44, 58) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Scrollbar dark — lebih halus */
+[data-theme-mode="dark"] body :hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+}
+
 
 /* Halaman login: padding kanan agar teks tidak bertabrakan dengan .show-password-button */
 .authentication .position-relative > .form-control-password-toggle {

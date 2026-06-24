@@ -33,8 +33,7 @@
             @foreach ($enrollments as $enrollment)
                 @php $course = $enrollment->course; @endphp
                 <article class="peserta-progres-card">
-                    <img src="{{ $course->thumbnail }}" alt="" class="peserta-progres-card__thumb"
-                        onerror="this.src='https://placehold.co/160x90/2b478b/ffffff?text={{ urlencode($course->kode) }}'">
+                    <x-course-thumbnail :course="$course" class="peserta-progres-card__thumb" />
                     <div class="peserta-progres-card__main">
                         <h3 class="peserta-progres-card__title">{{ $course->judul }}</h3>
                         <p class="peserta-progres-card__meta">{{ $course->kode }} · {{ $course->instruktur }}</p>

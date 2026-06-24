@@ -1,5 +1,6 @@
 @php
-    $isTerbit = $item['is_terbit'] ?? ($item['status'] === 'Terbit');
+    $isTerbit = $item['is_terbit'] ?? false;
+    $certificate = $item['certificate'] ?? null;
 @endphp
 
 <article class="peserta-sertifikat-card {{ $isTerbit ? 'peserta-sertifikat-card--issued' : 'peserta-sertifikat-card--pending' }}">
@@ -35,9 +36,7 @@
                 @if (! empty($item['thumbnail']))
                     <img src="{{ $item['thumbnail'] }}" alt="" class="peserta-sertifikat-card__thumb" loading="lazy">
                 @else
-                    <span class="peserta-sertifikat-card__thumb d-flex align-items-center justify-content-center">
-                        <i class="bi bi-mortarboard text-muted"></i>
-                    </span>
+                    <img src="{{ asset(config('mooc.course_placeholder', 'images/course-no-image.png')) }}" alt="" class="peserta-sertifikat-card__thumb" loading="lazy">
                 @endif
                 <div>
                     @if (! empty($item['kode']))
@@ -48,17 +47,17 @@
             </div>
         </div>
         <div class="peserta-sertifikat-card__actions">
-            @if ($isTerbit)
-                <button type="button" class="btn btn-primary btn-sm btn-wave" disabled>
-                    <i class="bi bi-download me-1"></i>{{ __('Unduh PDF') }}
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm btn-wave" disabled>
-                    <i class="bi bi-share me-1"></i>{{ __('Bagikan') }}
+            @if ($isTerbit && $certificate)
+                <a href="{{ route('peserta.sertifikat.show', $certificate) }}" class="btn btn-primary btn-sm btn-wave" target="_blank">
+                    <i class="bi bi-eye me-1"></i>{{ __('Lihat sertifikat') }}
+                </a>
+                <button type="button" class="btn btn-outline-secondary btn-sm btn-wave" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>{{ __('Cetak') }}
                 </button>
             @else
-                <button type="button" class="btn btn-outline-primary btn-sm btn-wave w-100" disabled>
+                <a href="{{ route('peserta.kursus.show', $item['course']) }}" class="btn btn-outline-primary btn-sm btn-wave w-100">
                     <i class="bi bi-arrow-right-circle me-1"></i>{{ __('Lanjutkan kursus') }}
-                </button>
+                </a>
             @endif
         </div>
     </div>

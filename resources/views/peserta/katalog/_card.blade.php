@@ -2,38 +2,52 @@
     $isEnrolled = $enrolledIds->contains($course->id);
 @endphp
 
-<article class="peserta-kursus-card peserta-katalog-item" data-kategori="{{ $course->kategori }}"
+<article class="peserta-kursus-card peserta-kursus-card--elevated peserta-katalog-item{{ $isEnrolled ? ' peserta-kursus-card--enrolled' : '' }}"
+    data-kategori="{{ $course->kategori }}"
     data-search="{{ strtolower($course->judul.' '.$course->kode.' '.$course->kategori.' '.$course->instruktur.' '.$course->level) }}">
-    <div class="peserta-kursus-card__thumb">
-        <img src="{{ $course->thumbnail }}" alt="{{ $course->judul }}" loading="lazy"
-            onerror="this.src='https://placehold.co/640x360/2b478b/ffffff?text={{ urlencode($course->kode) }}'">
+    <div class="peserta-kursus-card__media">
+        <x-course-thumbnail :course="$course" class="peserta-kursus-card__image" />
+        <div class="peserta-kursus-card__media-shade" aria-hidden="true"></div>
         @if ($isEnrolled)
-            <span class="peserta-kursus-card__status badge bg-success-transparent">{{ __('Sudah terdaftar') }}</span>
+            <span class="peserta-kursus-card__status peserta-kursus-card__status--success">{{ __('Sudah terdaftar') }}</span>
         @else
-            <span class="peserta-kursus-card__status badge bg-primary-transparent">{{ $course->level }}</span>
+            <span class="peserta-kursus-card__status peserta-kursus-card__status--primary">{{ $course->level }}</span>
         @endif
         <span class="peserta-kursus-card__duration">
-            <i class="bi bi-star-fill text-warning"></i> {{ number_format($course->rating, 1) }}
-            · {{ $course->durasi_jam }} {{ __('jam') }}
+            {{ number_format($course->rating, 1) }}
+            <span class="peserta-kursus-card__duration-dot">·</span>
+            {{ $course->durasi_jam }} {{ __('jam') }}
         </span>
-        <div class="peserta-kursus-card__play" aria-hidden="true">
-            <span class="peserta-kursus-card__play-icon"><i class="bi bi-play-fill"></i></span>
-        </div>
     </div>
     <div class="peserta-kursus-card__body">
+        <span class="peserta-kursus-card__category">{{ $course->kategori }}</span>
         <h3 class="peserta-kursus-card__title">{{ $course->judul }}</h3>
-        <p class="peserta-kursus-card__meta mb-0">
-            <strong>{{ $course->instruktur }}</strong><br>
-            {{ $course->kategori }} · {{ $course->modul_total }} {{ __('modul') }}
+        <p class="peserta-kursus-card__instructor">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ $course->instruktur }}</span>
         </p>
-        <div class="peserta-kursus-card__footer d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2">
-            <span class="badge bg-light text-dark">{{ $course->kode }}</span>
-            <span class="text-muted fs-12">
-                <i class="bi bi-people me-1"></i>{{ $course->enrollments_count }} {{ __('peserta') }}
+        <div class="peserta-kursus-card__footer">
+            <span class="peserta-kursus-card__chip">{{ $course->kode }}</span>
+            <span class="peserta-kursus-card__chip peserta-kursus-card__chip--muted">
+                {{ $course->modul_total }} {{ __('modul') }}
+            </span>
+            <span class="peserta-kursus-card__chip peserta-kursus-card__chip--muted">
+                {{ $course->enrollments_count }} {{ __('peserta') }}
             </span>
         </div>
-        <button type="button" class="btn btn-sm btn-primary btn-wave w-100 mt-2" disabled>
-            {{ $isEnrolled ? __('Buka kursus') : __('Daftar kursus') }}
-        </button>
+        <div class="peserta-kursus-card__actions">
+            @if ($isEnrolled)
+                <a href="{{ route('peserta.kursus.show', $course) }}" class="btn btn-success btn-wave peserta-kursus-card__cta w-100">
+                    {{ __('Buka kursus') }}
+                </a>
+            @else
+                <form action="{{ route('peserta.katalog.enroll', $course) }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-wave peserta-kursus-card__cta w-100">
+                        {{ __('Daftar kursus') }}
+                    </button>
+                </form>
+            @endif
+        </div>
     </div>
 </article>

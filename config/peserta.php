@@ -9,11 +9,8 @@ return [
                 'peserta dashboard view',
                 'peserta kursus view',
                 'peserta katalog view',
-                'peserta tugas view',
-                'peserta ujian view',
                 'peserta progres view',
                 'peserta sertifikat view',
-                'peserta jadwal view',
             ],
             'menus' => [
                 [
@@ -44,28 +41,12 @@ return [
                     ],
                 ],
                 [
-                    'title' => 'Penilaian',
-                    'icon' => '<i class="bi bi-clipboard-check"></i>',
-                    'route' => null,
-                    'permission' => null,
-                    'permissions' => ['peserta tugas view', 'peserta ujian view', 'peserta progres view'],
-                    'submenus' => [
-                        [
-                            'title' => 'Tugas',
-                            'route' => 'peserta.tugas.index',
-                            'permission' => 'peserta tugas view',
-                        ],
-                        [
-                            'title' => 'Ujian & Kuis',
-                            'route' => 'peserta.ujian.index',
-                            'permission' => 'peserta ujian view',
-                        ],
-                        [
-                            'title' => 'Nilai & Progres',
-                            'route' => 'peserta.progres.index',
-                            'permission' => 'peserta progres view',
-                        ],
-                    ],
+                    'title' => 'Nilai & Progres',
+                    'icon' => '<i class="bi bi-graph-up"></i>',
+                    'route' => 'peserta.progres.index',
+                    'permission' => 'peserta progres view',
+                    'permissions' => ['peserta progres view'],
+                    'submenus' => [],
                 ],
                 [
                     'title' => 'Sertifikat',
@@ -73,14 +54,6 @@ return [
                     'route' => 'peserta.sertifikat.index',
                     'permission' => 'peserta sertifikat view',
                     'permissions' => ['peserta sertifikat view'],
-                    'submenus' => [],
-                ],
-                [
-                    'title' => 'Jadwal Belajar',
-                    'icon' => '<i class="bi bi-calendar-week"></i>',
-                    'route' => 'peserta.jadwal.index',
-                    'permission' => 'peserta jadwal view',
-                    'permissions' => ['peserta jadwal view'],
                     'submenus' => [],
                 ],
             ],

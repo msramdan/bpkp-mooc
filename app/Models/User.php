@@ -57,6 +57,16 @@ class User extends Authenticatable
         return $this->hasMany(CourseEnrollment::class);
     }
 
+    public function lessonCompletions(): HasMany
+    {
+        return $this->hasMany(LessonCompletion::class);
+    }
+
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
     /**
      * Accessor for the 'avatar' attribute.
      */

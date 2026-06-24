@@ -6,20 +6,22 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        $this->call(class: [
-            UserSeeder::class,
+        $this->call([
             RoleAndPermissionSeeder::class,
-            PesertaSeeder::class,
-            LearningCategorySeeder::class,
-            LearningTagSeeder::class,
-            CourseSeeder::class,
-            CourseContentSeeder::class,
-            CourseEnrollmentSeeder::class,
+            SuperAdminSeeder::class,
         ]);
+
+        if (filter_var(env('SEED_DEMO_DATA', false), FILTER_VALIDATE_BOOL)) {
+            $this->call([
+                PesertaSeeder::class,
+                LearningCategorySeeder::class,
+                LearningTagSeeder::class,
+                CourseSeeder::class,
+                CourseContentSeeder::class,
+                CourseEnrollmentSeeder::class,
+            ]);
+        }
     }
 }

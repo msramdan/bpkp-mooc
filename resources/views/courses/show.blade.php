@@ -73,47 +73,7 @@
         </div>
 
         <div class="tab-pane fade" id="tab-modules">
-            <div class="card custom-card">
-                <div class="card-header">
-                    <span class="card-title mb-0">{{ __('Struktur modul') }}</span>
-                    <span class="text-muted fs-12">{{ __('Konten diisi via seeder / migrasi konten.') }}</span>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width:4rem">#</th>
-                                    <th>{{ __('Judul modul') }}</th>
-                                    <th>{{ __('Materi') }}</th>
-                                    <th>{{ __('Durasi') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($course->modules as $module)
-                                    <tr>
-                                        <td>{{ $module->urutan }}</td>
-                                        <td>
-                                            <span class="fw-medium">{{ $module->judul }}</span>
-                                            @if ($module->deskripsi)
-                                                <br><small class="text-muted">{{ $module->deskripsi }}</small>
-                                            @endif
-                                        </td>
-                                        <td>{{ $module->lessons_count }}</td>
-                                        <td>{{ $module->durasi_menit }} {{ __('menit') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-3">
-                                            {{ __('Belum ada modul. Jalankan CourseContentSeeder.') }}
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            @include('courses.partials.modules-manager', ['course' => $course])
         </div>
 
         <div class="tab-pane fade" id="tab-peserta">

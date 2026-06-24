@@ -31,7 +31,7 @@
         <div class="peserta-sertifikat-empty">
             <i class="bi bi-award fs-1 d-block mb-3 opacity-50"></i>
             <h5 class="fw-semibold">{{ __('Belum ada sertifikat') }}</h5>
-            <p class="mb-0 fs-13">{{ __('Selesaikan kursus dan lulus ujian untuk mendapatkan sertifikat.') }}</p>
+            <p class="mb-0 fs-13">{{ __('Selesaikan semua materi kursus untuk mendapatkan sertifikat.') }}</p>
         </div>
     @else
         <div class="peserta-sertifikat-grid">

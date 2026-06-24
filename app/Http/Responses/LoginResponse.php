@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses;
 
+use App\Support\Roles;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
@@ -13,22 +14,27 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
-        $hasAdmin = $user?->hasRole('admin');
-        $hasPeserta = $user?->hasRole('peserta');
+        $hasSuperAdmin = $user?->hasRole(Roles::SUPER_ADMIN);
+        $hasPeserta = $user?->hasRole(Roles::PESERTA);
 
-        $redirect = match (true) {
-            $hasAdmin => route('dashboard'),
-            $hasPeserta => route('peserta.dashboard'),
-            default => route('profile'),
-        };
+        if (! $hasSuperAdmin && ! $hasPeserta) {
+            $redirect = route('profile');
+            $response = $request->wantsJson()
+                ? new JsonResponse(['two_factor' => false, 'redirect' => $redirect], 200)
+                : new RedirectResponse($redirect);
+
+            if (! $request->wantsJson()) {
+                session()->flash('error', __('Akun Anda belum memiliki peran. Hubungi administrator.'));
+            }
+
+            return $response;
+        }
+
+        $redirect = route('dashboard');
 
         $response = $request->wantsJson()
-            ? new JsonResponse(['two_factor' => false], 200)
+            ? new JsonResponse(['two_factor' => false, 'redirect' => $redirect], 200)
             : new RedirectResponse($redirect);
-
-        if (! $hasAdmin && ! $hasPeserta && ! $request->wantsJson()) {
-            session()->flash('error', __('Akun Anda belum memiliki peran. Hubungi administrator.'));
-        }
 
         return $response;
     }
