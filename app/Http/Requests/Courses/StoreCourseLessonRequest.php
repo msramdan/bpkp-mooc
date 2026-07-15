@@ -37,8 +37,17 @@ class StoreCourseLessonRequest extends FormRequest
         $hasExistingBerkas = $isUpdate && filled(optional($lesson)->file_url);
         $hasExistingVideo = $isUpdate && filled(optional($lesson)->video_url);
 
-        $fileMaxKb = $tipe === 'penugasan' ? $penugasanMaxKb : $berkasMaxKb;
-        $fileMimes = $tipe === 'penugasan' ? $penugasanMimes : $berkasMimes;
+        $h5pMaxKb = 51200; // 50MB
+        $fileMaxKb = match ($tipe) {
+            'penugasan' => $penugasanMaxKb,
+            'h5p' => $h5pMaxKb,
+            default => $berkasMaxKb,
+        };
+        $fileMimes = match ($tipe) {
+            'penugasan' => $penugasanMimes,
+            'h5p' => 'h5p,zip',
+            default => $berkasMimes,
+        };
 
         return [
             'judul' => ['required', 'string', 'max:255'],
@@ -52,13 +61,13 @@ class StoreCourseLessonRequest extends FormRequest
             'body' => ['nullable', 'string'],
             'durasi_menit' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'file_url' => [
-                Rule::requiredIf(fn () => $tipe === 'url'),
+                Rule::requiredIf(fn () => in_array($tipe, ['url', 'survey'], true)),
                 'nullable',
                 'url',
                 'max:2048',
             ],
             'berkas_file' => [
-                Rule::requiredIf(fn () => in_array($tipe, ['berkas', 'penugasan'], true) && ! $hasExistingBerkas),
+                Rule::requiredIf(fn () => in_array($tipe, ['berkas', 'penugasan', 'h5p'], true) && ! $hasExistingBerkas),
                 'nullable',
                 'file',
                 'mimes:'.$fileMimes,
@@ -102,7 +111,11 @@ class StoreCourseLessonRequest extends FormRequest
             'file_url.url' => __('Format tautan tidak valid. Gunakan http:// atau https://.'),
             'berkas_file.required' => __('Silakan unggah berkas.'),
             'berkas_file.max' => __('Ukuran berkas maksimal :max MB.', [
-                'max' => ActivityTypes::normalize((string) $this->input('tipe')) === 'penugasan' ? $penugasanMaxMb : $berkasMaxMb,
+                'max' => match(ActivityTypes::normalize((string) $this->input('tipe'))) {
+                    'penugasan' => $penugasanMaxMb,
+                    'h5p' => 50,
+                    default => $berkasMaxMb,
+                },
             ]),
             'berkas_file.mimes' => __('Format berkas tidak didukung.'),
             'video_file.required' => __('Silakan unggah video.'),

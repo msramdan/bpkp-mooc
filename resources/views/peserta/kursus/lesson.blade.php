@@ -171,7 +171,44 @@
                     <article class="peserta-lesson__card">
                         <p class="text-muted mb-0">{{ __('Konten aktivitas belum tersedia.') }}</p>
                     </article>
-                @elseif (in_array($type, ['pre_test', 'post_test', 'h5p', 'scorm', 'forum', 'survey', 'sertifikat'], true))
+                @elseif ($type === 'survey' && $lesson->externalUrl())
+                    <article class="peserta-lesson__card">
+                        <div class="peserta-lesson__survey-hero">
+                            <div class="peserta-lesson__survey-icon-wrap">
+                                <i class="bi bi-clipboard2-data"></i>
+                            </div>
+                            <h3>{{ __('Survey / Kuesioner') }}</h3>
+                            <p class="text-muted mb-3">{{ __('Silakan isi survei/kuesioner berikut. Data Anda akan digunakan untuk keperluan evaluasi pembelajaran.') }}</p>
+                            <a href="{{ $lesson->externalUrl() }}" class="btn btn-primary btn-wave" target="_blank" rel="noopener">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>{{ __('Buka Survey') }}
+                            </a>
+                        </div>
+                        <div class="peserta-lesson__preview mt-3">
+                            <iframe src="{{ $lesson->externalUrl() }}" title="{{ $lesson->judul }}" loading="lazy"
+                                sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
+                        </div>
+                    </article>
+                @elseif ($type === 'survey' && !$lesson->externalUrl())
+                    <article class="peserta-lesson__card">
+                        <div class="peserta-lesson__soon">
+                            <i class="bi bi-clipboard2-data"></i>
+                            <p class="mb-0">{{ __('Tautan survey/kuesioner belum tersedia. Hubungi pengajar untuk informasi lebih lanjut.') }}</p>
+                        </div>
+                    </article>
+                @elseif ($type === 'h5p')
+                    <article class="peserta-lesson__card">
+                        <div class="peserta-lesson__survey-hero text-center py-5">
+                            <i class="bi bi-puzzle mb-3 d-block" style="font-size: 3rem; color: var(--lesson-accent);"></i>
+                            <h3>{{ __('Konten Interaktif H5P') }}</h3>
+                            <p class="text-muted mb-4">{{ __('Package H5P telah berhasil diunggah. Player interaktif sedang dalam tahap instalasi dan akan segera diaktifkan di sini.') }}</p>
+                            @if ($lesson->file_url)
+                                <a href="{{ $lesson->externalUrl() }}" class="btn btn-outline-primary btn-wave" target="_blank" rel="noopener">
+                                    <i class="bi bi-download me-1"></i>{{ __('Unduh Package (.h5p)') }}
+                                </a>
+                            @endif
+                        </div>
+                    </article>
+                @elseif (in_array($type, ['pre_test', 'post_test', 'scorm', 'forum', 'sertifikat'], true))
                     <article class="peserta-lesson__card">
                         <div class="peserta-lesson__soon">
                             <i class="bi bi-stars"></i>
