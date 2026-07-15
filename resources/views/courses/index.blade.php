@@ -24,6 +24,35 @@
         <div class="admin-course-panel">
             <div class="admin-course-toolbar">
                 <div id="courses-length"></div>
+                <div class="admin-course-filters" role="group" aria-label="{{ __('Filter kursus') }}">
+                    <div class="admin-course-filters__item">
+                        <label class="admin-course-filters__label" for="filter-kategori">
+                            <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                            <span>{{ __('Kategori') }}</span>
+                        </label>
+                        <select id="filter-kategori" class="form-select form-select-sm admin-course-filters__select">
+                            <option value="">{{ __('Semua kategori') }}</option>
+                            @foreach ($learningCategories as $categoryName)
+                                <option value="{{ $categoryName }}">{{ $categoryName }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="admin-course-filters__item">
+                        <label class="admin-course-filters__label" for="filter-published">
+                            <i class="bi bi-broadcast" aria-hidden="true"></i>
+                            <span>{{ __('Katalog peserta') }}</span>
+                        </label>
+                        <select id="filter-published" class="form-select form-select-sm admin-course-filters__select">
+                            <option value="">{{ __('Semua') }}</option>
+                            <option value="1">{{ __('Ya') }}</option>
+                            <option value="0">{{ __('Tidak') }}</option>
+                        </select>
+                    </div>
+                    <button type="button" id="filter-courses-reset" class="btn btn-sm btn-light admin-course-filters__reset" title="{{ __('Reset filter') }}">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span>{{ __('Reset') }}</span>
+                    </button>
+                </div>
                 <div id="courses-search"></div>
             </div>
             <p class="admin-course-toolbar__info" id="courses-info"></p>
@@ -65,7 +94,7 @@
         <div class="modal fade" id="courseCreateModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
-                    <form method="POST" action="{{ route('courses.store') }}">
+                    <form method="POST" action="{{ route('courses.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title">{{ __('Tambah kursus') }}</h5>
@@ -87,11 +116,13 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/admin-courses-grid.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/admin-courses-grid.css') }}?v={{ @filemtime(public_path('backend/assets/css/admin-courses-grid.css')) ?: time() }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/admin-topics.css') }}?v={{ @filemtime(public_path('backend/assets/css/admin-topics.css')) ?: time() }}">
 @endpush
 
 @push('scripts')
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="{{ asset('backend/assets/js/admin-courses-grid.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/admin-courses-grid.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-courses-grid.js')) ?: time() }}"></script>
+    <script src="{{ asset('backend/assets/js/admin-course-form.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-course-form.js')) ?: time() }}"></script>
 @endpush

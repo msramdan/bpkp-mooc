@@ -29,7 +29,7 @@
         <div class="peserta-kursus-card__footer">
             <span class="peserta-kursus-card__chip">{{ $course->kode }}</span>
             <span class="peserta-kursus-card__chip peserta-kursus-card__chip--muted">
-                {{ $course->modul_total }} {{ __('modul') }}
+                {{ $course->modul_total }} {{ __('topik') }}
             </span>
             <span class="peserta-kursus-card__chip peserta-kursus-card__chip--muted">
                 {{ $course->enrollments_count }} {{ __('peserta') }}

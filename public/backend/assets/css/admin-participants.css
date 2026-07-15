@@ -1,0 +1,370 @@
+/* ==========================================================================
+   Admin — Global Peserta (all courses)
+   Quiet institutional polish
+   ========================================================================== */
+
+.admin-participants-page {
+    --ap-radius: 12px;
+    --ap-surface: var(--custom-white, #fff);
+    --ap-muted: var(--text-muted, #64748b);
+    --ap-border: var(--default-border, #e5e7eb);
+    --ap-bg: var(--default-background, #f4f6f9);
+    --ap-ink: var(--default-text-color, #0f172a);
+    --ap-primary: var(--primary-color, #2b488b);
+    --ap-primary-rgb: var(--primary-rgb, 43, 72, 139);
+    --ap-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.admin-participants-page .page-header-breadcrumb {
+    margin-block: 0.65rem 0.9rem !important;
+}
+
+.admin-participants-page__lead {
+    font-size: 0.82rem;
+    max-width: 36rem;
+}
+
+.admin-participants-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.admin-participants-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 1.05rem;
+    border-radius: var(--ap-radius);
+    background: var(--ap-surface);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    box-shadow: var(--ap-shadow);
+    min-width: 0;
+}
+
+.admin-participants-stat__icon {
+    width: 2.55rem;
+    height: 2.55rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(var(--ap-primary-rgb), 0.1);
+    color: var(--ap-primary);
+    font-size: 1.15rem;
+}
+
+.admin-participants-stat__icon--teal {
+    background: rgba(13, 148, 136, 0.12);
+    color: #0f766e;
+}
+
+.admin-participants-stat__icon--amber {
+    background: rgba(217, 119, 6, 0.12);
+    color: #b45309;
+}
+
+.admin-participants-stat__icon--rose {
+    background: rgba(225, 29, 72, 0.1);
+    color: #be123c;
+}
+
+.admin-participants-stat__label {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ap-muted);
+}
+
+.admin-participants-stat__value {
+    margin: 0.1rem 0 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ap-ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+}
+
+.admin-participants-panel {
+    border-radius: var(--ap-radius);
+    background: var(--ap-surface);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    box-shadow: var(--ap-shadow);
+    overflow: hidden;
+}
+
+.admin-participants-filters {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1.4fr) minmax(11rem, 1fr) minmax(8rem, 0.7fr) auto;
+    gap: 0.75rem 0.85rem;
+    align-items: end;
+    padding: 1rem 1.05rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    background: linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+}
+
+.admin-participants-filters__label {
+    display: block;
+    margin-bottom: 0.28rem;
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ap-muted);
+}
+
+.admin-participants-filters__search-field {
+    position: relative;
+}
+
+.admin-participants-filters__search-field > i {
+    position: absolute;
+    inset-inline-start: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ap-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.admin-participants-filters__search-field .form-control {
+    padding-inline-start: 2.15rem;
+}
+
+.admin-participants-filters .form-control,
+.admin-participants-filters .form-select {
+    border-radius: 8px;
+    border-color: var(--ap-border);
+    min-height: 2.4rem;
+    background: var(--ap-bg);
+}
+
+.admin-participants-filters .form-control:focus,
+.admin-participants-filters .form-select:focus {
+    border-color: rgba(var(--ap-primary-rgb), 0.45);
+    box-shadow: 0 0 0 3px rgba(var(--ap-primary-rgb), 0.12);
+    background: #fff;
+}
+
+.admin-participants-filters__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.admin-participants-filters__actions .btn {
+    min-height: 2.4rem;
+    border-radius: 8px;
+}
+
+.admin-participants-table-wrap {
+    padding: 0;
+}
+
+.admin-participants-table {
+    --bs-table-bg: transparent;
+    margin: 0;
+}
+
+.admin-participants-table thead th {
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ap-muted);
+    background: var(--ap-bg);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+}
+
+.admin-participants-table tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-bottom-color: rgba(15, 23, 42, 0.05);
+    font-size: 0.875rem;
+}
+
+.admin-participants-table tbody tr:hover td {
+    background: rgba(var(--ap-primary-rgb), 0.025);
+}
+
+.admin-participants-table__num {
+    width: 3rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-participants-person {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.admin-participants-person__avatar {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: linear-gradient(145deg, rgba(var(--ap-primary-rgb), 0.92), rgba(var(--ap-primary-rgb), 0.7));
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.admin-participants-person__name {
+    font-weight: 650;
+    color: var(--ap-ink);
+    line-height: 1.25;
+}
+
+.admin-participants-person__email {
+    font-size: 0.74rem;
+    color: var(--ap-muted);
+    line-height: 1.3;
+}
+
+.admin-participants-course {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    text-decoration: none;
+    min-width: 0;
+    max-width: 18rem;
+}
+
+.admin-participants-course:hover .admin-participants-course__title {
+    color: var(--ap-primary);
+}
+
+.admin-participants-course__title {
+    font-weight: 600;
+    color: var(--ap-ink);
+    font-size: 0.86rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.15s ease;
+}
+
+.admin-participants-course__meta {
+    font-size: 0.7rem;
+    color: var(--ap-muted);
+}
+
+.admin-participants-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.admin-participants-progress .progress {
+    flex: 1;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.admin-participants-progress .progress-bar {
+    background: var(--ap-primary);
+    border-radius: 999px;
+}
+
+.admin-participants-progress__label {
+    font-size: 0.72rem;
+    color: var(--ap-muted);
+    min-width: 2.35rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-participants-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+}
+
+.admin-participants-status.is-active {
+    background: rgba(var(--ap-primary-rgb), 0.1);
+    color: var(--ap-primary);
+}
+
+.admin-participants-status.is-done {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.admin-participants-status.is-muted {
+    background: rgba(100, 116, 139, 0.12);
+    color: #475569;
+}
+
+.admin-participants-empty {
+    text-align: center;
+    padding: 2.75rem 1rem;
+}
+
+.admin-participants-empty i {
+    font-size: 1.85rem;
+    color: var(--ap-muted);
+    opacity: 0.5;
+    display: block;
+    margin-bottom: 0.45rem;
+}
+
+.admin-participants-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1.05rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.admin-participants-footer__pager {
+    margin-left: auto;
+}
+
+.admin-participants-footer__pager .pagination {
+    margin: 0;
+}
+
+@media (max-width: 1199.98px) {
+    .admin-participants-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-participants-filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-participants-filters__actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-participants-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-participants-filters {
+        grid-template-columns: 1fr;
+    }
+}

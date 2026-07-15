@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Roles;
+use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseEnrollmentController;
 use App\Http\Controllers\CourseLessonController;
@@ -47,12 +48,14 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::resource('users', App\Http\Controllers\UserController::class);
         Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
         Route::resource('courses', CourseController::class);
+        Route::get('participants', [ParticipantController::class, 'index'])->name('participants.index');
         Route::post('courses/{course}/enrollments', [CourseEnrollmentController::class, 'store'])
             ->name('courses.enrollments.store');
         Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
             ->name('courses.enrollments.destroy');
 
         Route::post('courses/{course}/modules', [CourseModuleController::class, 'store'])->name('courses.modules.store');
+        Route::put('courses/{course}/modules/reorder', [CourseModuleController::class, 'reorder'])->name('courses.modules.reorder');
         Route::put('courses/{course}/modules/{module}', [CourseModuleController::class, 'update'])->name('courses.modules.update');
         Route::delete('courses/{course}/modules/{module}', [CourseModuleController::class, 'destroy'])->name('courses.modules.destroy');
         Route::post('courses/{course}/modules/{module}/lessons', [CourseLessonController::class, 'store'])->name('courses.modules.lessons.store');

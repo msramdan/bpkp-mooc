@@ -23,14 +23,25 @@
             <a href="{{ route('courses.show', $course) }}">{{ $course->judul }}</a>
         </h3>
 
+        @if ($course->relationLoaded('tags') && $course->tags->isNotEmpty())
+            <div class="admin-course-card__tags">
+                @foreach ($course->tags->take(3) as $tag)
+                    <span class="admin-course-card__tag">{{ $tag->name }}</span>
+                @endforeach
+                @if ($course->tags->count() > 3)
+                    <span class="admin-course-card__tag">+{{ $course->tags->count() - 3 }}</span>
+                @endif
+            </div>
+        @endif
+
         <div class="admin-course-card__stats">
             <span class="admin-course-card__stat">
                 <i class="bi bi-collection-play"></i>
-                {{ $course->modul_total }} {{ __('modul') }}
+                {{ (int) ($course->modules_count ?? $course->topicsCount()) }} {{ __('topik') }}
             </span>
             <span class="admin-course-card__stat">
                 <i class="bi bi-people"></i>
-                {{ number_format($course->enrollments_count) }} {{ __('peserta') }}
+                {{ number_format((int) ($course->enrollments_count ?? 0)) }} {{ __('peserta') }}
             </span>
         </div>
 

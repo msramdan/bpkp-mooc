@@ -6,11 +6,14 @@ use App\Http\Requests\Courses\StoreCourseLessonRequest;
 use App\Models\Course;
 use App\Models\CourseLesson;
 use App\Models\CourseModule;
+use App\Support\ActivityTypes;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CourseLessonController extends Controller implements HasMiddleware
 {
@@ -29,21 +32,38 @@ class CourseLessonController extends Controller implements HasMiddleware
 
         DB::transaction(function () use ($request, $module): void {
             $nextUrutan = (int) $module->lessons()->max('urutan') + 1;
+            $data = $request->safe()->except(['berkas_file', 'video_file', 'deskripsi']);
+            $body = $request->input('body') ?? $request->input('deskripsi');
+            $tipe = ActivityTypes::normalize((string) $data['tipe']);
+
+            $fileUrl = null;
+            $videoUrl = null;
+
+            if ($tipe === 'berkas') {
+                $fileUrl = $this->storeUpload($request, 'berkas_file', 'courses/activities');
+            } elseif ($tipe === 'video') {
+                $videoUrl = $this->storeUpload($request, 'video_file', 'courses/videos');
+            } elseif ($tipe === 'url') {
+                $fileUrl = $data['file_url'] ?? null;
+            }
 
             $module->lessons()->create([
                 'urutan' => max(1, $nextUrutan),
-                'judul' => $request->validated('judul'),
-                'tipe' => $request->validated('tipe'),
-                'durasi_menit' => $request->validated('durasi_menit') ?? 0,
-                'video_url' => $request->validated('video_url'),
-                'file_url' => $request->validated('file_url'),
-                'body' => $request->validated('body'),
+                'judul' => $data['judul'],
+                'tipe' => $tipe,
+                'durasi_menit' => $data['durasi_menit'] ?? 0,
+                'video_url' => $videoUrl,
+                'file_url' => $fileUrl,
+                'body' => $body,
+                'show_description' => true,
                 'is_preview' => $request->boolean('is_preview'),
                 'is_required' => $request->boolean('is_required', true),
             ]);
         });
 
-        return back()->with('success', __('Materi berhasil ditambahkan.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Aktivitas berhasil ditambahkan.'));
     }
 
     public function update(StoreCourseLessonRequest $request, Course $course, CourseModule $module, CourseLesson $lesson): RedirectResponse
@@ -52,18 +72,48 @@ class CourseLessonController extends Controller implements HasMiddleware
         $this->assertModuleBelongsToCourse($module, $course);
         $this->assertLessonBelongsToModule($lesson, $module);
 
-        $lesson->update([
-            'judul' => $request->validated('judul'),
-            'tipe' => $request->validated('tipe'),
-            'durasi_menit' => $request->validated('durasi_menit') ?? 0,
-            'video_url' => $request->validated('video_url'),
-            'file_url' => $request->validated('file_url'),
-            'body' => $request->validated('body'),
+        $data = $request->safe()->except(['berkas_file', 'video_file', 'deskripsi']);
+        $body = $request->input('body') ?? $request->input('deskripsi') ?? $lesson->body;
+        $tipe = ActivityTypes::normalize((string) ($data['tipe'] ?? $lesson->tipe));
+
+        $payload = [
+            'judul' => $data['judul'],
+            'tipe' => $tipe,
+            'durasi_menit' => $data['durasi_menit'] ?? 0,
+            'body' => $body,
+            'show_description' => true,
             'is_preview' => $request->boolean('is_preview'),
             'is_required' => $request->boolean('is_required', true),
-        ]);
+        ];
 
-        return back()->with('success', __('Materi berhasil diperbarui.'));
+        if ($tipe === 'video') {
+            if ($request->hasFile('video_file')) {
+                $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
+                $payload['video_url'] = $this->storeUpload($request, 'video_file', 'courses/videos');
+            }
+            $payload['file_url'] = null;
+        } elseif ($tipe === 'url') {
+            $payload['file_url'] = $data['file_url'] ?? $lesson->file_url;
+            if ($lesson->video_url) {
+                $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
+            }
+            $payload['video_url'] = null;
+        } elseif ($tipe === 'berkas') {
+            if ($request->hasFile('berkas_file')) {
+                $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
+                $payload['file_url'] = $this->storeUpload($request, 'berkas_file', 'courses/activities');
+            }
+            if ($lesson->video_url) {
+                $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
+            }
+            $payload['video_url'] = null;
+        }
+
+        $lesson->update($payload);
+
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Aktivitas berhasil diperbarui.'));
     }
 
     public function destroy(Course $course, CourseModule $module, CourseLesson $lesson): RedirectResponse
@@ -73,6 +123,8 @@ class CourseLessonController extends Controller implements HasMiddleware
         $this->assertLessonBelongsToModule($lesson, $module);
 
         DB::transaction(function () use ($module, $lesson): void {
+            $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
+            $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             $lesson->delete();
 
             $module->lessons()
@@ -83,7 +135,38 @@ class CourseLessonController extends Controller implements HasMiddleware
                 });
         });
 
-        return back()->with('success', __('Materi berhasil dihapus.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Aktivitas berhasil dihapus.'));
+    }
+
+    private function storeUpload(Request $request, string $field, string $directory): ?string
+    {
+        if (! $request->hasFile($field)) {
+            return null;
+        }
+
+        $path = $request->file($field)->store($directory, 'public');
+
+        return $path ? Storage::disk('public')->url($path) : null;
+    }
+
+    private function deleteStoredPath(?string $url, string $expectedPrefix): void
+    {
+        if ($url === null || $url === '') {
+            return;
+        }
+
+        $prefix = '/storage/';
+        $pos = strpos($url, $prefix);
+        if ($pos === false) {
+            return;
+        }
+
+        $relative = ltrim(substr($url, $pos + strlen($prefix)), '/');
+        if ($relative !== '' && str_starts_with($relative, $expectedPrefix) && Storage::disk('public')->exists($relative)) {
+            Storage::disk('public')->delete($relative);
+        }
     }
 
     private function assertModuleBelongsToCourse(CourseModule $module, Course $course): void

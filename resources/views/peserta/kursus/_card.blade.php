@@ -21,7 +21,7 @@
         <span class="peserta-kursus-card__duration">
             {{ $course->durasi_jam }} {{ __('jam') }}
             <span class="peserta-kursus-card__duration-dot">·</span>
-            {{ $course->modul_total }} {{ __('modul') }}
+            {{ $course->modul_total }} {{ __('topik') }}
         </span>
         <div class="peserta-kursus-card__progress" title="{{ $enrollment->progress }}%">
             <div class="peserta-kursus-card__progress-bar" style="width: {{ $enrollment->progress }}%"></div>
@@ -38,7 +38,7 @@
         <div class="peserta-kursus-card__footer">
             <span class="peserta-kursus-card__chip">{{ $course->kode }}</span>
             <span class="peserta-kursus-card__chip peserta-kursus-card__chip--muted">
-                {{ __('Modul') }} {{ $enrollment->modulLabel() }}
+                {{ __('Topik') }} {{ $enrollment->modulLabel() }}
             </span>
             @if ($enrollment->deadline)
                 <span class="peserta-kursus-card__chip peserta-kursus-card__chip--warn">

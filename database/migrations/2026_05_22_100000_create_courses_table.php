@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('instruktur');
             $table->string('thumbnail');
             $table->unsignedSmallInteger('durasi_jam')->default(0);
-            $table->unsignedSmallInteger('modul_total')->default(1);
+            $table->unsignedSmallInteger('modul_total')->default(0);
             $table->string('level', 30)->default('Pemula');
             $table->decimal('rating', 2, 1)->default(0);
             $table->text('deskripsi')->nullable();

@@ -123,6 +123,14 @@ return [
                     'permissions' => ['course view'],
                     'submenus' => [],
                 ],
+                [
+                    'title' => 'Peserta',
+                    'icon' => '<i class="bi bi-people"></i>',
+                    'route' => 'participants',
+                    'permission' => 'course enrollment manage',
+                    'permissions' => ['course enrollment manage'],
+                    'submenus' => [],
+                ],
             ],
         ],
         [

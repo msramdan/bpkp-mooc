@@ -136,7 +136,7 @@
                                     <span class="peserta-dash-course__category">{{ $course->kategori }}</span>
                                     <h3 class="peserta-dash-course__title">{{ $course->judul }}</h3>
                                     <p class="peserta-dash-course__meta">
-                                        {{ __('Modul') }} {{ $enrollment->modulLabel() }}
+                                        {{ __('Topik') }} {{ $enrollment->modulLabel() }}
                                         · {{ $course->durasi_jam }} {{ __('jam') }}
                                     </p>
                                     <div class="peserta-dash-course__track" aria-hidden="true">

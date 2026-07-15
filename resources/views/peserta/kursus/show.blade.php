@@ -30,9 +30,9 @@
                     <p class="peserta-course-detail__hero-meta mb-0">
                         <i class="bi bi-person"></i> {{ $course->instruktur }}
                         <span class="mx-2">·</span>
-                        <i class="bi bi-layers"></i> {{ $moduleCount }} {{ __('modul') }}
+                        <i class="bi bi-layers"></i> {{ $moduleCount }} {{ __('topik') }}
                         <span class="mx-2">·</span>
-                        <i class="bi bi-collection-play"></i> {{ $totalLessons }} {{ __('materi') }}
+                        <i class="bi bi-collection-play"></i> {{ $totalLessons }} {{ __('aktivitas') }}
                     </p>
                 </div>
                 <div class="peserta-course-detail__hero-progress">
@@ -40,7 +40,7 @@
                     <div class="progress peserta-course-detail__hero-bar">
                         <div class="progress-bar" style="width: {{ $enrollment->progress }}%"></div>
                     </div>
-                    <small class="text-muted">{{ __('Modul') }} {{ $enrollment->modulLabel() }}</small>
+                    <small class="text-muted">{{ __('Topik') }} {{ $enrollment->modulLabel() }}</small>
                 </div>
                 <a href="{{ route('peserta.kursus.index') }}" class="btn btn-sm btn-light btn-wave peserta-course-detail__back">
                     <i class="bi bi-arrow-left"></i>
@@ -52,15 +52,15 @@
         <div class="peserta-course-detail__layout card custom-card">
             <aside class="peserta-course-detail__sidebar">
                 <div class="peserta-course-detail__sidebar-head">
-                    <span class="fw-semibold fs-13">{{ __('Daftar modul') }}</span>
+                    <span class="fw-semibold fs-13">{{ __('Daftar topik') }}</span>
                     <span class="badge bg-primary-transparent">{{ $completedModules }}/{{ $moduleCount }}</span>
                 </div>
                 <div class="peserta-course-detail__search">
                     <i class="bi bi-search"></i>
                     <input type="search" class="form-control form-control-sm" data-module-search
-                        placeholder="{{ __('Cari modul...') }}" autocomplete="off">
+                        placeholder="{{ __('Cari topik...') }}" autocomplete="off">
                 </div>
-                <nav class="peserta-course-detail__nav" data-module-nav aria-label="{{ __('Navigasi modul') }}">
+                <nav class="peserta-course-detail__nav" data-module-nav aria-label="{{ __('Navigasi topik') }}">
                     @foreach ($course->modules as $module)
                         @php
                             $moduleLessons = $module->lessons;
@@ -80,7 +80,7 @@
                             <span class="peserta-course-detail__nav-text">
                                 <span class="peserta-course-detail__nav-title">{{ $module->judul }}</span>
                                 <span class="peserta-course-detail__nav-meta">
-                                    {{ $module->lessons->count() }} {{ __('materi') }} · {{ $module->durasi_menit }} {{ __('menit') }}
+                                    {{ $module->lessons->count() }} {{ __('aktivitas') }} · {{ $module->durasi_menit }} {{ __('menit') }}
                                 </span>
                             </span>
                             <span class="peserta-course-detail__nav-icon">
@@ -96,7 +96,7 @@
                     @endforeach
                 </nav>
                 <p class="peserta-course-detail__nav-empty d-none mb-0" data-module-empty>
-                    {{ __('Tidak ada modul yang cocok.') }}
+                    {{ __('Tidak ada topik yang cocok.') }}
                 </p>
             </aside>
 
@@ -115,7 +115,7 @@
                         data-module-panel data-module-id="{{ $module->id }}">
                         <header class="peserta-course-detail__panel-head">
                             <div>
-                                <span class="peserta-course-detail__panel-label">{{ __('Modul') }} {{ $module->urutan }}</span>
+                                <span class="peserta-course-detail__panel-label">{{ __('Topik') }} {{ $module->urutan }}</span>
                                 <h3 class="peserta-course-detail__panel-title mb-1">{{ $module->judul }}</h3>
                                 @if ($module->deskripsi)
                                     <p class="peserta-course-detail__panel-desc mb-0">{{ $module->deskripsi }}</p>
@@ -129,7 +129,7 @@
                                 @else
                                     <span class="badge bg-secondary-transparent"><i class="bi bi-lock me-1"></i>{{ __('Terkunci') }}</span>
                                 @endif
-                                <span class="text-muted fs-12">{{ $module->lessons->count() }} {{ __('materi') }}</span>
+                                <span class="text-muted fs-12">{{ $module->lessons->count() }} {{ __('aktivitas') }}</span>
                             </div>
                         </header>
 
@@ -142,7 +142,7 @@
                                 @endphp
                                 <div class="peserta-course-detail__lesson {{ $lessonLocked ? 'is-locked' : '' }} {{ $lessonAccessible && ! $lessonDone ? 'is-current' : '' }}">
                                     <span class="peserta-course-detail__lesson-order">{{ $lesson->urutan }}</span>
-                                    <span class="peserta-course-detail__lesson-icon {{ $lesson->tipe }}">
+                                    <span class="peserta-course-detail__lesson-icon {{ $lesson->normalizedType() }}">
                                         <i class="bi {{ $lesson->iconClass() }}"></i>
                                     </span>
                                     <div class="peserta-course-detail__lesson-body">

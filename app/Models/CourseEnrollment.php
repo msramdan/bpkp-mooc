@@ -39,6 +39,11 @@ class CourseEnrollment extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function topikLabel(): string
+    {
+        return $this->modulLabel();
+    }
+
     public function modulLabel(): string
     {
         return $this->modul_selesai.' / '.$this->course->modul_total;

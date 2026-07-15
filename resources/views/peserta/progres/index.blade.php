@@ -45,7 +45,7 @@
                         <span class="peserta-progres-card__pct">{{ $enrollment->progress }}%</span>
                     </div>
                     <div class="peserta-progres-card__side">
-                        <span class="peserta-progres-card__modul">{{ __('Modul') }} {{ $enrollment->modulLabel() }}</span>
+                        <span class="peserta-progres-card__modul">{{ __('Topik') }} {{ $enrollment->modulLabel() }}</span>
                         @include('peserta.partials.status-badge', ['status' => $enrollment->status])
                     </div>
                 </article>

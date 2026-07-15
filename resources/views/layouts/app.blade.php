@@ -14,7 +14,7 @@
     <link id="style" href="{{ asset('backend') }}/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/css/styles.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/css/bpkp-theme-overrides.css" rel="stylesheet">
-    <link href="{{ asset('backend') }}/assets/css/sidebar-app-overrides.css" rel="stylesheet">
+    <link href="{{ asset('backend') }}/assets/css/sidebar-app-overrides.css?v={{ @filemtime(public_path('backend/assets/css/sidebar-app-overrides.css')) ?: time() }}" rel="stylesheet">
     <script>
         (function () {
             var bpkpPrimary = '43, 72, 139';
@@ -78,11 +78,15 @@
     <script src="{{ asset('backend') }}/assets/js/custom.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        // Clear broken/stale service workers (theme/demo leftovers) that spam console on localhost.
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (reg) { reg.unregister(); });
+            }).catch(function () {});
+        }
+    </script>
     @stack('scripts')
     @include('layouts.partials.flash-toast')
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516"
-        integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg=="
-        data-cf-beacon='{"version":"2024.11.0","token":"388abf76f0c247f9ae47156bd14a7eb9","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}'
-        crossorigin="anonymous"></script>
 </body>
 </html>

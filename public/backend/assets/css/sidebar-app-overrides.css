@@ -2,18 +2,60 @@
  * Sidebar tweaks for Laravel + generator menu (Zynix template).
  * - Spacing icon ↔ label (template .side-menu__icon margin + flex gap).
  * - SVG menu icons: stay stroke/outline on active/hover (avoid heavy filled look).
- * - Extra vertical gap between main menu rows (less cramped).
+ * - Even vertical rhythm between top-level items (no empty submenu gap).
  */
 
-.app-sidebar .main-menu > .slide__category {
-  margin-bottom: 0.35rem;
+.app-sidebar .main-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
+.app-sidebar .main-menu > .slide__category {
+  margin-bottom: 0.15rem;
+}
+
+/* Satu jarak seragam antar item level atas (Dashboard, Kursus, Data Utama, Utilitas) */
 .app-sidebar .main-menu > .slide {
-  margin-bottom: 0.45rem;
+  margin-bottom: 0 !important;
 }
 
 .app-sidebar .main-menu > .slide:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Template pakai display:grid — bisa menyisakan baris kosong untuk .slide-menu */
+.app-sidebar .main-menu > .slide.has-sub {
+  display: block !important;
+}
+
+/* Tutup rapat submenu saat tidak .open (hindari "lubang" putih antar parent) */
+.app-sidebar .main-menu > .slide.has-sub:not(.open) > .slide-menu {
+  display: none !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  border: 0 !important;
+}
+
+.app-sidebar .main-menu > .slide.has-sub.open > .slide-menu {
+  display: block !important;
+  visibility: visible !important;
+  height: auto;
+  max-height: none;
+  margin-top: 0.2rem;
+  margin-bottom: 0;
+  padding-inline-start: 0;
+}
+
+.app-sidebar .main-menu > .slide.has-sub.open > .slide-menu > .slide {
+  margin-bottom: 0.2rem;
+}
+
+.app-sidebar .main-menu > .slide.has-sub.open > .slide-menu > .slide:last-child {
   margin-bottom: 0;
 }
 

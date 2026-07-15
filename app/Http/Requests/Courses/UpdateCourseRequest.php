@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Courses;
 
-use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateCourseRequest extends FormRequest
 {
@@ -15,31 +13,49 @@ class UpdateCourseRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->thumbnail === '' || $this->thumbnail === null) {
-            $this->merge(['thumbnail' => null]);
+        if ($this->id_number === '') {
+            $this->merge(['id_number' => null]);
         }
+
+        $this->merge([
+            'ends_at_enabled' => $this->boolean('ends_at_enabled'),
+            'is_published' => $this->boolean('is_published'),
+            'remove_thumbnail' => $this->boolean('remove_thumbnail'),
+        ]);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function rules(): array
     {
-        /** @var Course $course */
-        $course = $this->route('course');
-
         return [
-            'kode' => ['required', 'string', 'max:20', Rule::unique('courses', 'kode')->ignore($course->id)],
             'judul' => ['required', 'string', 'max:255'],
-            'kategori' => ['required', 'string', 'max:120'],
-            'instruktur' => ['required', 'string', 'max:255'],
-            'thumbnail' => ['required', 'url', 'max:500'],
-            'durasi_jam' => ['required', 'integer', 'min:1', 'max:500'],
-            'modul_total' => ['required', 'integer', 'min:1', 'max:30'],
-            'level' => ['required', 'string', 'max:30', Rule::in(['Pemula', 'Menengah', 'Lanjutan'])],
-            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'kategori' => ['required', 'string', 'max:120', 'exists:learning_categories,name'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['uuid', 'exists:learning_tags,id'],
+            'id_number' => ['nullable', 'string', 'max:100'],
+            'thumbnail_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
+            'remove_thumbnail' => ['sometimes', 'boolean'],
             'deskripsi' => ['nullable', 'string'],
+            'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'ends_at_enabled' => ['sometimes', 'boolean'],
             'is_published' => ['sometimes', 'boolean'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return [
+            'judul' => __('Nama kursus'),
+            'kategori' => __('Kategori'),
+            'tag_ids' => __('Tag'),
+            'tag_ids.*' => __('Tag'),
+            'id_number' => __('Nomor ID kursus'),
+            'starts_at' => __('Tanggal mulai'),
+            'ends_at' => __('Tanggal selesai'),
+            'deskripsi' => __('Ringkasan kursus'),
+            'thumbnail_file' => __('Thumbnail'),
         ];
     }
 }

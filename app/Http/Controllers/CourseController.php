@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -32,9 +33,18 @@ class CourseController extends Controller implements HasMiddleware
     public function index(Request $request): View|JsonResponse
     {
         if ($request->ajax()) {
-            return DataTables::eloquent(
-                Course::query()->withCount(['enrollments', 'modules'])
-            )
+            $query = Course::query()->with(['tags'])->withCount(['enrollments', 'modules']);
+
+            if ($request->filled('kategori')) {
+                $query->where('kategori', (string) $request->input('kategori'));
+            }
+
+            $published = $request->input('published');
+            if ($published === '1' || $published === '0') {
+                $query->where('is_published', $published === '1');
+            }
+
+            return DataTables::eloquent($query)
                 ->addColumn('card', fn (Course $course) => view('courses.partials.grid-card', compact('course'))->render())
                 ->addColumn('published_label', fn (Course $course) => $course->is_published
                     ? '<span class="badge bg-success-transparent">'.__('Dipublikasikan').'</span>'
@@ -44,7 +54,9 @@ class CourseController extends Controller implements HasMiddleware
                 ->toJson();
         }
 
-        return view('courses.index');
+        return view('courses.index', [
+            'learningCategories' => \App\Models\LearningCategory::query()->orderBy('name')->pluck('name'),
+        ]);
     }
 
     public function create(): RedirectResponse
@@ -55,38 +67,70 @@ class CourseController extends Controller implements HasMiddleware
     public function store(StoreCourseRequest $request): RedirectResponse
     {
         return DB::transaction(function () use ($request): RedirectResponse {
-            $data = $request->validated();
-            $data['slug'] = Str::slug($data['kode'].'-'.$data['judul']);
+            $data = $request->safe()->except(['thumbnail_file', 'tag_ids']);
+            $data['kode'] = $this->uniqueCourseCode($data['judul']);
+            $data['slug'] = $this->uniqueCourseSlug($data['judul'], $data['kode']);
             $data['is_published'] = $request->boolean('is_published');
+            $data['ends_at_enabled'] = $request->boolean('ends_at_enabled');
+            if (! $data['ends_at_enabled']) {
+                $data['ends_at'] = null;
+            }
+            $data['instruktur'] = $data['instruktur'] ?? 'Tim Pengajar BPKP';
+            $data['durasi_jam'] = $data['durasi_jam'] ?? 0;
+            $data['modul_total'] = 0;
+            $data['level'] = $data['level'] ?? 'Pemula';
             $data['rating'] = $data['rating'] ?? 0;
+            $data['thumbnail'] = $this->storeThumbnail($request) ?? null;
 
-            Course::create($data);
+            $course = Course::create($data);
+            $course->tags()->sync($request->input('tag_ids', []));
 
-            return to_route('courses.index')->with('success', __('Kursus berhasil dibuat.'));
+            return to_route('courses.show', [$course, 'tab' => 'modules'])->with('success', __('Kursus berhasil dibuat. Tambahkan topik untuk mulai menyusun aktivitas.'));
         });
     }
 
-    public function show(Course $course): View
+    public function show(Request $request, Course $course): View
     {
         $this->authorize('view', $course);
 
         $course->load([
+            'tags',
             'modules' => fn ($q) => $q->orderBy('urutan')->with([
                 'lessons' => fn ($l) => $l->orderBy('urutan'),
             ]),
-            'enrollments.user',
         ]);
+
+        $search = trim((string) $request->query('q', ''));
+
+        $enrollments = $course->enrollments()
+            ->with('user')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
+                });
+            })
+            ->latest('enrolled_at')
+            ->paginate(25)
+            ->withQueryString();
+
+        $enrolledUserIds = $course->enrollments()->pluck('user_id');
+        $enrollmentsCount = $enrolledUserIds->count();
 
         $pesertaUsers = \App\Models\User::role('peserta')
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
 
-        $enrolledUserIds = $course->enrollments->pluck('user_id');
-
         return view('courses.show', [
             'course' => $course,
+            'enrollments' => $enrollments,
+            'enrollmentsCount' => $enrollmentsCount,
             'pesertaUsers' => $pesertaUsers,
             'enrolledUserIds' => $enrolledUserIds,
+            'pesertaSearch' => $search,
+            'activeTab' => in_array($request->query('tab'), ['info', 'modules', 'peserta'], true)
+                ? $request->query('tab')
+                : (($search !== '' || $request->has('page')) ? 'peserta' : 'info'),
         ]);
     }
 
@@ -100,13 +144,28 @@ class CourseController extends Controller implements HasMiddleware
     public function update(UpdateCourseRequest $request, Course $course): RedirectResponse
     {
         return DB::transaction(function () use ($request, $course): RedirectResponse {
-            $data = $request->validated();
-            $data['slug'] = Str::slug($data['kode'].'-'.$data['judul']);
+            $data = $request->safe()->except(['thumbnail_file', 'remove_thumbnail', 'tag_ids']);
+            $data['slug'] = $this->uniqueCourseSlug($data['judul'], $course->kode, $course->id);
             $data['is_published'] = $request->boolean('is_published');
+            $data['ends_at_enabled'] = $request->boolean('ends_at_enabled');
+            if (! $data['ends_at_enabled']) {
+                $data['ends_at'] = null;
+            }
+
+            if ($request->boolean('remove_thumbnail') && ! $request->hasFile('thumbnail_file')) {
+                $this->deleteStoredThumbnail($course->thumbnail);
+                $data['thumbnail'] = null;
+            }
+
+            if ($request->hasFile('thumbnail_file')) {
+                $this->deleteStoredThumbnail($course->thumbnail);
+                $data['thumbnail'] = $this->storeThumbnail($request);
+            }
 
             $course->update($data);
+            $course->tags()->sync($request->input('tag_ids', []));
 
-            return to_route('courses.show', $course)->with('success', __('Kursus berhasil diperbarui.'));
+            return to_route('courses.show', [$course, 'tab' => 'info'])->with('success', __('Kursus berhasil diperbarui.'));
         });
     }
 
@@ -116,6 +175,7 @@ class CourseController extends Controller implements HasMiddleware
 
         try {
             return DB::transaction(function () use ($course): RedirectResponse {
+                $this->deleteStoredThumbnail($course->thumbnail);
                 $course->delete();
 
                 return to_route('courses.index')->with('success', __('Kursus berhasil dihapus.'));
@@ -123,5 +183,74 @@ class CourseController extends Controller implements HasMiddleware
         } catch (\Exception) {
             return to_route('courses.index')->with('error', __('Kursus tidak dapat dihapus karena masih memiliki data terkait.'));
         }
+    }
+
+    private function storeThumbnail(Request $request): ?string
+    {
+        if (! $request->hasFile('thumbnail_file')) {
+            return null;
+        }
+
+        $path = $request->file('thumbnail_file')->store('courses/thumbnails', 'public');
+
+        return $path ? Storage::disk('public')->url($path) : null;
+    }
+
+    private function deleteStoredThumbnail(?string $thumbnail): void
+    {
+        if ($thumbnail === null || $thumbnail === '') {
+            return;
+        }
+
+        $prefix = '/storage/';
+        $pos = strpos($thumbnail, $prefix);
+        if ($pos === false) {
+            return;
+        }
+
+        $relative = ltrim(substr($thumbnail, $pos + strlen($prefix)), '/');
+        if ($relative !== '' && str_starts_with($relative, 'courses/thumbnails/') && Storage::disk('public')->exists($relative)) {
+            Storage::disk('public')->delete($relative);
+        }
+    }
+
+    private function uniqueCourseCode(string $judul): string
+    {
+        $base = Str::upper(Str::limit(Str::slug($judul, ''), 12, ''));
+        if ($base === '') {
+            $base = 'KURSUS';
+        }
+
+        $code = $base;
+        $i = 1;
+        while (Course::query()->where('kode', $code)->exists()) {
+            $suffix = (string) $i;
+            $code = Str::limit($base, 20 - strlen($suffix), '').$suffix;
+            $i++;
+        }
+
+        return Str::limit($code, 20, '');
+    }
+
+    private function uniqueCourseSlug(string $judul, string $kode, ?string $ignoreId = null): string
+    {
+        $base = Str::slug($judul);
+        if ($base === '') {
+            $base = Str::slug($kode) ?: 'kursus';
+        }
+
+        $slug = $base;
+        $i = 1;
+        while (
+            Course::query()
+                ->where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base.'-'.$i;
+            $i++;
+        }
+
+        return $slug;
     }
 }

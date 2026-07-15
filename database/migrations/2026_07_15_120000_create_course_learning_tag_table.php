@@ -1,0 +1,22 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('course_learning_tag', function (Blueprint $table) {
+            $table->foreignUuid('course_id')->constrained('courses')->cascadeOnDelete();
+            $table->foreignUuid('learning_tag_id')->constrained('learning_tags')->cascadeOnDelete();
+            $table->primary(['course_id', 'learning_tag_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('course_learning_tag');
+    }
+};

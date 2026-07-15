@@ -4,7 +4,9 @@
   /* page loader */
   function hideLoader() {
     const loader = document.getElementById("loader");
-    loader.classList.add("d-none")
+    if (loader) {
+      loader.classList.add("d-none");
+    }
   }
 
   window.addEventListener("load", hideLoader);
@@ -27,12 +29,14 @@
   );
 
   /* breadcrumb date range picker */
-  flatpickr("#daterange", {
-    mode: "range",
-    dateFormat: "F, d Y", 
-    defaultDate: ["May, 01 2024", "May, 30 2024"],
-    disableMobile: true
-  });
+  if (document.querySelector("#daterange") && typeof flatpickr !== "undefined") {
+    flatpickr("#daterange", {
+      mode: "range",
+      dateFormat: "F, d Y",
+      defaultDate: ["May, 01 2024", "May, 30 2024"],
+      disableMobile: true
+    });
+  }
   /* breadcrumb date range picker */
 
   /* header theme toggle */
@@ -99,7 +103,9 @@
     }
   }
   let layoutSetting = document.querySelector(".layout-setting");
-  layoutSetting.addEventListener("click", toggleTheme);
+  if (layoutSetting) {
+    layoutSetting.addEventListener("click", toggleTheme);
+  }
   /* header theme toggle */
 
   /* Choices JS */
@@ -107,22 +113,38 @@
     var genericExamples = document.querySelectorAll("[data-trigger]");
     for (let i = 0; i < genericExamples.length; ++i) {
       var element = genericExamples[i];
+      if (element.dataset.choicesInit === "1") {
+        continue;
+      }
+      element.dataset.choicesInit = "1";
       new Choices(element, {
-        allowHTML: true,
-        placeholderValue: "This is a placeholder set in the config",
-        searchPlaceholderValue: "Search",
+        allowHTML: false,
+        searchEnabled: true,
+        searchPlaceholderValue: element.getAttribute("data-search-placeholder") || "Cari...",
+        itemSelectText: "",
+        shouldSort: false,
+        placeholder: true,
+        placeholderValue: element.getAttribute("data-placeholder") || "Pilih...",
+        noResultsText: "Tidak ditemukan",
+        noChoicesText: "Tidak ada pilihan",
+        removeItemButton: element.hasAttribute("multiple"),
       });
     }
   });
   /* Choices JS */
 
   /* footer year */
-  document.getElementById("year").innerHTML = new Date().getFullYear();
+  var yearEl = document.getElementById("year");
+  if (yearEl) {
+    yearEl.innerHTML = new Date().getFullYear();
+  }
   /* footer year */
 
   /* node waves */
-  Waves.attach(".btn-wave", ["waves-light"]);
-  Waves.init();
+  if (typeof Waves !== "undefined") {
+    Waves.attach(".btn-wave", ["waves-light"]);
+    Waves.init();
+  }
   /* node waves */
 
   /* card with close button */

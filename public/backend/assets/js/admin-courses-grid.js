@@ -51,7 +51,15 @@
         var dt = $table.DataTable({
             processing: true,
             serverSide: true,
-            ajax: table.dataset.ajaxUrl,
+            ajax: {
+                url: table.dataset.ajaxUrl,
+                data: function (d) {
+                    var kategori = document.getElementById('filter-kategori');
+                    var published = document.getElementById('filter-published');
+                    d.kategori = kategori ? kategori.value : '';
+                    d.published = published ? published.value : '';
+                },
+            },
             pageLength: 12,
             lengthMenu: [[12, 24, 48], [12, 24, 48]],
             order: [[1, 'asc']],
@@ -101,6 +109,32 @@
                 syncToolbar(api);
             },
         });
+
+        function reloadCourses() {
+            dt.ajax.reload();
+        }
+
+        var kategoriFilter = document.getElementById('filter-kategori');
+        var publishedFilter = document.getElementById('filter-published');
+        var resetFilter = document.getElementById('filter-courses-reset');
+
+        if (kategoriFilter) {
+            kategoriFilter.addEventListener('change', reloadCourses);
+        }
+        if (publishedFilter) {
+            publishedFilter.addEventListener('change', reloadCourses);
+        }
+        if (resetFilter) {
+            resetFilter.addEventListener('click', function () {
+                if (kategoriFilter) {
+                    kategoriFilter.value = '';
+                }
+                if (publishedFilter) {
+                    publishedFilter.value = '';
+                }
+                reloadCourses();
+            });
+        }
 
         window.adminCoursesDataTable = dt;
     });

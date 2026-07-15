@@ -38,7 +38,9 @@ class CourseModuleController extends Controller implements HasMiddleware
             $course->update(['modul_total' => $course->modules()->count()]);
         });
 
-        return back()->with('success', __('Modul berhasil ditambahkan.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Topik berhasil ditambahkan.'));
     }
 
     public function update(StoreCourseModuleRequest $request, Course $course, CourseModule $module): RedirectResponse
@@ -52,7 +54,9 @@ class CourseModuleController extends Controller implements HasMiddleware
             'durasi_menit' => $request->validated('durasi_menit') ?? 0,
         ]);
 
-        return back()->with('success', __('Modul berhasil diperbarui.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Topik berhasil diperbarui.'));
     }
 
     public function destroy(Course $course, CourseModule $module): RedirectResponse
@@ -70,10 +74,42 @@ class CourseModuleController extends Controller implements HasMiddleware
                     $item->update(['urutan' => $index + 1]);
                 });
 
-            $course->update(['modul_total' => max(1, $course->modules()->count())]);
+            $course->update(['modul_total' => $course->modules()->count()]);
         });
 
-        return back()->with('success', __('Modul berhasil dihapus.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Topik berhasil dihapus.'));
+    }
+
+    public function reorder(\Illuminate\Http\Request $request, Course $course): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('update', $course);
+
+        $validated = $request->validate([
+            'order' => ['required', 'array', 'min:1'],
+            'order.*' => ['required', 'uuid'],
+        ]);
+
+        $ids = $validated['order'];
+        $ownedIds = $course->modules()->whereIn('id', $ids)->pluck('id')->all();
+
+        if (count($ownedIds) !== count($ids)) {
+            abort(422, __('Urutan topik tidak valid.'));
+        }
+
+        DB::transaction(function () use ($course, $ids): void {
+            foreach ($ids as $index => $id) {
+                CourseModule::query()
+                    ->where('course_id', $course->id)
+                    ->whereKey($id)
+                    ->update(['urutan' => $index + 1]);
+            }
+
+            $course->update(['modul_total' => $course->modules()->count()]);
+        });
+
+        return response()->json(['ok' => true]);
     }
 
     private function assertModuleBelongsToCourse(CourseModule $module, Course $course): void

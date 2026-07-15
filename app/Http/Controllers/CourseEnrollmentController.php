@@ -53,14 +53,20 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
                 $created = true;
             });
         } catch (UniqueConstraintViolationException) {
-            return back()->with('error', __('Peserta sudah terdaftar di kursus ini.'));
+            return redirect()
+                ->route('courses.show', [$course, 'tab' => 'peserta'])
+                ->with('error', __('Peserta sudah terdaftar di kursus ini.'));
         }
 
         if ($created) {
-            return back()->with('success', __('Peserta berhasil didaftarkan ke kursus.'));
+            return redirect()
+                ->route('courses.show', [$course, 'tab' => 'peserta'])
+                ->with('success', __('Peserta berhasil didaftarkan ke kursus.'));
         }
 
-        return back()->with('error', __('Peserta sudah terdaftar di kursus ini.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'peserta'])
+            ->with('error', __('Peserta sudah terdaftar di kursus ini.'));
     }
 
     public function destroy(Course $course, CourseEnrollment $enrollment): RedirectResponse
@@ -73,6 +79,8 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
 
         $enrollment->delete();
 
-        return back()->with('success', __('Pendaftaran peserta berhasil dihapus.'));
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'peserta'])
+            ->with('success', __('Pendaftaran peserta berhasil dihapus.'));
     }
 }
