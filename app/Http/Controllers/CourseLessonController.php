@@ -39,8 +39,9 @@ class CourseLessonController extends Controller implements HasMiddleware
             $fileUrl = null;
             $videoUrl = null;
 
-            if ($tipe === 'berkas') {
-                $fileUrl = $this->storeUpload($request, 'berkas_file', 'courses/activities');
+            if ($tipe === 'berkas' || $tipe === 'penugasan') {
+                $dir = $tipe === 'penugasan' ? 'courses/assignments' : 'courses/activities';
+                $fileUrl = $this->storeUpload($request, 'berkas_file', $dir);
             } elseif ($tipe === 'video') {
                 $videoUrl = $this->storeUpload($request, 'video_file', 'courses/videos');
             } elseif ($tipe === 'url') {
@@ -98,10 +99,12 @@ class CourseLessonController extends Controller implements HasMiddleware
                 $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             }
             $payload['video_url'] = null;
-        } elseif ($tipe === 'berkas') {
+        } elseif ($tipe === 'berkas' || $tipe === 'penugasan') {
+            $dir = $tipe === 'penugasan' ? 'courses/assignments' : 'courses/activities';
             if ($request->hasFile('berkas_file')) {
                 $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
-                $payload['file_url'] = $this->storeUpload($request, 'berkas_file', 'courses/activities');
+                $this->deleteStoredPath($lesson->file_url, 'courses/assignments/');
+                $payload['file_url'] = $this->storeUpload($request, 'berkas_file', $dir);
             }
             if ($lesson->video_url) {
                 $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
@@ -124,6 +127,7 @@ class CourseLessonController extends Controller implements HasMiddleware
 
         DB::transaction(function () use ($module, $lesson): void {
             $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
+            $this->deleteStoredPath($lesson->file_url, 'courses/assignments/');
             $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             $lesson->delete();
 

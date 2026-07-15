@@ -140,10 +140,37 @@
                     if (urlInput) {
                         urlInput.required = true;
                     }
-                } else if (key === 'berkas') {
+                } else if (key === 'berkas' || key === 'penugasan') {
                     berkasField.classList.remove('d-none');
                     if (berkasInput) {
                         berkasInput.required = true;
+                    }
+                    var berkasLabel = berkasField.querySelector('.form-label');
+                    var berkasHelp = berkasField.querySelector('.form-text');
+                    if (key === 'penugasan') {
+                        if (berkasLabel) {
+                            berkasLabel.innerHTML = 'Berkas instruksi <span class="text-danger">*</span>';
+                        }
+                        if (berkasHelp) {
+                            berkasHelp.textContent = 'Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.';
+                        }
+                        if (berkasInput) {
+                            berkasInput.setAttribute('accept', '.pdf,.doc,.docx,.ppt,.pptx,.zip');
+                            berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-penugasan-max-kb') || '10240');
+                            berkasInput.setAttribute('data-label', 'Berkas instruksi');
+                        }
+                    } else {
+                        if (berkasLabel) {
+                            berkasLabel.innerHTML = 'Unggah berkas <span class="text-danger">*</span>';
+                        }
+                        if (berkasHelp) {
+                            berkasHelp.textContent = berkasField.getAttribute('data-berkas-help') || '';
+                        }
+                        if (berkasInput) {
+                            berkasInput.setAttribute('accept', '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp');
+                            berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-berkas-max-kb') || '10240');
+                            berkasInput.setAttribute('data-label', 'Berkas');
+                        }
                     }
                 }
 

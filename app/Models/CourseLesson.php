@@ -6,6 +6,7 @@ use App\Models\Concerns\HasUuid;
 use App\Support\ActivityTypes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CourseLesson extends Model
 {
@@ -42,6 +43,11 @@ class CourseLesson extends Model
     public function module(): BelongsTo
     {
         return $this->belongsTo(CourseModule::class, 'course_module_id');
+    }
+
+    public function assignmentSubmissions(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'course_lesson_id');
     }
 
     public function normalizedType(): string
@@ -81,7 +87,7 @@ class CourseLesson extends Model
             return $this->resolveMediaUrl($this->video_url);
         }
 
-        if (in_array($type, ['berkas', 'url'], true)) {
+        if (in_array($type, ['berkas', 'url', 'penugasan'], true)) {
             return $this->resolveMediaUrl($this->file_url) ?: $this->resolveMediaUrl($this->video_url);
         }
 

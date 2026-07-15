@@ -28,12 +28,17 @@ class StoreCourseLessonRequest extends FormRequest
         $isUpdate = $this->route('lesson') !== null;
         $berkasMaxKb = (int) config('mooc.berkas_max_kb', 10240);
         $berkasMimes = implode(',', (array) config('mooc.berkas_mimes', ['pdf']));
+        $penugasanMaxKb = (int) config('mooc.penugasan_max_kb', 10240);
+        $penugasanMimes = implode(',', (array) config('mooc.penugasan_mimes', ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip']));
         $videoMaxKb = (int) config('mooc.video_max_kb', 51200);
         $videoMimes = implode(',', (array) config('mooc.video_mimes', ['mp4', 'webm']));
 
         $lesson = $isUpdate ? $this->route('lesson') : null;
         $hasExistingBerkas = $isUpdate && filled(optional($lesson)->file_url);
         $hasExistingVideo = $isUpdate && filled(optional($lesson)->video_url);
+
+        $fileMaxKb = $tipe === 'penugasan' ? $penugasanMaxKb : $berkasMaxKb;
+        $fileMimes = $tipe === 'penugasan' ? $penugasanMimes : $berkasMimes;
 
         return [
             'judul' => ['required', 'string', 'max:255'],
@@ -53,11 +58,11 @@ class StoreCourseLessonRequest extends FormRequest
                 'max:2048',
             ],
             'berkas_file' => [
-                Rule::requiredIf(fn () => $tipe === 'berkas' && ! $hasExistingBerkas),
+                Rule::requiredIf(fn () => in_array($tipe, ['berkas', 'penugasan'], true) && ! $hasExistingBerkas),
                 'nullable',
                 'file',
-                'mimes:'.$berkasMimes,
-                'max:'.$berkasMaxKb,
+                'mimes:'.$fileMimes,
+                'max:'.$fileMaxKb,
             ],
             'video_file' => [
                 Rule::requiredIf(fn () => $tipe === 'video' && ! $hasExistingVideo),
@@ -89,13 +94,16 @@ class StoreCourseLessonRequest extends FormRequest
     public function messages(): array
     {
         $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
+        $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
         $videoMaxMb = round(((int) config('mooc.video_max_kb', 51200)) / 1024, 1);
 
         return [
             'file_url.required' => __('Silakan isi tautan URL.'),
             'file_url.url' => __('Format tautan tidak valid. Gunakan http:// atau https://.'),
             'berkas_file.required' => __('Silakan unggah berkas.'),
-            'berkas_file.max' => __('Ukuran berkas maksimal :max MB.', ['max' => $berkasMaxMb]),
+            'berkas_file.max' => __('Ukuran berkas maksimal :max MB.', [
+                'max' => ActivityTypes::normalize((string) $this->input('tipe')) === 'penugasan' ? $penugasanMaxMb : $berkasMaxMb,
+            ]),
             'berkas_file.mimes' => __('Format berkas tidak didukung.'),
             'video_file.required' => __('Silakan unggah video.'),
             'video_file.max' => __('Ukuran video maksimal :max MB.', ['max' => $videoMaxMb]),

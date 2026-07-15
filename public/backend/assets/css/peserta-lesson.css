@@ -1,0 +1,385 @@
+/* ==========================================================================
+   Peserta — Lesson activity stage
+   ========================================================================== */
+
+.peserta-lesson {
+    --lesson-accent: #2b488b;
+    --lesson-surface: var(--custom-white, #fff);
+    --lesson-ink: var(--default-text-color, #0f172a);
+    --lesson-muted: var(--text-muted, #64748b);
+    --lesson-border: rgba(15, 23, 42, 0.06);
+    --lesson-radius: 16px;
+    --lesson-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme-mode='dark'] .peserta-lesson {
+    --lesson-border: rgba(148, 163, 184, 0.12);
+    --lesson-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.peserta-lesson__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--lesson-radius);
+    background:
+        radial-gradient(1200px 200px at -10% -40%, color-mix(in srgb, var(--lesson-accent) 18%, transparent), transparent 55%),
+        var(--lesson-surface);
+    border: 1px solid var(--lesson-border);
+    box-shadow: var(--lesson-shadow);
+}
+
+.peserta-lesson__type {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.peserta-lesson__type-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--lesson-accent) 14%, transparent);
+    color: var(--lesson-accent);
+    font-size: 1.35rem;
+}
+
+.peserta-lesson__type-label {
+    font-weight: 700;
+    color: var(--lesson-ink);
+    font-size: 0.95rem;
+}
+
+.peserta-lesson__topic {
+    font-size: 0.78rem;
+    color: var(--lesson-muted);
+}
+
+.peserta-lesson__header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.peserta-lesson__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--lesson-muted);
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.peserta-lesson__status.is-done {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.peserta-lesson__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17.5rem;
+    gap: 1rem;
+    align-items: start;
+}
+
+.peserta-lesson__card {
+    position: relative;
+    padding: 1.15rem;
+    border-radius: var(--lesson-radius);
+    background: var(--lesson-surface);
+    border: 1px solid var(--lesson-border);
+    box-shadow: var(--lesson-shadow);
+    overflow: hidden;
+}
+
+.peserta-lesson__card + .peserta-lesson__card {
+    margin-top: 1rem;
+}
+
+.peserta-lesson__card-title {
+    margin: 0 0 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--lesson-muted);
+}
+
+.peserta-lesson__body {
+    color: var(--lesson-ink);
+    line-height: 1.7;
+    font-size: 0.92rem;
+}
+
+.peserta-lesson__body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.peserta-lesson__media {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b1220;
+}
+
+.peserta-lesson__player {
+    width: 100%;
+    min-height: 420px;
+    border: 0;
+    display: block;
+    background: #000;
+}
+
+.peserta-lesson__file-hero,
+.peserta-lesson__link-hero {
+    position: relative;
+    text-align: center;
+    padding: 1.75rem 1rem 1.25rem;
+    border-radius: 14px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--lesson-accent) 12%, transparent), transparent 70%);
+}
+
+.peserta-lesson__file-glow {
+    position: absolute;
+    inset: auto auto 10% 50%;
+    width: 12rem;
+    height: 12rem;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--lesson-accent) 25%, transparent);
+    filter: blur(40px);
+    pointer-events: none;
+}
+
+.peserta-lesson__file-icon {
+    position: relative;
+    font-size: 2.5rem;
+    color: var(--lesson-accent);
+    display: block;
+    margin-bottom: 0.65rem;
+}
+
+.peserta-lesson__file-title,
+.peserta-lesson__link-hero h3 {
+    position: relative;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--lesson-ink);
+    margin-bottom: 0.35rem;
+}
+
+.peserta-lesson__file-text,
+.peserta-lesson__link-hero p {
+    position: relative;
+    color: var(--lesson-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.peserta-lesson__link-hero i {
+    font-size: 2.2rem;
+    color: var(--lesson-accent);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.peserta-lesson__preview {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--lesson-border);
+    background: #f8fafc;
+}
+
+.peserta-lesson__preview iframe {
+    width: 100%;
+    min-height: 380px;
+    border: 0;
+    display: block;
+}
+
+.peserta-lesson__assign-instruction {
+    margin-bottom: 1.15rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--lesson-accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lesson-accent) 18%, transparent);
+}
+
+.peserta-lesson__assign-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.55rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--lesson-accent) 14%, transparent);
+    color: var(--lesson-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.peserta-lesson__assign-panel {
+    padding: 0.15rem;
+}
+
+.peserta-lesson__assign-head {
+    margin-bottom: 0.9rem;
+}
+
+.peserta-lesson__assign-head h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--lesson-ink);
+}
+
+.peserta-lesson__submission {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 12px;
+    background: rgba(22, 163, 74, 0.08);
+    border: 1px solid rgba(22, 163, 74, 0.18);
+}
+
+.peserta-lesson__submission-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(22, 163, 74, 0.14);
+    color: #15803d;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.peserta-lesson__submission-name {
+    font-weight: 650;
+    color: var(--lesson-ink);
+    font-size: 0.88rem;
+}
+
+.peserta-lesson__submission-meta {
+    font-size: 0.74rem;
+    color: var(--lesson-muted);
+}
+
+.peserta-lesson__dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 9rem;
+    padding: 1.25rem;
+    border-radius: 14px;
+    border: 1.5px dashed color-mix(in srgb, var(--lesson-accent) 45%, #cbd5e1);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--lesson-accent) 6%, transparent), transparent),
+        var(--lesson-surface);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.peserta-lesson__dropzone:hover {
+    border-color: var(--lesson-accent);
+    transform: translateY(-1px);
+}
+
+.peserta-lesson__dropzone-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--lesson-accent) 12%, transparent);
+    color: var(--lesson-accent);
+    font-size: 1.35rem;
+}
+
+.peserta-lesson__dropzone-title {
+    font-weight: 650;
+    color: var(--lesson-ink);
+    font-size: 0.9rem;
+}
+
+.peserta-lesson__meta-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+}
+
+.peserta-lesson__meta-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--lesson-border);
+    font-size: 0.82rem;
+}
+
+.peserta-lesson__meta-list li span {
+    color: var(--lesson-muted);
+}
+
+.peserta-lesson__meta-list li strong {
+    color: var(--lesson-ink);
+    font-weight: 650;
+    text-align: right;
+}
+
+.peserta-lesson__nav-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.peserta-lesson__soon {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.08);
+    color: var(--lesson-ink);
+    font-size: 0.88rem;
+}
+
+.peserta-lesson__soon i {
+    color: #0284c7;
+    font-size: 1.25rem;
+    margin-top: 0.1rem;
+}
+
+@media (max-width: 991.98px) {
+    .peserta-lesson__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .peserta-lesson__player,
+    .peserta-lesson__preview iframe {
+        min-height: 260px;
+    }
+}

@@ -132,18 +132,8 @@ class CourseController extends Controller implements HasMiddleware
                 ->withQueryString();
 
             if (auth()->user()?->can('course enrollment manage')) {
-                // Only users not already enrolled — avoids loading every peserta + plucking all IDs.
-                $pesertaUsers = \App\Models\User::role(Roles::PESERTA)
-                    ->select(['id', 'name', 'email'])
-                    ->whereNotExists(function ($exists) use ($course) {
-                        $exists->select(DB::raw(1))
-                            ->from('course_enrollments')
-                            ->whereColumn('course_enrollments.user_id', 'users.id')
-                            ->where('course_enrollments.course_id', $course->id);
-                    })
-                    ->orderBy('name')
-                    ->limit(500)
-                    ->get();
+                // Dropdown diisi via AJAX search (avoid limit 500 / missing names).
+                $pesertaUsers = collect();
             }
         }
 

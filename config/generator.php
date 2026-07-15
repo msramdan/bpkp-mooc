@@ -113,7 +113,7 @@ return [
     'sidebars' => [
         [
             'header' => 'MOOC',
-            'permissions' => ['course view', 'course enrollment manage'],
+            'permissions' => ['course view'],
             'menus' => [
                 [
                     'title' => 'Kursus',
@@ -121,14 +121,6 @@ return [
                     'route' => 'courses',
                     'permission' => 'course view',
                     'permissions' => ['course view'],
-                    'submenus' => [],
-                ],
-                [
-                    'title' => 'Peserta',
-                    'icon' => '<i class="bi bi-people"></i>',
-                    'route' => 'participants',
-                    'permission' => 'course enrollment manage',
-                    'permissions' => ['course enrollment manage'],
                     'submenus' => [],
                 ],
             ],

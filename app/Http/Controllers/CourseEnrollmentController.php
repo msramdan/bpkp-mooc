@@ -7,8 +7,11 @@ use App\Http\Requests\Courses\BulkDestroyCourseEnrollmentRequest;
 use App\Http\Requests\Courses\StoreCourseEnrollmentRequest;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
+use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +24,41 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
             new Middleware('role:'.Roles::SUPER_ADMIN),
             new Middleware('permission:course enrollment manage'),
         ];
+    }
+
+    public function availableParticipants(Request $request, Course $course): JsonResponse
+    {
+        $this->authorize('manageEnrollments', $course);
+
+        $q = trim((string) $request->query('q', ''));
+        $like = $q !== ''
+            ? '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%'
+            : null;
+
+        $users = User::role(Roles::PESERTA)
+            ->select(['id', 'name', 'email'])
+            ->whereNotExists(function ($exists) use ($course) {
+                $exists->select(DB::raw(1))
+                    ->from('course_enrollments')
+                    ->whereColumn('course_enrollments.user_id', 'users.id')
+                    ->where('course_enrollments.course_id', $course->id);
+            })
+            ->when($like !== null, function ($query) use ($like) {
+                $query->where(function ($inner) use ($like) {
+                    $inner->where('name', 'like', $like)
+                        ->orWhere('email', 'like', $like);
+                });
+            })
+            ->orderBy('name')
+            ->limit(30)
+            ->get()
+            ->map(fn (User $user) => [
+                'value' => (string) $user->id,
+                'label' => $user->name.' ('.$user->email.')',
+            ])
+            ->values();
+
+        return response()->json(['results' => $users]);
     }
 
     public function store(StoreCourseEnrollmentRequest $request, Course $course): RedirectResponse
@@ -60,7 +98,7 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
         }
 
         if ($created) {
-            ParticipantController::forgetCachedLists();
+            UserController::forgetCachedLists();
 
             return redirect()
                 ->route('courses.show', [$course, 'tab' => 'peserta'])
@@ -81,7 +119,7 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
         }
 
         $enrollment->delete();
-        ParticipantController::forgetCachedLists();
+        UserController::forgetCachedLists();
 
         return redirect()
             ->route('courses.show', [$course, 'tab' => 'peserta'])
@@ -105,7 +143,7 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
                 ->with('error', __('Tidak ada pendaftaran yang dihapus.'));
         }
 
-        ParticipantController::forgetCachedLists();
+        UserController::forgetCachedLists();
 
         return redirect()
             ->route('courses.show', [$course, 'tab' => 'peserta'])

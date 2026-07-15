@@ -60,7 +60,7 @@
                     <input type="search" class="form-control form-control-sm" data-module-search
                         placeholder="{{ __('Cari topik...') }}" autocomplete="off">
                 </div>
-                <nav class="peserta-course-detail__nav" data-module-nav aria-label="{{ __('Navigasi topik') }}">
+                <nav class="peserta-course-detail__nav" aria-label="{{ __('Navigasi topik') }}">
                     @foreach ($course->modules as $module)
                         @php
                             $moduleLessons = $module->lessons;
@@ -139,8 +139,13 @@
                                     $lessonDone = $completedIds->contains($lesson->id);
                                     $lessonAccessible = $progressService->isLessonAccessible(auth()->user(), $course, $lesson, $completedIds);
                                     $lessonLocked = ! $lessonAccessible;
+                                    $lessonUrl = route('peserta.kursus.lessons.show', [$course, $lesson]);
+                                    $lessonTag = $lessonLocked ? 'div' : 'a';
                                 @endphp
-                                <div class="peserta-course-detail__lesson {{ $lessonLocked ? 'is-locked' : '' }} {{ $lessonAccessible && ! $lessonDone ? 'is-current' : '' }}">
+                                <{{ $lessonTag }}
+                                    @if (! $lessonLocked) href="{{ $lessonUrl }}" @endif
+                                    class="peserta-course-detail__lesson {{ $lessonLocked ? 'is-locked' : '' }} {{ $lessonAccessible && ! $lessonDone ? 'is-current' : '' }} {{ $lessonDone ? 'is-done' : '' }}"
+                                    @if ($lessonDone) title="{{ __('Lihat lagi') }}" @endif>
                                     <span class="peserta-course-detail__lesson-order">{{ $lesson->urutan }}</span>
                                     <span class="peserta-course-detail__lesson-icon {{ $lesson->normalizedType() }}">
                                         <i class="bi {{ $lesson->iconClass() }}"></i>
@@ -157,22 +162,20 @@
                                     </div>
                                     <div class="peserta-course-detail__lesson-action">
                                         @if ($lessonDone)
-                                            <a href="{{ route('peserta.kursus.lessons.show', [$course, $lesson]) }}"
-                                                class="peserta-course-detail__lesson-btn is-done" title="{{ __('Lihat lagi') }}">
+                                            <span class="peserta-course-detail__lesson-btn is-done" aria-hidden="true">
                                                 <i class="bi bi-check-lg"></i>
-                                            </a>
+                                            </span>
                                         @elseif ($lessonAccessible)
-                                            <a href="{{ route('peserta.kursus.lessons.show', [$course, $lesson]) }}"
-                                                class="peserta-course-detail__lesson-btn is-play">
+                                            <span class="peserta-course-detail__lesson-btn is-play" aria-hidden="true">
                                                 <i class="bi bi-play-fill"></i> {{ __('Mulai') }}
-                                            </a>
+                                            </span>
                                         @else
-                                            <span class="peserta-course-detail__lesson-btn is-lock">
+                                            <span class="peserta-course-detail__lesson-btn is-lock" aria-hidden="true">
                                                 <i class="bi bi-lock"></i>
                                             </span>
                                         @endif
                                     </div>
-                                </div>
+                                </{{ $lessonTag }}>
                             @endforeach
                         </div>
                     </section>

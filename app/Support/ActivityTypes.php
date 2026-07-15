@@ -5,12 +5,12 @@ namespace App\Support;
 /**
  * Simplified activity palette for the new MOOC (mapped from Moodle / mooc11f).
  *
- * Enabled for create: berkas, video, url.
+ * Enabled for create: berkas, video, url, penugasan.
  * Other types remain visible but disabled until implemented.
  */
 class ActivityTypes
 {
-    public const ENABLED = ['berkas', 'video', 'url'];
+    public const ENABLED = ['berkas', 'video', 'url', 'penugasan'];
 
     /**
      * Legacy Moodle/import types → simplified keys.
@@ -36,7 +36,7 @@ class ActivityTypes
             ['key' => 'h5p', 'label' => 'H5P', 'enabled' => false, 'icon' => 'bi-puzzle', 'color' => '#ca8a04'],
             ['key' => 'scorm', 'label' => 'SCORM', 'enabled' => false, 'icon' => 'bi-box', 'color' => '#65a30d'],
             ['key' => 'url', 'label' => 'URL', 'enabled' => true, 'icon' => 'bi-link-45deg', 'color' => '#0284c7'],
-            ['key' => 'penugasan', 'label' => 'Penugasan', 'enabled' => false, 'icon' => 'bi-pencil-square', 'color' => '#7c3aed'],
+            ['key' => 'penugasan', 'label' => 'Penugasan', 'enabled' => true, 'icon' => 'bi-pencil-square', 'color' => '#7c3aed'],
             ['key' => 'forum', 'label' => 'Forum', 'enabled' => false, 'icon' => 'bi-chat-dots', 'color' => '#9333ea'],
             ['key' => 'survey', 'label' => 'Survey/Kuesioner', 'enabled' => false, 'icon' => 'bi-bar-chart', 'color' => '#0891b2'],
             ['key' => 'post_test', 'label' => 'Post-Test', 'enabled' => false, 'icon' => 'bi-clipboard2-check', 'color' => '#ea580c'],

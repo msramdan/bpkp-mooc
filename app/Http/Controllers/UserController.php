@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Generators\Services\ImageServiceV2;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
+use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -29,7 +32,7 @@ class UserController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware(middleware: 'permission:user view', only: ['index', 'show']),
+            new Middleware(middleware: 'permission:user view', only: ['index', 'show', 'courses']),
             new Middleware(middleware: 'permission:user create', only: ['create', 'store']),
             new Middleware(middleware: 'permission:user edit', only: ['edit', 'update']),
             new Middleware(middleware: 'permission:user delete', only: ['destroy']),
@@ -42,7 +45,26 @@ class UserController extends Controller implements HasMiddleware
     public function index(Request $request): View|JsonResponse
     {
         if ($request->ajax()) {
-            $query = User::query()->with(['roles:id,name']);
+            $courseId = trim((string) $request->input('course_id', ''));
+            $letter = strtoupper(trim((string) $request->input('letter', '')));
+            if (! preg_match('/^[A-Z]$/', $letter)) {
+                $letter = '';
+            }
+
+            $query = User::query()
+                ->with(['roles:id,name'])
+                ->withCount('courseEnrollments')
+                ->when($courseId !== '', function ($q) use ($courseId) {
+                    $q->whereExists(function ($exists) use ($courseId) {
+                        $exists->select(DB::raw(1))
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.user_id', 'users.id')
+                            ->where('course_enrollments.course_id', $courseId);
+                    });
+                })
+                ->when($letter !== '', function ($q) use ($letter) {
+                    $q->whereRaw('UPPER(LEFT(TRIM(name), 1)) = ?', [$letter]);
+                });
 
             return DataTables::eloquent($query)
                 ->addColumn('role', function (User $user) {
@@ -50,14 +72,85 @@ class UserController extends Controller implements HasMiddleware
 
                     return $names->isNotEmpty() ? e($names->first()) : '—';
                 })
+                ->addColumn('courses_count', function (User $user) {
+                    $count = (int) $user->course_enrollments_count;
+                    if ($count <= 0) {
+                        return '<span class="text-muted fs-13">0 '.__('kursus').'</span>';
+                    }
+
+                    return view('users.partials.course-count-button', [
+                        'user' => $user,
+                        'count' => $count,
+                    ])->render();
+                })
                 ->addColumn('action', fn (User $user) => view('users.include.action', ['model' => $user])->render())
                 ->removeColumn('created_at')
                 ->removeColumn('updated_at')
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'courses_count'])
                 ->toJson();
         }
 
-        return view('users.index');
+        return view('users.index', [
+            'courses' => $this->filterCourses(),
+            'alphabet' => range('A', 'Z'),
+        ]);
+    }
+
+    /**
+     * Lazy-load courses for one user (modal).
+     */
+    public function courses(User $user): JsonResponse
+    {
+        $items = $user->courseEnrollments()
+            ->select(['id', 'user_id', 'course_id', 'progress', 'status', 'enrolled_at'])
+            ->with(['course:id,judul,kode,kategori,slug'])
+            ->latest('enrolled_at')
+            ->get()
+            ->map(function (CourseEnrollment $enrollment) {
+                $course = $enrollment->course;
+                if (! $course) {
+                    return null;
+                }
+
+                return [
+                    'title' => $course->judul,
+                    'code' => $course->kode,
+                    'category' => $course->kategori,
+                    'status' => $enrollment->status ? __($enrollment->status) : '—',
+                    'progress' => (int) $enrollment->progress,
+                    'url' => route('courses.show', [$course, 'tab' => 'peserta']),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'courses' => $items,
+        ]);
+    }
+
+    public static function forgetCachedLists(): void
+    {
+        Cache::forget('admin.users.filter-courses');
+        Cache::forget('admin.participants.filter-courses');
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Course> */
+    private function filterCourses()
+    {
+        return Cache::remember('admin.users.filter-courses', now()->addMinutes(5), function () {
+            return Course::query()
+                ->select(['id', 'judul', 'kode'])
+                ->whereExists(function ($exists) {
+                    $exists->select(DB::raw(1))
+                        ->from('course_enrollments')
+                        ->whereColumn('course_enrollments.course_id', 'courses.id');
+                })
+                ->orderBy('judul')
+                ->get();
+        });
     }
 
     /**

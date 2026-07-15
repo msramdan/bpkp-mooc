@@ -544,39 +544,61 @@
     gap: 0.5rem;
 }
 
-.course-peserta-search {
-    flex: 1 1 16rem;
-    max-width: 26rem;
-    margin-left: auto;
+.course-peserta-filters {
+    margin-bottom: 0.75rem !important;
 }
 
-.course-peserta-search__group {
+.course-peserta-search--panel {
+    max-width: none;
+    margin: 0;
+}
+
+.course-peserta-search__filters {
+    display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    align-items: flex-end;
+    gap: 0.65rem 0.85rem;
 }
 
-.course-peserta-search__group .input-group-text {
-    border-radius: 8px 0 0 8px;
+.course-peserta-search__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 0 1 18rem;
+    max-width: 22rem;
+    min-width: 0;
 }
 
-.course-peserta-search__group .form-control {
-    min-width: 8rem;
-    border-radius: 0;
+.course-peserta-search__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--acd-muted);
 }
 
-.course-peserta-search__group .btn {
-    white-space: nowrap;
+.course-peserta-search__field .form-control {
+    width: 100%;
+    min-height: 2.3rem;
     border-radius: 8px;
+    border: 1px solid var(--acd-border, var(--input-border, #dde3ed));
+    background: var(--form-control-bg, #fff);
 }
 
-.course-peserta-search__group .btn-primary {
-    border-radius: 0 8px 8px 0;
+.course-peserta-search__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
 }
 
-@media (max-width: 575.98px) {
-    .course-peserta-search__group .btn-primary {
-        border-radius: 8px;
-    }
+.course-peserta-search__actions .btn {
+    min-height: 2.3rem;
 }
 
 .course-peserta-table {
@@ -886,10 +908,9 @@
 }
 
 @media (max-width: 575.98px) {
-    .course-peserta-search {
+    .course-peserta-search__field {
+        flex: 1 1 100%;
         max-width: none;
-        width: 100%;
-        margin-left: 0;
     }
 
     .course-peserta-list__header {

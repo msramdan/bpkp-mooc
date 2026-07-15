@@ -122,16 +122,21 @@
                                         <label class="form-label" for="enrollPesertaSelect">{{ __('Peserta') }}</label>
                                         <select name="user_id" id="enrollPesertaSelect"
                                             class="form-select @error('user_id') is-invalid @enderror"
-                                            data-trigger
+                                            data-peserta-search-url="{{ route('courses.enrollments.available', $course) }}"
                                             data-placeholder="{{ __('Cari nama atau email...') }}"
                                             data-search-placeholder="{{ __('Ketik nama / email') }}"
                                             required>
                                             <option value="">{{ __('Cari nama atau email...') }}</option>
-                                            @foreach ($pesertaUsers as $user)
-                                                <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>
-                                                    {{ $user->name }} ({{ $user->email }})
-                                                </option>
-                                            @endforeach
+                                            @if (old('user_id'))
+                                                @php
+                                                    $oldUser = \App\Models\User::query()->find(old('user_id'));
+                                                @endphp
+                                                @if ($oldUser)
+                                                    <option value="{{ $oldUser->id }}" selected>
+                                                        {{ $oldUser->name }} ({{ $oldUser->email }})
+                                                    </option>
+                                                @endif
+                                            @endif
                                         </select>
                                         @error('user_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                         <div class="form-text">{{ __('Ketik untuk mencari, lalu pilih peserta.') }}</div>
@@ -145,28 +150,40 @@
                     </div>
                 @endcan
                 <div class="@can('course enrollment manage') col-lg-8 @else col-12 @endcan">
-                    <div class="card custom-card course-peserta-list h-100">
+                    <div class="card custom-card course-peserta-filters mb-3">
+                        <div class="card-body py-3">
+                            <form method="GET" action="{{ route('courses.show', $course) }}" class="course-peserta-search course-peserta-search--panel">
+                                <input type="hidden" name="tab" value="peserta">
+                                <div class="course-peserta-search__filters">
+                                    <div class="course-peserta-search__field">
+                                        <label class="course-peserta-search__label" for="course-peserta-q">
+                                            <i class="bi bi-search" aria-hidden="true"></i>
+                                            <span>{{ __('Cari') }}</span>
+                                        </label>
+                                        <input type="search" name="q" id="course-peserta-q" value="{{ $pesertaSearch }}"
+                                            class="form-control form-control-sm"
+                                            placeholder="{{ __('Cari nama / email...') }}"
+                                            aria-label="{{ __('Cari peserta') }}">
+                                    </div>
+                                    <div class="course-peserta-search__actions">
+                                        <button type="submit" class="btn btn-sm btn-primary btn-wave">
+                                            <i class="bi bi-funnel me-1"></i>{{ __('Terapkan') }}
+                                        </button>
+                                        <a href="{{ route('courses.show', [$course, 'tab' => 'peserta']) }}" class="btn btn-sm btn-light btn-wave">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i>{{ __('Reset') }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card custom-card course-peserta-list">
                         <div class="card-header course-peserta-list__header border-bottom-0">
                             <div class="course-peserta-list__title">
                                 <span class="card-title mb-0">{{ __('Daftar peserta') }}</span>
                                 <span class="badge bg-primary-transparent">{{ $enrollments->total() }}</span>
                             </div>
-                            <form method="GET" action="{{ route('courses.show', $course) }}" class="course-peserta-search">
-                                <input type="hidden" name="tab" value="peserta">
-                                <div class="input-group input-group-sm course-peserta-search__group">
-                                    <span class="input-group-text"><i class="ri-search-line"></i></span>
-                                    <input type="search" name="q" value="{{ $pesertaSearch }}"
-                                        class="form-control"
-                                        placeholder="{{ __('Cari nama / email...') }}"
-                                        aria-label="{{ __('Cari peserta') }}">
-                                    <button type="submit" class="btn btn-primary btn-wave">
-                                        <i class="bi bi-funnel me-1"></i>{{ __('Terapkan') }}
-                                    </button>
-                                    <a href="{{ route('courses.show', [$course, 'tab' => 'peserta']) }}" class="btn btn-light btn-wave">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i>{{ __('Reset') }}
-                                    </a>
-                                </div>
-                            </form>
                         </div>
                         <div class="card-body p-0">
                             @can('course enrollment manage')
@@ -307,6 +324,67 @@
     <script src="{{ asset('backend/assets/js/admin-course-form.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-course-form.js')) ?: time() }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // AJAX search for "Daftarkan peserta"
+            var enrollSelect = document.getElementById('enrollPesertaSelect');
+            if (enrollSelect && typeof Choices !== 'undefined') {
+                var searchUrl = enrollSelect.getAttribute('data-peserta-search-url') || '';
+                enrollSelect.dataset.choicesInit = '1';
+                var enrollChoices = new Choices(enrollSelect, {
+                    allowHTML: false,
+                    searchEnabled: true,
+                    searchChoices: false,
+                    searchPlaceholderValue: enrollSelect.getAttribute('data-search-placeholder') || 'Cari...',
+                    itemSelectText: '',
+                    shouldSort: false,
+                    placeholder: true,
+                    placeholderValue: enrollSelect.getAttribute('data-placeholder') || 'Pilih...',
+                    noResultsText: @json(__('Tidak ditemukan')),
+                    noChoicesText: @json(__('Ketik untuk mencari peserta')),
+                });
+
+                var searchTimer = null;
+                var lastQuery = null;
+
+                function loadPeserta(query) {
+                    if (!searchUrl) return;
+                    var q = String(query || '').trim();
+                    if (q === lastQuery) return;
+                    lastQuery = q;
+
+                    var url = searchUrl + (searchUrl.indexOf('?') >= 0 ? '&' : '?') + 'q=' + encodeURIComponent(q);
+                    fetch(url, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        credentials: 'same-origin',
+                    })
+                        .then(function (res) { return res.ok ? res.json() : { results: [] }; })
+                        .then(function (payload) {
+                            var results = Array.isArray(payload.results) ? payload.results : [];
+                            enrollChoices.setChoices(results, 'value', 'label', true);
+                        })
+                        .catch(function () { /* ignore */ });
+                }
+
+                enrollSelect.addEventListener('search', function (event) {
+                    var q = event.detail && event.detail.value != null ? event.detail.value : '';
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(function () { loadPeserta(q); }, 280);
+                });
+
+                var searchInput = enrollSelect.closest('.choices')
+                    ? enrollSelect.closest('.choices').querySelector('.choices__input--cloned, .choices__input')
+                    : null;
+                if (searchInput) {
+                    searchInput.addEventListener('input', function () {
+                        var q = searchInput.value || '';
+                        clearTimeout(searchTimer);
+                        searchTimer = setTimeout(function () { loadPeserta(q); }, 280);
+                    });
+                }
+
+                // Prefill on open / empty query
+                loadPeserta('');
+            }
+
             var checkAll = document.getElementById('coursePesertaCheckAll');
             var bulkBar = document.getElementById('coursePesertaBulkbar');
             var bulkCount = document.getElementById('coursePesertaBulkCount');

@@ -155,6 +155,28 @@
                                                 inputmode="url" autocomplete="url" required>
                                             <div class="form-text fs-11">{{ __('Tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
                                         </div>
+                                    @elseif ($lesson->normalizedType() === 'penugasan')
+                                        @php
+                                            $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
+                                        @endphp
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Berkas instruksi') }}</label>
+                                            @if ($lesson->file_url)
+                                                <div class="mb-1 fs-12">
+                                                    <a href="{{ $lesson->externalUrl() }}" target="_blank" rel="noopener">
+                                                        <i class="ri-attachment-2 me-1"></i>{{ __('Lihat berkas saat ini') }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
+                                                accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
+                                                data-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
+                                                data-label="{{ __('Berkas instruksi') }}"
+                                                @required(! $lesson->file_url)>
+                                            <div class="form-text fs-11">
+                                                {{ __('Kosongkan jika tidak diganti. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
+                                            </div>
+                                        </div>
                                     @else
                                         @php
                                             $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
@@ -330,7 +352,10 @@
                             $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
                             $berkasMimes = implode(', ', (array) config('mooc.berkas_mimes', ['pdf']));
                         @endphp
-                        <div class="mb-3 d-none" id="activityFieldBerkas">
+                        <div class="mb-3 d-none" id="activityFieldBerkas"
+                            data-berkas-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
+                            data-penugasan-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
+                            data-berkas-help="{{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}">
                             <label class="form-label">{{ __('Unggah berkas') }} <span class="text-danger">*</span></label>
                             <input type="file" name="berkas_file" class="form-control js-upload-size"
                                 accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp"

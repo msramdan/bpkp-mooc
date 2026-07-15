@@ -4,12 +4,16 @@
         return;
     }
 
-    const navButtons = root.querySelectorAll('[data-module-nav]');
+    const navButtons = root.querySelectorAll('[data-module-nav][data-module-id]');
     const panels = root.querySelectorAll('[data-module-panel]');
     const searchInput = root.querySelector('[data-module-search]');
     const emptyHint = root.querySelector('[data-module-empty]');
 
     function showModule(moduleId) {
+        if (!moduleId) {
+            return;
+        }
+
         navButtons.forEach((btn) => {
             btn.classList.toggle('is-active', btn.dataset.moduleId === moduleId);
         });
@@ -50,7 +54,8 @@
         });
     }
 
-    const initial = root.querySelector('[data-module-nav].is-active');
+    const initial = root.querySelector('[data-module-nav][data-module-id].is-active')
+        || navButtons[0];
     if (initial) {
         showModule(initial.dataset.moduleId);
     }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Support\Roles;
-use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseEnrollmentController;
 use App\Http\Controllers\CourseLessonController;
@@ -36,6 +35,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('/kursus/{course}', [PortalController::class, 'kursusShow'])->middleware('permission:peserta kursus view')->name('kursus.show');
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
+        Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
         Route::post('/katalog/{course}/daftar', [CatalogEnrollmentController::class, 'store'])->middleware('permission:peserta katalog view')->name('katalog.enroll');
         Route::get('/progres', [PortalController::class, 'progres'])->middleware('permission:peserta progres view')->name('progres.index');
@@ -46,11 +46,13 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     Route::middleware('role:'.Roles::SUPER_ADMIN)->group(function () {
         Route::resource('users', App\Http\Controllers\UserController::class);
+        Route::get('users/{user}/courses', [App\Http\Controllers\UserController::class, 'courses'])
+            ->name('users.courses');
+        Route::redirect('participants', '/users')->name('participants.index');
         Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
         Route::resource('courses', CourseController::class);
-        Route::get('participants', [ParticipantController::class, 'index'])->name('participants.index');
-        Route::get('participants/{user}/courses', [ParticipantController::class, 'courses'])
-            ->name('participants.courses');
+        Route::get('courses/{course}/available-participants', [CourseEnrollmentController::class, 'availableParticipants'])
+            ->name('courses.enrollments.available');
         Route::post('courses/{course}/enrollments', [CourseEnrollmentController::class, 'store'])
             ->name('courses.enrollments.store');
         Route::delete('courses/{course}/enrollments/bulk', [CourseEnrollmentController::class, 'bulkDestroy'])
