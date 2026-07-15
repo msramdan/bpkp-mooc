@@ -39,12 +39,8 @@ class CourseLessonController extends Controller implements HasMiddleware
             $fileUrl = null;
             $videoUrl = null;
 
-            if ($tipe === 'berkas' || $tipe === 'penugasan' || $tipe === 'h5p') {
-                $dir = match ($tipe) {
-                    'penugasan' => 'courses/assignments',
-                    'h5p' => 'courses/h5p',
-                    default => 'courses/activities',
-                };
+            if ($tipe === 'berkas' || $tipe === 'penugasan') {
+                $dir = $tipe === 'penugasan' ? 'courses/assignments' : 'courses/activities';
                 $fileUrl = $this->storeUpload($request, 'berkas_file', $dir);
             } elseif ($tipe === 'video') {
                 $videoUrl = $this->storeUpload($request, 'video_file', 'courses/videos');
@@ -52,7 +48,7 @@ class CourseLessonController extends Controller implements HasMiddleware
                 $fileUrl = $data['file_url'] ?? null;
             }
 
-            $module->lessons()->create([
+            $lesson = $module->lessons()->create([
                 'urutan' => max(1, $nextUrutan),
                 'judul' => $data['judul'],
                 'tipe' => $tipe,
@@ -64,6 +60,13 @@ class CourseLessonController extends Controller implements HasMiddleware
                 'is_preview' => $request->boolean('is_preview'),
                 'is_required' => $request->boolean('is_required', true),
             ]);
+
+            if ($tipe === 'h5p' && $request->hasFile('berkas_file')) {
+                $h5pService = app(\App\Services\H5P\H5PService::class);
+                $lesson->update([
+                    'file_url' => $h5pService->processPackage($request->file('berkas_file'), $lesson)
+                ]);
+            }
         });
 
         return redirect()
@@ -97,23 +100,28 @@ class CourseLessonController extends Controller implements HasMiddleware
                 $payload['video_url'] = $this->storeUpload($request, 'video_file', 'courses/videos');
             }
             $payload['file_url'] = null;
-        } elseif ($tipe === 'url' || $tipe === 'survey') {
+        } elseif ($tipe === 'url') {
             $payload['file_url'] = $data['file_url'] ?? $lesson->file_url;
             if ($lesson->video_url) {
                 $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             }
             $payload['video_url'] = null;
-        } elseif ($tipe === 'berkas' || $tipe === 'penugasan' || $tipe === 'h5p') {
-                $dir = match ($tipe) {
-                    'penugasan' => 'courses/assignments',
-                    'h5p' => 'courses/h5p',
-                    default => 'courses/activities',
-                };
+        } elseif ($tipe === 'berkas' || $tipe === 'penugasan') {
+            $dir = $tipe === 'penugasan' ? 'courses/assignments' : 'courses/activities';
             if ($request->hasFile('berkas_file')) {
                 $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
                 $this->deleteStoredPath($lesson->file_url, 'courses/assignments/');
-                $this->deleteStoredPath($lesson->file_url, 'courses/h5p/');
                 $payload['file_url'] = $this->storeUpload($request, 'berkas_file', $dir);
+            }
+            if ($lesson->video_url) {
+                $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
+            }
+            $payload['video_url'] = null;
+        } elseif ($tipe === 'h5p') {
+            if ($request->hasFile('berkas_file')) {
+                $h5pService = app(\App\Services\H5P\H5PService::class);
+                $h5pService->deletePackage($lesson);
+                $payload['file_url'] = $h5pService->processPackage($request->file('berkas_file'), $lesson);
             }
             if ($lesson->video_url) {
                 $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
@@ -137,7 +145,9 @@ class CourseLessonController extends Controller implements HasMiddleware
         DB::transaction(function () use ($module, $lesson): void {
             $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
             $this->deleteStoredPath($lesson->file_url, 'courses/assignments/');
-            $this->deleteStoredPath($lesson->file_url, 'courses/h5p/');
+            if ($lesson->tipe === 'h5p') {
+                app(\App\Services\H5P\H5PService::class)->deletePackage($lesson);
+            }
             $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             $lesson->delete();
 

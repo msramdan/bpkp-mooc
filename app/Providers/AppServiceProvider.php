@@ -12,7 +12,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\Services\H5P\Contracts\H5PExtractorInterface::class,
+            \App\Services\H5P\Extractors\ZipArchiveExtractor::class
+        );
     }
 
     /**
