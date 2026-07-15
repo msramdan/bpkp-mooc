@@ -48,7 +48,7 @@ class CourseLessonController extends Controller implements HasMiddleware
                 $fileUrl = $this->storeUpload($request, 'berkas_file', $dir);
             } elseif ($tipe === 'video') {
                 $videoUrl = $this->storeUpload($request, 'video_file', 'courses/videos');
-            } elseif ($tipe === 'url' || $tipe === 'survey') {
+            } elseif ($tipe === 'url') {
                 $fileUrl = $data['file_url'] ?? null;
             }
 

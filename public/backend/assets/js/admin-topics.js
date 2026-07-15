@@ -137,22 +137,16 @@
                     if (videoInput) {
                         videoInput.required = true;
                     }
-                } else if (key === 'url' || key === 'survey') {
+                } else if (key === 'url') {
                     urlField.classList.remove('d-none');
                     if (urlInput) {
                         urlInput.required = true;
                     }
                     var urlLabel = urlField.querySelector('.form-label');
                     var urlHelp = urlField.querySelector('.form-text');
-                    if (key === 'survey') {
-                        if (urlLabel) urlLabel.innerHTML = 'Tautan Survey/Kuesioner <span class="text-danger">*</span>';
-                        if (urlHelp) urlHelp.textContent = 'Masukkan tautan Google Forms, Microsoft Forms, atau platform survei lainnya.';
-                        if (urlInput) urlInput.placeholder = 'https://forms.google.com/...';
-                    } else {
-                        if (urlLabel) urlLabel.innerHTML = 'Tautan URL <span class="text-danger">*</span>';
-                        if (urlHelp) urlHelp.textContent = 'Masukkan tautan lengkap (http/https) yang akan dibuka peserta.';
-                        if (urlInput) urlInput.placeholder = 'https://contoh.com/halaman';
-                    }
+                    if (urlLabel) urlLabel.innerHTML = 'Tautan URL <span class="text-danger">*</span>';
+                    if (urlHelp) urlHelp.textContent = 'Masukkan tautan lengkap (http/https) yang akan dibuka peserta.';
+                    if (urlInput) urlInput.placeholder = 'https://contoh.com/halaman';
                 } else if (key === 'berkas' || key === 'penugasan') {
                     berkasField.classList.remove('d-none');
                     if (berkasInput) {

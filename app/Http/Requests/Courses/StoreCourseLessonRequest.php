@@ -61,7 +61,7 @@ class StoreCourseLessonRequest extends FormRequest
             'body' => ['nullable', 'string'],
             'durasi_menit' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'file_url' => [
-                Rule::requiredIf(fn () => in_array($tipe, ['url', 'survey'], true)),
+                Rule::requiredIf(fn () => in_array($tipe, ['url'], true)),
                 'nullable',
                 'url',
                 'max:2048',

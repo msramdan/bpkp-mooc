@@ -155,14 +155,7 @@
                                                 inputmode="url" autocomplete="url" required>
                                             <div class="form-text fs-11">{{ __('Tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
                                         </div>
-                                    @elseif ($lesson->normalizedType() === 'survey')
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Tautan Survey/Kuesioner') }}</label>
-                                            <input type="url" name="file_url" class="form-control form-control-sm"
-                                                value="{{ $lesson->file_url }}" placeholder="https://forms.google.com/..."
-                                                inputmode="url" autocomplete="url" required>
-                                            <div class="form-text fs-11">{{ __('Masukkan tautan Google Forms, Microsoft Forms, atau platform survei lainnya.') }}</div>
-                                        </div>
+
                                     @elseif ($lesson->normalizedType() === 'penugasan')
                                         @php
                                             $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
