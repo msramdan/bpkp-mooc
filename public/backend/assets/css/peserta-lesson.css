@@ -373,6 +373,36 @@
     margin-top: 0.1rem;
 }
 
+/* Survey / Kuesioner hero */
+.peserta-lesson__survey-hero {
+    position: relative;
+    text-align: center;
+    padding: 2rem 1.25rem 1.5rem;
+    border-radius: 14px;
+    background: linear-gradient(160deg, color-mix(in srgb, #0891b2 12%, transparent), transparent 70%);
+}
+
+.peserta-lesson__survey-icon-wrap {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, #0891b2 14%, transparent);
+    color: #0891b2;
+    font-size: 1.7rem;
+}
+
+.peserta-lesson__survey-hero h3 {
+    position: relative;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--lesson-ink);
+    margin-bottom: 0.35rem;
+}
+
 @media (max-width: 991.98px) {
     .peserta-lesson__grid {
         grid-template-columns: 1fr;

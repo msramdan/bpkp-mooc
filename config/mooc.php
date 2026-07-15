@@ -7,7 +7,7 @@ return [
     /*
     | Enabled activity keys for create UI (others appear disabled).
     */
-    'enabled_activities' => ['berkas', 'video', 'url', 'penugasan'],
+    'enabled_activities' => ['berkas', 'video', 'url', 'penugasan', 'survey'],
 
     /*
     | Max upload size for activity type "berkas" (kilobytes).
