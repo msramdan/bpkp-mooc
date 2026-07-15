@@ -27,6 +27,10 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     Route::get('/dashboard', HomeController::class)->name('dashboard');
 
+    Route::get('/h5p-assets/{lesson}/{path?}', [\App\Http\Controllers\Peserta\H5PAssetController::class, 'serve'])
+        ->where('path', '.*')
+        ->name('h5p.assets');
+
     Route::middleware('role:peserta')->prefix('peserta')->name('peserta.')->group(function () {
         Route::get('/dashboard', [PortalController::class, 'dashboard'])
             ->middleware('permission:peserta dashboard view')

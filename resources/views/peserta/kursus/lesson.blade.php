@@ -179,17 +179,8 @@
                         </div>
                     </article>
                 @elseif ($type === 'h5p')
-                    <article class="peserta-lesson__card">
-                        <div class="peserta-lesson__survey-hero text-center py-5">
-                            <i class="bi bi-puzzle mb-3 d-block" style="font-size: 3rem; color: var(--lesson-accent);"></i>
-                            <h3>{{ __('Konten Interaktif H5P') }}</h3>
-                            <p class="text-muted mb-4">{{ __('Package H5P telah berhasil diunggah. Player interaktif sedang dalam tahap instalasi dan akan segera diaktifkan di sini.') }}</p>
-                            @if ($lesson->file_url)
-                                <a href="{{ $lesson->externalUrl() }}" class="btn btn-outline-primary btn-wave" target="_blank" rel="noopener">
-                                    <i class="bi bi-download me-1"></i>{{ __('Unduh Package (.h5p)') }}
-                                </a>
-                            @endif
-                        </div>
+                    <article class="peserta-lesson__card" style="padding: 0; overflow: hidden; border: none; background: transparent;">
+                        <div id="h5p-container"></div>
                     </article>
                 @elseif (in_array($type, ['pre_test', 'post_test', 'scorm', 'forum', 'sertifikat'], true))
                     <article class="peserta-lesson__card">
@@ -265,6 +256,18 @@
     </div>
 @endsection
 
+@push('styles')
+    @if ($type === 'h5p')
+        <link rel="stylesheet" href="{{ asset('vendor/h5p-standalone/styles/h5p.css') }}">
+        <style>
+            #h5p-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        </style>
+    @endif
+@endpush
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -287,4 +290,26 @@
             });
         });
     </script>
+    @if ($type === 'h5p')
+        <script src="{{ asset('vendor/h5p-standalone/main.bundle.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async function() {
+                const el = document.getElementById('h5p-container');
+                if (!el) return;
+
+                const options = {
+                    h5pJsonPath: '{{ route('h5p.assets', ['lesson' => $lesson, 'path' => '']) }}',
+                    frameJs: '{{ asset('vendor/h5p-standalone/frame.bundle.js') }}',
+                    frameCss: '{{ asset('vendor/h5p-standalone/styles/h5p.css') }}',
+                };
+                
+                try {
+                    await new H5PStandalone.H5P(el, options);
+                } catch (err) {
+                    console.error('Error initializing H5P:', err);
+                    el.innerHTML = '<div class="alert alert-danger">Gagal memuat player H5P.</div>';
+                }
+            });
+        </script>
+    @endif
 @endpush
