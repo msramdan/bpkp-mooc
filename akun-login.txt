@@ -1,0 +1,43 @@
+================================================================================
+AKUN LOGIN BPKP MOOC (lokal / demo)
+================================================================================
+URL app     : http://localhost:8000
+Update      : 2026-07-15
+Catatan     : Password demo sesuai .env & seeder. Jangan pakai di production.
+
+--------------------------------------------------------------------------------
+1. SUPER ADMIN
+--------------------------------------------------------------------------------
+Nama        : Admin Demo
+Email       : admin@example.com
+Password    : password
+Role        : super_admin
+Sumber      : SUPER_ADMIN_* di .env / php artisan db:seed --class=SuperAdminSeeder
+
+--------------------------------------------------------------------------------
+2. PESERTA DEMO (utama)
+--------------------------------------------------------------------------------
+Email       : nurlaily.febriyuna@bpkp.go.id
+Password    : password
+Role        : peserta
+Sumber      : DEMO_PESERTA_EMAIL + DEMO_LOGIN_PASSWORD di .env
+              php artisan db:seed --class=DemoLoginSeeder
+
+--------------------------------------------------------------------------------
+3. PESERTA SEEDER (opsional)
+--------------------------------------------------------------------------------
+Password semua: password
+
+Email contoh:
+  peserta01@bpkp-mooc.test  (Ahmad Fauzi)
+  peserta02@bpkp-mooc.test  (Siti Nurhaliza)
+  peserta03@bpkp-mooc.test  (Budi Santoso)
+  ...
+  peserta21@bpkp-mooc.test  (Vina Oktaviani)
+
+Sumber: php artisan db:seed --class=PesertaSeeder
+
+================================================================================
+Reset cepat password demo peserta
+  php artisan db:seed --class=DemoLoginSeeder
+================================================================================
