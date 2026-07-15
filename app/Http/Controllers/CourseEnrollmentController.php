@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\Roles;
+use App\Http\Requests\Courses\BulkDestroyCourseEnrollmentRequest;
 use App\Http\Requests\Courses\StoreCourseEnrollmentRequest;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
@@ -59,6 +60,8 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
         }
 
         if ($created) {
+            ParticipantController::forgetCachedLists();
+
             return redirect()
                 ->route('courses.show', [$course, 'tab' => 'peserta'])
                 ->with('success', __('Peserta berhasil didaftarkan ke kursus.'));
@@ -78,9 +81,34 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
         }
 
         $enrollment->delete();
+        ParticipantController::forgetCachedLists();
 
         return redirect()
             ->route('courses.show', [$course, 'tab' => 'peserta'])
             ->with('success', __('Pendaftaran peserta berhasil dihapus.'));
+    }
+
+    public function bulkDestroy(BulkDestroyCourseEnrollmentRequest $request, Course $course): RedirectResponse
+    {
+        $this->authorize('manageEnrollments', $course);
+
+        $ids = array_values(array_unique($request->validated('enrollment_ids')));
+
+        $deleted = CourseEnrollment::query()
+            ->where('course_id', $course->id)
+            ->whereIn('id', $ids)
+            ->delete();
+
+        if ($deleted === 0) {
+            return redirect()
+                ->route('courses.show', [$course, 'tab' => 'peserta'])
+                ->with('error', __('Tidak ada pendaftaran yang dihapus.'));
+        }
+
+        ParticipantController::forgetCachedLists();
+
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'peserta'])
+            ->with('success', __(':count pendaftaran peserta berhasil dihapus.', ['count' => $deleted]));
     }
 }

@@ -63,8 +63,15 @@
             pageLength: 12,
             lengthMenu: [[12, 24, 48], [12, 24, 48]],
             order: [[1, 'asc']],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+            // Kontrol length/search digeser ke toolbar atas; paginate ke footer bawah.
+            dom: 'lfrtip',
+            language: (function () {
+                var locale = document.documentElement.getAttribute('lang') || 'id';
+                if (locale.indexOf('en') === 0) {
+                    return {};
+                }
+                return { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' };
+            })(),
             columns: [
                 { data: 'card', name: 'card', orderable: false, searchable: false },
                 { data: 'judul', name: 'judul', visible: false },
@@ -116,13 +123,11 @@
 
         var kategoriFilter = document.getElementById('filter-kategori');
         var publishedFilter = document.getElementById('filter-published');
+        var applyFilter = document.getElementById('filter-courses-apply');
         var resetFilter = document.getElementById('filter-courses-reset');
 
-        if (kategoriFilter) {
-            kategoriFilter.addEventListener('change', reloadCourses);
-        }
-        if (publishedFilter) {
-            publishedFilter.addEventListener('change', reloadCourses);
+        if (applyFilter) {
+            applyFilter.addEventListener('click', reloadCourses);
         }
         if (resetFilter) {
             resetFilter.addEventListener('click', function () {

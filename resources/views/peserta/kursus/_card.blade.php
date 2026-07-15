@@ -16,7 +16,7 @@
         <x-course-thumbnail :course="$course" class="peserta-kursus-card__image" />
         <div class="peserta-kursus-card__media-shade" aria-hidden="true"></div>
         <span class="peserta-kursus-card__status peserta-kursus-card__status--{{ $statusClass }}">
-            {{ $enrollment->status }}
+            {{ __($enrollment->status) }}
         </span>
         <span class="peserta-kursus-card__duration">
             {{ $course->durasi_jam }} {{ __('jam') }}

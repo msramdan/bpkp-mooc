@@ -9,7 +9,7 @@
                 <span class="admin-course-card__status admin-course-card__status--draft">{{ __('Draft') }}</span>
             @endif
             @if ($course->level)
-                <span class="admin-course-card__level">{{ $course->level }}</span>
+                <span class="admin-course-card__level">{{ __($course->level) }}</span>
             @endif
         </div>
     </a>

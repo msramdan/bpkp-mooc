@@ -93,44 +93,67 @@ class CourseController extends Controller implements HasMiddleware
     {
         $this->authorize('view', $course);
 
-        $course->load([
-            'tags',
-            'modules' => fn ($q) => $q->orderBy('urutan')->with([
-                'lessons' => fn ($l) => $l->orderBy('urutan'),
-            ]),
-        ]);
-
         $search = trim((string) $request->query('q', ''));
+        $activeTab = in_array($request->query('tab'), ['info', 'modules', 'peserta'], true)
+            ? (string) $request->query('tab')
+            : (($search !== '' || $request->has('page')) ? 'peserta' : 'info');
 
-        $enrollments = $course->enrollments()
-            ->with('user')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->whereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->where('name', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%');
-                });
-            })
-            ->latest('enrolled_at')
-            ->paginate(25)
-            ->withQueryString();
+        $course->loadCount(['modules', 'enrollments']);
+        $course->load(['tags:id,name']);
 
-        $enrolledUserIds = $course->enrollments()->pluck('user_id');
-        $enrollmentsCount = $enrolledUserIds->count();
+        // Heavy module tree only when needed.
+        if ($activeTab === 'modules') {
+            $course->load([
+                'modules' => fn ($q) => $q->orderBy('urutan')->with([
+                    'lessons' => fn ($l) => $l->orderBy('urutan'),
+                ]),
+            ]);
+        }
 
-        $pesertaUsers = \App\Models\User::role('peserta')
-            ->orderBy('name')
-            ->get(['id', 'name', 'email']);
+        $enrollments = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 25);
+        $pesertaUsers = collect();
+
+        if ($activeTab === 'peserta') {
+            $enrollments = $course->enrollments()
+                ->select([
+                    'id', 'user_id', 'course_id', 'progress', 'modul_selesai',
+                    'status', 'enrolled_at',
+                ])
+                ->with(['user:id,name,email'])
+                ->when($search !== '', function ($query) use ($search) {
+                    $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $search).'%';
+                    $query->whereHas('user', function ($userQuery) use ($like) {
+                        $userQuery->where('name', 'like', $like)
+                            ->orWhere('email', 'like', $like);
+                    });
+                })
+                ->latest('enrolled_at')
+                ->paginate(25)
+                ->withQueryString();
+
+            if (auth()->user()?->can('course enrollment manage')) {
+                // Only users not already enrolled — avoids loading every peserta + plucking all IDs.
+                $pesertaUsers = \App\Models\User::role(Roles::PESERTA)
+                    ->select(['id', 'name', 'email'])
+                    ->whereNotExists(function ($exists) use ($course) {
+                        $exists->select(DB::raw(1))
+                            ->from('course_enrollments')
+                            ->whereColumn('course_enrollments.user_id', 'users.id')
+                            ->where('course_enrollments.course_id', $course->id);
+                    })
+                    ->orderBy('name')
+                    ->limit(500)
+                    ->get();
+            }
+        }
 
         return view('courses.show', [
             'course' => $course,
             'enrollments' => $enrollments,
-            'enrollmentsCount' => $enrollmentsCount,
+            'enrollmentsCount' => (int) $course->enrollments_count,
             'pesertaUsers' => $pesertaUsers,
-            'enrolledUserIds' => $enrolledUserIds,
             'pesertaSearch' => $search,
-            'activeTab' => in_array($request->query('tab'), ['info', 'modules', 'peserta'], true)
-                ? $request->query('tab')
-                : (($search !== '' || $request->has('page')) ? 'peserta' : 'info'),
+            'activeTab' => $activeTab,
         ]);
     }
 

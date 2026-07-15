@@ -129,7 +129,7 @@
                                 <div class="peserta-dash-course__media">
                                     <x-course-thumbnail :course="$course" class="peserta-dash-course__thumb" />
                                     <span class="peserta-dash-course__status peserta-dash-course__status--{{ $statusClass }}">
-                                        {{ $enrollment->status }}
+                                        {{ __($enrollment->status) }}
                                     </span>
                                 </div>
                                 <div class="peserta-dash-course__body">

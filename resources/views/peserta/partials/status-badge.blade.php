@@ -11,4 +11,4 @@
     ];
     $color = $map[$status] ?? 'secondary';
 @endphp
-<span class="badge bg-{{ $color }}-transparent">{{ $status }}</span>
+<span class="badge bg-{{ $color }}-transparent">{{ __($status) }}</span>

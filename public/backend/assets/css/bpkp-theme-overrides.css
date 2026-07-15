@@ -115,6 +115,109 @@
   color: #cbd5e1 !important;
 }
 
+/*
+ * Dark: transparent badges / primary-as-text.
+ * Primary brand (#2b488b) is too dark for ink on slate surfaces.
+ */
+[data-theme-mode="dark"] .bg-primary-transparent,
+[data-theme-mode="dark"] .bg-primary-transparent:hover {
+  background-color: rgba(147, 180, 230, 0.18) !important;
+  color: #c5d6f0 !important;
+}
+
+[data-theme-mode="dark"] .bg-success-transparent,
+[data-theme-mode="dark"] .bg-success-transparent:hover {
+  background-color: rgba(52, 211, 153, 0.16) !important;
+  color: #6ee7b7 !important;
+}
+
+[data-theme-mode="dark"] .bg-info-transparent,
+[data-theme-mode="dark"] .bg-info-transparent:hover {
+  background-color: rgba(96, 165, 250, 0.16) !important;
+  color: #93c5fd !important;
+}
+
+[data-theme-mode="dark"] .bg-warning-transparent,
+[data-theme-mode="dark"] .bg-warning-transparent:hover {
+  background-color: rgba(251, 191, 36, 0.16) !important;
+  color: #fcd34d !important;
+}
+
+[data-theme-mode="dark"] .bg-danger-transparent,
+[data-theme-mode="dark"] .bg-danger-transparent:hover {
+  background-color: rgba(248, 113, 113, 0.16) !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme-mode="dark"] .bg-secondary-transparent,
+[data-theme-mode="dark"] .bg-secondary-transparent:hover {
+  background-color: rgba(148, 163, 184, 0.16) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme-mode="dark"] .text-primary {
+  color: #b8cce8 !important;
+}
+
+[data-theme-mode="dark"] .link-primary {
+  color: #b8cce8 !important;
+}
+
+[data-theme-mode="dark"] .form-check-input {
+  background-color: rgb(28, 33, 44);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+[data-theme-mode="dark"] .form-check-input:checked {
+  background-color: rgb(var(--primary-rgb));
+  border-color: rgb(var(--primary-rgb));
+}
+
+[data-theme-mode="dark"] .form-control,
+[data-theme-mode="dark"] .form-select {
+  color: #e2e8f0;
+}
+
+[data-theme-mode="dark"] .form-control::placeholder {
+  color: #64748b;
+}
+
+[data-theme-mode="dark"] .table > :not(caption) > * > * {
+  border-bottom-color: rgba(148, 163, 184, 0.1);
+}
+
+[data-theme-mode="dark"] .progress {
+  background-color: rgba(148, 163, 184, 0.16);
+}
+
+[data-theme-mode="dark"] .page-link {
+  color: #cbd5e1;
+  background-color: rgb(38, 44, 58);
+}
+
+[data-theme-mode="dark"] .page-item.active .page-link {
+  background-color: rgb(var(--primary-rgb));
+  border-color: rgb(var(--primary-rgb));
+  color: #fff;
+}
+
+[data-theme-mode="dark"] .choices__inner,
+[data-theme-mode="dark"] .choices__input {
+  background-color: var(--form-control-bg);
+  color: #e2e8f0;
+}
+
+[data-theme-mode="dark"] .choices__list--dropdown,
+[data-theme-mode="dark"] .choices__list[aria-expanded] {
+  background-color: rgb(32, 38, 50);
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+[data-theme-mode="dark"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+[data-theme-mode="dark"] .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  background-color: rgba(147, 180, 230, 0.14);
+}
+
 /* Scrollbar dark — lebih halus */
 [data-theme-mode="dark"] body :hover::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.28);

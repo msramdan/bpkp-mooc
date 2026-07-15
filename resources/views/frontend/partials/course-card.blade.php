@@ -1,11 +1,6 @@
 @php
     $delay = 100 + (($loop->index ?? 0) * 100);
-    $levelLabel = match (strtolower((string) $course->level)) {
-        'pemula' => 'Pemula',
-        'menengah' => 'Menengah',
-        'lanjutan' => 'Lanjutan',
-        default => ucfirst(strtolower((string) $course->level)),
-    };
+    $levelLabel = __($course->level ?: 'Pemula');
 @endphp
 <div class="col-xl-4 col-lg-6 d-flex wow fadeInUp" data-wow-delay="{{ $delay }}ms">
     <div class="course-one__item landing-course-card w-100">
@@ -15,9 +10,9 @@
         <div class="course-one__content landing-course-card__body">
             <div class="landing-course-card__main">
                 <div class="course-one__time">
-                    {{ $course->modul_total }} Modul
+                    {{ $course->modul_total }} {{ __('Modul') }}
                     @if ($course->durasi_jam > 0)
-                        · {{ $course->durasi_jam }} Jam
+                        · {{ $course->durasi_jam }} {{ __('jam') }}
                     @endif
                 </div>
                 <div class="course-one__ratings">
@@ -33,7 +28,7 @@
                     <p class="course-one__author__designation mb-0">{{ $levelLabel }}</p>
                 </div>
                 <div class="course-one__meta">
-                    <p class="course-one__meta__class mb-0">{{ number_format($course->enrollments_count) }} Peserta</p>
+                    <p class="course-one__meta__class mb-0">{{ number_format($course->enrollments_count) }} {{ __('Peserta') }}</p>
                 </div>
             </div>
         </div>

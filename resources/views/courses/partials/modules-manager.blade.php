@@ -6,7 +6,7 @@
     <div class="topic-manager__header">
         <div>
             <h3 class="topic-manager__title">{{ __('Topik kursus') }}</h3>
-            <p class="topic-manager__hint">{{ __('Geser nomor untuk mengatur urutan topik.') }}</p>
+            <p class="topic-manager__hint">{{ __('Geser ikon untuk mengatur urutan topik.') }}</p>
         </div>
         <button type="button" class="btn btn-primary btn-wave" data-bs-toggle="modal" data-bs-target="#topicCreateModal">
             <i class="ri-add-line me-1"></i>{{ __('Tambah topik') }}
@@ -23,8 +23,12 @@
     <div class="card custom-card mb-3 topic-card" data-topic-id="{{ $module->id }}">
         <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2 min-w-0">
-                <span class="topic-order-num @can('course edit') topic-drag-handle @endcan"
-                    @can('course edit') title="{{ __('Geser untuk urutkan') }}" @endcan>{{ $module->urutan }}</span>
+                @can('course edit')
+                    <button type="button" class="topic-drag-handle" title="{{ __('Geser untuk urutkan') }}" aria-label="{{ __('Geser untuk urutkan') }}">
+                        <i class="ri-draggable" aria-hidden="true"></i>
+                    </button>
+                @endcan
+                <span class="topic-order-num">{{ $module->urutan }}</span>
                 <span class="card-title mb-0 text-truncate">{{ $module->judul }}</span>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -48,17 +52,17 @@
         </div>
         <div class="card-body">
             @can('course edit')
-                <form method="POST" action="{{ route('courses.modules.update', [$course, $module]) }}" class="row g-2 mb-3">
+                <form method="POST" action="{{ route('courses.modules.update', [$course, $module]) }}" class="row g-2 mb-3 topic-inline-form">
                     @csrf
                     @method('PUT')
                     <div class="col-md-5">
-                        <input type="text" name="judul" class="form-control form-control-sm" value="{{ $module->judul }}" required>
+                        <input type="text" name="judul" class="form-control" value="{{ $module->judul }}" required maxlength="255">
                     </div>
                     <div class="col-md-5">
-                        <input type="text" name="deskripsi" class="form-control form-control-sm" value="{{ $module->deskripsi }}" placeholder="{{ __('Deskripsi') }}">
+                        <input type="text" name="deskripsi" class="form-control" value="{{ $module->deskripsi }}" placeholder="{{ __('Deskripsi') }}" maxlength="2000">
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-sm btn-outline-primary btn-wave w-100">{{ __('Simpan') }}</button>
+                        <button type="submit" class="btn btn-outline-primary btn-wave w-100">{{ __('Simpan') }}</button>
                     </div>
                     <input type="hidden" name="durasi_menit" value="{{ $module->durasi_menit }}">
                 </form>
@@ -224,7 +228,7 @@
                         <h5 class="modal-title">{{ __('Tambah topik') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body topic-modal-form">
                         <div class="mb-3">
                             <label class="form-label">{{ __('Nama topik') }} <span class="text-danger">*</span></label>
                             <input type="text" name="judul" class="form-control" required maxlength="255"

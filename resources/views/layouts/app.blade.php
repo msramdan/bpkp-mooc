@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
     data-width="fullwidth" data-menu-styles="light" data-toggled="close">
 <head>
     <meta charset="UTF-8">
@@ -75,6 +75,15 @@
     <script src="{{ asset('backend') }}/assets/libs/%40tarekraafat/autocomplete.js/autoComplete.min.js"></script>
     <script src="{{ asset('backend') }}/assets/js/sticky.js"></script>
     <script src="{{ asset('backend') }}/assets/js/defaultmenu.js"></script>
+    <script>
+        window.AppLocale = @json(app()->getLocale());
+        window.AppI18n = {
+            search: @json(__('Cari...')),
+            select: @json(__('Pilih...')),
+            noResults: @json(__('Tidak ditemukan')),
+            noChoices: @json(__('Tidak ada pilihan')),
+        };
+    </script>
     <script src="{{ asset('backend') }}/assets/js/custom.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>

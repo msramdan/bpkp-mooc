@@ -8,16 +8,27 @@
 .app-sidebar .main-menu {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.55rem;
 }
 
 .app-sidebar .main-menu > .slide__category {
-  margin-bottom: 0.15rem;
+  margin-block: 0.25rem 0.05rem;
+  padding-block: 0.35rem;
 }
 
-/* Satu jarak seragam antar item level atas (Dashboard, Kursus, Data Utama, Utilitas) */
+.app-sidebar .main-menu > .slide__category:first-child {
+  margin-block-start: 0;
+  padding-block-start: 0.2rem;
+}
+
+/* Satu jarak seragam antar item level atas — tanpa lubang kosong */
 .app-sidebar .main-menu > .slide {
-  margin-bottom: 0 !important;
+  margin: 0 !important;
+  padding-block: 0 !important;
+  padding-inline: 1rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  grid-template-rows: none !important;
 }
 
 .app-sidebar .main-menu > .slide:last-child {
@@ -29,30 +40,36 @@
   display: block !important;
 }
 
-/* Tutup rapat submenu saat tidak .open (hindari "lubang" putih antar parent) */
-.app-sidebar .main-menu > .slide.has-sub:not(.open) > .slide-menu {
+/* Tutup rapat submenu saat tidak .open (hindari "lubang" antar parent) */
+.app-sidebar .main-menu > .slide.has-sub:not(.open) > .slide-menu,
+.app-sidebar .main-menu > .slide:not(.has-sub) > .slide-menu {
   display: none !important;
   height: 0 !important;
   max-height: 0 !important;
+  min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
   visibility: hidden !important;
   border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .app-sidebar .main-menu > .slide.has-sub.open > .slide-menu {
   display: block !important;
   visibility: visible !important;
-  height: auto;
-  max-height: none;
-  margin-top: 0.2rem;
+  height: auto !important;
+  max-height: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  margin-top: 0.1rem;
   margin-bottom: 0;
   padding-inline-start: 0;
 }
 
 .app-sidebar .main-menu > .slide.has-sub.open > .slide-menu > .slide {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.1rem;
 }
 
 .app-sidebar .main-menu > .slide.has-sub.open > .slide-menu > .slide:last-child {
@@ -61,6 +78,8 @@
 
 .app-sidebar .main-menu > .slide > .side-menu__item {
   column-gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  margin: 0;
 }
 
 .app-sidebar .main-menu > .slide > .side-menu__item > .side-menu__icon {

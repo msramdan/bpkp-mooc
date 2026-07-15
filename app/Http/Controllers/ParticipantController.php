@@ -7,9 +7,12 @@ use App\Models\CourseEnrollment;
 use App\Models\User;
 use App\Support\Roles;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ParticipantController extends Controller implements HasMiddleware
 {
@@ -25,50 +28,105 @@ class ParticipantController extends Controller implements HasMiddleware
     {
         $search = trim((string) $request->query('q', ''));
         $courseId = trim((string) $request->query('course_id', ''));
-        $status = trim((string) $request->query('status', ''));
+        $letter = strtoupper(trim((string) $request->query('letter', '')));
+        if (! preg_match('/^[A-Z]$/', $letter)) {
+            $letter = '';
+        }
 
-        $enrollments = CourseEnrollment::query()
-            ->with(['user:id,name,email', 'course:id,judul,kode,kategori,slug'])
+        // List page: light query — only user fields + enrollment count (no nested enrollments).
+        $participants = User::role(Roles::PESERTA)
+            ->select(['id', 'name', 'email'])
+            ->withCount('courseEnrollments')
             ->when($search !== '', function ($query) use ($search) {
-                $query->whereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->where('name', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%');
+                $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $search).'%';
+                $query->where(function ($inner) use ($like) {
+                    $inner->where('name', 'like', $like)
+                        ->orWhere('email', 'like', $like);
                 });
             })
-            ->when($courseId !== '', fn ($query) => $query->where('course_id', $courseId))
-            ->when($status !== '', fn ($query) => $query->where('status', $status))
-            ->latest('enrolled_at')
+            ->when($courseId !== '', function ($query) use ($courseId) {
+                $query->whereExists(function ($exists) use ($courseId) {
+                    $exists->select(DB::raw(1))
+                        ->from('course_enrollments')
+                        ->whereColumn('course_enrollments.user_id', 'users.id')
+                        ->where('course_enrollments.course_id', $courseId);
+                });
+            })
+            ->when($letter !== '', function ($query) use ($letter) {
+                // Filter by first letter of the name (after leading trim).
+                $query->whereRaw('UPPER(LEFT(TRIM(name), 1)) = ?', [$letter]);
+            })
+            ->orderBy('name')
             ->paginate(25)
             ->withQueryString();
 
-        $stats = [
-            'peserta' => (int) User::role(Roles::PESERTA)->count(),
-            'enrollments' => (int) CourseEnrollment::query()->count(),
-            'courses' => (int) Course::query()->whereHas('enrollments')->count(),
-            'avg_progress' => (int) round((float) CourseEnrollment::query()->avg('progress')),
-        ];
-
-        $courses = Course::query()
-            ->orderBy('judul')
-            ->get(['id', 'judul', 'kode']);
-
-        $statuses = CourseEnrollment::query()
-            ->select('status')
-            ->whereNotNull('status')
-            ->distinct()
-            ->orderBy('status')
-            ->pluck('status');
-
         return view('participants.index', [
-            'enrollments' => $enrollments,
-            'stats' => $stats,
-            'courses' => $courses,
-            'statuses' => $statuses,
+            'participants' => $participants,
+            'courses' => $this->filterCourses(),
+            'alphabet' => range('A', 'Z'),
             'filters' => [
                 'q' => $search,
                 'course_id' => $courseId,
-                'status' => $status,
+                'letter' => $letter,
             ],
         ]);
+    }
+
+    /**
+     * Lazy-load courses for one participant (modal). Avoids N×enrollments on the index page.
+     */
+    public function courses(User $user): JsonResponse
+    {
+        abort_unless($user->hasRole(Roles::PESERTA), 404);
+
+        $items = $user->courseEnrollments()
+            ->select(['id', 'user_id', 'course_id', 'progress', 'status', 'enrolled_at'])
+            ->with(['course:id,judul,kode,kategori,slug'])
+            ->latest('enrolled_at')
+            ->get()
+            ->map(function (CourseEnrollment $enrollment) {
+                $course = $enrollment->course;
+                if (! $course) {
+                    return null;
+                }
+
+                return [
+                    'title' => $course->judul,
+                    'code' => $course->kode,
+                    'category' => $course->kategori,
+                    'status' => $enrollment->status ? __($enrollment->status) : '—',
+                    'progress' => (int) $enrollment->progress,
+                    'url' => route('courses.show', [$course, 'tab' => 'peserta']),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'courses' => $items,
+        ]);
+    }
+
+    public static function forgetCachedLists(): void
+    {
+        Cache::forget('admin.participants.filter-courses');
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Course> */
+    private function filterCourses()
+    {
+        return Cache::remember('admin.participants.filter-courses', now()->addMinutes(5), function () {
+            return Course::query()
+                ->select(['id', 'judul', 'kode'])
+                ->whereExists(function ($exists) {
+                    $exists->select(DB::raw(1))
+                        ->from('course_enrollments')
+                        ->whereColumn('course_enrollments.course_id', 'courses.id');
+                })
+                ->orderBy('judul')
+                ->get();
+        });
     }
 }

@@ -49,8 +49,12 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::resource('roles', App\Http\Controllers\RoleAndPermissionController::class);
         Route::resource('courses', CourseController::class);
         Route::get('participants', [ParticipantController::class, 'index'])->name('participants.index');
+        Route::get('participants/{user}/courses', [ParticipantController::class, 'courses'])
+            ->name('participants.courses');
         Route::post('courses/{course}/enrollments', [CourseEnrollmentController::class, 'store'])
             ->name('courses.enrollments.store');
+        Route::delete('courses/{course}/enrollments/bulk', [CourseEnrollmentController::class, 'bulkDestroy'])
+            ->name('courses.enrollments.bulk-destroy');
         Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
             ->name('courses.enrollments.destroy');
 

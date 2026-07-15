@@ -120,13 +120,13 @@
       new Choices(element, {
         allowHTML: false,
         searchEnabled: true,
-        searchPlaceholderValue: element.getAttribute("data-search-placeholder") || "Cari...",
+        searchPlaceholderValue: element.getAttribute("data-search-placeholder") || (window.AppI18n && window.AppI18n.search) || "Cari...",
         itemSelectText: "",
         shouldSort: false,
         placeholder: true,
-        placeholderValue: element.getAttribute("data-placeholder") || "Pilih...",
-        noResultsText: "Tidak ditemukan",
-        noChoicesText: "Tidak ada pilihan",
+        placeholderValue: element.getAttribute("data-placeholder") || (window.AppI18n && window.AppI18n.select) || "Pilih...",
+        noResultsText: (window.AppI18n && window.AppI18n.noResults) || "Tidak ditemukan",
+        noChoicesText: (window.AppI18n && window.AppI18n.noChoices) || "Tidak ada pilihan",
         removeItemButton: element.hasAttribute("multiple"),
       });
     }

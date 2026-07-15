@@ -159,11 +159,11 @@ return [
             ],
         ],
         [
-            'header' => 'Utilitas',
+            'header' => 'Utilities',
             'permissions' => ['user view', 'role & permission view', 'database backup view'],
             'menus' => [
                 [
-                    'title' => 'Utilitas',
+                    'title' => 'Utilities',
                     'icon' => '<i class="bi bi-gear"></i>',
                     'route' => null,
                     'permission' => null,

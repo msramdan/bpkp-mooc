@@ -48,21 +48,24 @@
 
         <ul class="nav nav-tabs mb-3" role="tablist">
         <li class="nav-item">
-            <button class="nav-link {{ ($activeTab ?? 'info') === 'info' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-info" type="button">
+            <a class="nav-link {{ ($activeTab ?? 'info') === 'info' ? 'active' : '' }}"
+                href="{{ route('courses.show', [$course, 'tab' => 'info']) }}">
                 {{ __('Informasi kursus') }}
-            </button>
+            </a>
         </li>
         <li class="nav-item">
-            <button class="nav-link {{ ($activeTab ?? '') === 'modules' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-modules" type="button">
+            <a class="nav-link {{ ($activeTab ?? '') === 'modules' ? 'active' : '' }}"
+                href="{{ route('courses.show', [$course, 'tab' => 'modules']) }}">
                 {{ __('Topik & aktivitas') }}
-                <span class="badge bg-primary-transparent ms-1">{{ $course->modules->count() }}</span>
-            </button>
+                <span class="badge bg-primary-transparent ms-1">{{ (int) ($course->modules_count ?? 0) }}</span>
+            </a>
         </li>
         <li class="nav-item">
-            <button class="nav-link {{ ($activeTab ?? '') === 'peserta' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tab-peserta" type="button">
+            <a class="nav-link {{ ($activeTab ?? '') === 'peserta' ? 'active' : '' }}"
+                href="{{ route('courses.show', [$course, 'tab' => 'peserta']) }}">
                 {{ __('Peserta terdaftar') }}
                 <span class="badge bg-primary-transparent ms-1">{{ $enrollmentsCount }}</span>
-            </button>
+            </a>
         </li>
     </ul>
 
@@ -98,10 +101,13 @@
         </div>
 
         <div class="tab-pane fade {{ ($activeTab ?? '') === 'modules' ? 'show active' : '' }}" id="tab-modules">
-            @include('courses.partials.modules-manager', ['course' => $course])
+            @if (($activeTab ?? '') === 'modules')
+                @include('courses.partials.modules-manager', ['course' => $course])
+            @endif
         </div>
 
         <div class="tab-pane fade {{ ($activeTab ?? '') === 'peserta' ? 'show active' : '' }}" id="tab-peserta">
+            @if (($activeTab ?? '') === 'peserta')
             <div class="course-peserta row g-3">
                 @can('course enrollment manage')
                     <div class="col-lg-4">
@@ -122,11 +128,9 @@
                                             required>
                                             <option value="">{{ __('Cari nama atau email...') }}</option>
                                             @foreach ($pesertaUsers as $user)
-                                                @if (! $enrolledUserIds->contains($user->id))
-                                                    <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>
-                                                        {{ $user->name }} ({{ $user->email }})
-                                                    </option>
-                                                @endif
+                                                <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>
+                                                    {{ $user->name }} ({{ $user->email }})
+                                                </option>
                                             @endforeach
                                         </select>
                                         @error('user_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -155,18 +159,43 @@
                                         class="form-control"
                                         placeholder="{{ __('Cari nama / email...') }}"
                                         aria-label="{{ __('Cari peserta') }}">
-                                    <button type="submit" class="btn btn-primary btn-wave">{{ __('Cari') }}</button>
-                                    @if ($pesertaSearch !== '')
-                                        <a href="{{ route('courses.show', [$course, 'tab' => 'peserta']) }}" class="btn btn-light btn-wave">{{ __('Reset') }}</a>
-                                    @endif
+                                    <button type="submit" class="btn btn-primary btn-wave">
+                                        <i class="bi bi-funnel me-1"></i>{{ __('Terapkan') }}
+                                    </button>
+                                    <a href="{{ route('courses.show', [$course, 'tab' => 'peserta']) }}" class="btn btn-light btn-wave">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>{{ __('Reset') }}
+                                    </a>
                                 </div>
                             </form>
                         </div>
                         <div class="card-body p-0">
+                            @can('course enrollment manage')
+                                <div class="course-peserta-bulkbar d-none" id="coursePesertaBulkbar">
+                                    <div class="course-peserta-bulkbar__info">
+                                        <span class="course-peserta-bulkbar__count" id="coursePesertaBulkCount">0</span>
+                                        {{ __('peserta dipilih') }}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-danger btn-wave" id="coursePesertaBulkDelete">
+                                        <i class="ri-delete-bin-line me-1"></i>{{ __('Hapus terpilih') }}
+                                    </button>
+                                </div>
+                                <form method="POST" action="{{ route('courses.enrollments.bulk-destroy', $course) }}"
+                                    id="coursePesertaBulkForm" class="d-none">
+                                    @csrf
+                                    @method('DELETE')
+                                    <div id="coursePesertaBulkIds"></div>
+                                </form>
+                            @endcan
                             <div class="table-responsive">
-                                <table class="table table-hover course-peserta-table mb-0 align-middle">
+                                <table class="table table-hover course-peserta-table mb-0 align-middle" id="coursePesertaTable">
                                     <thead>
                                         <tr>
+                                            @can('course enrollment manage')
+                                                <th class="course-peserta-table__check" scope="col">
+                                                    <input type="checkbox" class="form-check-input" id="coursePesertaCheckAll"
+                                                        aria-label="{{ __('Pilih semua') }}">
+                                                </th>
+                                            @endcan
                                             <th class="course-peserta-table__num" scope="col">#</th>
                                             <th scope="col">{{ __('Nama') }}</th>
                                             <th scope="col">{{ __('Surel') }}</th>
@@ -181,6 +210,13 @@
                                     <tbody>
                                         @forelse ($enrollments as $enrollment)
                                             <tr>
+                                                @can('course enrollment manage')
+                                                    <td class="course-peserta-table__check">
+                                                        <input type="checkbox" class="form-check-input js-peserta-check"
+                                                            value="{{ $enrollment->id }}"
+                                                            aria-label="{{ __('Pilih :name', ['name' => $enrollment->user->name]) }}">
+                                                    </td>
+                                                @endcan
                                                 <td class="course-peserta-table__num text-muted">
                                                     {{ $enrollments->firstItem() + $loop->index }}
                                                 </td>
@@ -204,7 +240,7 @@
                                                             default => 'secondary',
                                                         };
                                                     @endphp
-                                                    <span class="badge bg-{{ $statusClass }}-transparent">{{ $enrollment->status }}</span>
+                                                    <span class="badge bg-{{ $statusClass }}-transparent">{{ __($enrollment->status) }}</span>
                                                 </td>
                                                 <td>{{ $enrollment->modul_selesai }} / {{ $course->modul_total }}</td>
                                                 @can('course enrollment manage')
@@ -223,7 +259,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted py-5">
+                                                <td colspan="{{ auth()->user()?->can('course enrollment manage') ? 8 : 6 }}" class="text-center text-muted py-5">
                                                     <i class="ri-user-search-line d-block fs-24 mb-2 opacity-50"></i>
                                                     @if ($pesertaSearch !== '')
                                                         {{ __('Tidak ada peserta yang cocok dengan pencarian.') }}
@@ -254,6 +290,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
     </div>
@@ -263,32 +300,104 @@
 @endpush
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-    <script src="{{ asset('backend/assets/js/admin-topics.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-topics.js')) ?: time() }}"></script>
+    @if (($activeTab ?? '') === 'modules')
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+        <script src="{{ asset('backend/assets/js/admin-topics.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-topics.js')) ?: time() }}"></script>
+    @endif
     <script src="{{ asset('backend/assets/js/admin-course-form.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-course-form.js')) ?: time() }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var tabMap = {
-                '#tab-info': 'info',
-                '#tab-modules': 'modules',
-                '#tab-peserta': 'peserta'
-            };
+            var checkAll = document.getElementById('coursePesertaCheckAll');
+            var bulkBar = document.getElementById('coursePesertaBulkbar');
+            var bulkCount = document.getElementById('coursePesertaBulkCount');
+            var bulkDeleteBtn = document.getElementById('coursePesertaBulkDelete');
+            var bulkForm = document.getElementById('coursePesertaBulkForm');
+            var bulkIds = document.getElementById('coursePesertaBulkIds');
+            var table = document.getElementById('coursePesertaTable');
 
-            document.querySelectorAll('[data-bs-toggle="tab"][data-bs-target]').forEach(function (btn) {
-                btn.addEventListener('shown.bs.tab', function (event) {
-                    var target = event.target.getAttribute('data-bs-target');
-                    var tab = tabMap[target];
-                    if (!tab) return;
+            if (!table || !checkAll || !bulkBar || !bulkForm) {
+                return;
+            }
 
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('tab', tab);
-                    if (tab !== 'peserta') {
-                        url.searchParams.delete('q');
-                        url.searchParams.delete('page');
-                    }
-                    window.history.replaceState({}, '', url);
-                });
+            function rowChecks() {
+                return Array.prototype.slice.call(table.querySelectorAll('.js-peserta-check'));
+            }
+
+            function selectedChecks() {
+                return rowChecks().filter(function (el) { return el.checked; });
+            }
+
+            function syncBulkUi() {
+                var all = rowChecks();
+                var selected = selectedChecks();
+                var n = selected.length;
+
+                bulkCount.textContent = String(n);
+                bulkBar.classList.toggle('d-none', n === 0);
+
+                if (all.length === 0) {
+                    checkAll.checked = false;
+                    checkAll.indeterminate = false;
+                    return;
+                }
+
+                checkAll.checked = n === all.length;
+                checkAll.indeterminate = n > 0 && n < all.length;
+            }
+
+            checkAll.addEventListener('change', function () {
+                var on = checkAll.checked;
+                rowChecks().forEach(function (el) { el.checked = on; });
+                syncBulkUi();
             });
+
+            table.addEventListener('change', function (e) {
+                if (e.target && e.target.classList.contains('js-peserta-check')) {
+                    syncBulkUi();
+                }
+            });
+
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', function () {
+                    var selected = selectedChecks();
+                    if (selected.length === 0) {
+                        return;
+                    }
+
+                    var confirmOpts = {
+                        title: @json(__('Hapus peserta terpilih?')),
+                        text: @json(__('Pendaftaran peserta yang dipilih akan dicabut dari kursus ini. Tindakan ini tidak dapat dibatalkan.')),
+                        confirmButtonText: @json(__('Ya, hapus')),
+                    };
+
+                    function submitBulk() {
+                        bulkIds.innerHTML = '';
+                        selected.forEach(function (el) {
+                            var input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'enrollment_ids[]';
+                            input.value = el.value;
+                            bulkIds.appendChild(input);
+                        });
+                        bulkForm.submit();
+                    }
+
+                    if (window.BpkpSwal && typeof window.BpkpSwal.confirmDanger === 'function') {
+                        window.BpkpSwal.confirmDanger(confirmOpts).then(function (result) {
+                            if (result.isConfirmed) {
+                                submitBulk();
+                            }
+                        });
+                        return;
+                    }
+
+                    if (window.confirm(confirmOpts.title + '\n\n' + confirmOpts.text)) {
+                        submitBulk();
+                    }
+                });
+            }
+
+            syncBulkUi();
         });
     </script>
 @endpush

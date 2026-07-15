@@ -74,11 +74,11 @@ class ActivityTypes
 
         foreach (self::palette() as $item) {
             if ($item['key'] === $key) {
-                return $item['label'];
+                return __($item['label']);
             }
         }
 
-        return ucfirst($key);
+        return __(ucfirst($key));
     }
 
     public static function icon(string $tipe): string

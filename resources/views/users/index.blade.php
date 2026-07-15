@@ -77,9 +77,9 @@
                 order: [
                     [1, 'asc']
                 ],
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
-                },
+                language: (document.documentElement.getAttribute('lang') || '').indexOf('en') === 0
+                    ? {}
+                    : { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
                 columns: [{
                         data: 'avatar',
                         name: 'avatar',

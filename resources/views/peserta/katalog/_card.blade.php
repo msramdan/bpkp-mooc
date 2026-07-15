@@ -11,7 +11,7 @@
         @if ($isEnrolled)
             <span class="peserta-kursus-card__status peserta-kursus-card__status--success">{{ __('Sudah terdaftar') }}</span>
         @else
-            <span class="peserta-kursus-card__status peserta-kursus-card__status--primary">{{ $course->level }}</span>
+            <span class="peserta-kursus-card__status peserta-kursus-card__status--primary">{{ __($course->level) }}</span>
         @endif
         <span class="peserta-kursus-card__duration">
             {{ number_format($course->rating, 1) }}
