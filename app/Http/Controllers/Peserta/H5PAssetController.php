@@ -31,6 +31,32 @@ class H5PAssetController extends Controller
 
         $fullPath = Storage::path("{$baseDir}/{$path}");
 
-        return response()->file($fullPath);
+        $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'json' => 'application/json',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'mp3' => 'audio/mpeg',
+            'mp4' => 'video/mp4',
+            'webm' => 'video/webm',
+            'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg',
+        ];
+
+        $headers = [];
+        if (array_key_exists($extension, $mimeTypes)) {
+            $headers['Content-Type'] = $mimeTypes[$extension];
+        }
+
+        return response()->file($fullPath, $headers);
     }
 }
