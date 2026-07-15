@@ -113,10 +113,12 @@
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
                 var berkasInput = form.querySelector('[name="berkas_file"]');
+                var h5pField = document.getElementById('activityFieldH5p');
 
                 videoField.classList.add('d-none');
                 urlField.classList.add('d-none');
                 berkasField.classList.add('d-none');
+                if (h5pField) h5pField.classList.add('d-none');
                 if (videoInput) {
                     videoInput.required = false;
                     videoInput.value = '';
@@ -135,10 +137,21 @@
                     if (videoInput) {
                         videoInput.required = true;
                     }
-                } else if (key === 'url') {
+                } else if (key === 'url' || key === 'survey') {
                     urlField.classList.remove('d-none');
                     if (urlInput) {
                         urlInput.required = true;
+                    }
+                    var urlLabel = urlField.querySelector('.form-label');
+                    var urlHelp = urlField.querySelector('.form-text');
+                    if (key === 'survey') {
+                        if (urlLabel) urlLabel.innerHTML = 'Tautan Survey/Kuesioner <span class="text-danger">*</span>';
+                        if (urlHelp) urlHelp.textContent = 'Masukkan tautan Google Forms, Microsoft Forms, atau platform survei lainnya.';
+                        if (urlInput) urlInput.placeholder = 'https://forms.google.com/...';
+                    } else {
+                        if (urlLabel) urlLabel.innerHTML = 'Tautan URL <span class="text-danger">*</span>';
+                        if (urlHelp) urlHelp.textContent = 'Masukkan tautan lengkap (http/https) yang akan dibuka peserta.';
+                        if (urlInput) urlInput.placeholder = 'https://contoh.com/halaman';
                     }
                 } else if (key === 'berkas' || key === 'penugasan') {
                     berkasField.classList.remove('d-none');
@@ -171,6 +184,11 @@
                             berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-berkas-max-kb') || '10240');
                             berkasInput.setAttribute('data-label', 'Berkas');
                         }
+                    }
+                } else if (key === 'h5p') {
+                    if (h5pField) h5pField.classList.remove('d-none');
+                    if (berkasInput) {
+                        berkasInput.required = true;
                     }
                 }
 

@@ -155,6 +155,14 @@
                                                 inputmode="url" autocomplete="url" required>
                                             <div class="form-text fs-11">{{ __('Tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
                                         </div>
+                                    @elseif ($lesson->normalizedType() === 'survey')
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Tautan Survey/Kuesioner') }}</label>
+                                            <input type="url" name="file_url" class="form-control form-control-sm"
+                                                value="{{ $lesson->file_url }}" placeholder="https://forms.google.com/..."
+                                                inputmode="url" autocomplete="url" required>
+                                            <div class="form-text fs-11">{{ __('Masukkan tautan Google Forms, Microsoft Forms, atau platform survei lainnya.') }}</div>
+                                        </div>
                                     @elseif ($lesson->normalizedType() === 'penugasan')
                                         @php
                                             $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
@@ -175,6 +183,26 @@
                                                 @required(! $lesson->file_url)>
                                             <div class="form-text fs-11">
                                                 {{ __('Kosongkan jika tidak diganti. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
+                                            </div>
+                                        </div>
+                                    @elseif ($lesson->normalizedType() === 'h5p')
+                                        @php
+                                            $h5pMaxMb = round(((int) config('mooc.berkas_max_kb', 51200)) / 1024, 1);
+                                        @endphp
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Upload Package (.h5p)') }}</label>
+                                            @if ($lesson->file_url)
+                                                <div class="mb-1 fs-12">
+                                                    <i class="ri-attachment-2 me-1"></i>{{ __('Berkas H5P sudah diunggah') }}
+                                                </div>
+                                            @endif
+                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
+                                                accept=".h5p"
+                                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 51200) }}"
+                                                data-label="{{ __('Berkas H5P') }}"
+                                                @required(! $lesson->file_url)>
+                                            <div class="form-text fs-11">
+                                                {{ __('Kosongkan jika tidak diganti. Maks. :max MB.', ['max' => $h5pMaxMb]) }}
                                             </div>
                                         </div>
                                     @else
@@ -363,6 +391,16 @@
                                 data-label="{{ __('Berkas') }}">
                             <div class="form-text">
                                 {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
+                            </div>
+                        </div>
+                        <div class="mb-3 d-none" id="activityFieldH5p">
+                            <label class="form-label">{{ __('Upload Package (.h5p)') }} <span class="text-danger">*</span></label>
+                            <input type="file" name="berkas_file" class="form-control js-upload-size"
+                                accept=".h5p"
+                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 51200) }}"
+                                data-label="{{ __('Berkas H5P') }}">
+                            <div class="form-text">
+                                {{ __('Maksimal 50 MB. Format: .h5p') }}
                             </div>
                         </div>
                     </div>
