@@ -37,7 +37,7 @@ class StoreCourseLessonRequest extends FormRequest
         $hasExistingBerkas = $isUpdate && filled(optional($lesson)->file_url);
         $hasExistingVideo = $isUpdate && filled(optional($lesson)->video_url);
 
-        $h5pMaxKb = 51200; // 50MB
+        $h5pMaxKb = (int) config('mooc.h5p_max_kb', 204800);
         $fileMaxKb = match ($tipe) {
             'penugasan' => $penugasanMaxKb,
             'h5p' => $h5pMaxKb,

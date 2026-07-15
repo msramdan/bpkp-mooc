@@ -26,6 +26,12 @@ return [
     'penugasan_mimes' => ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip'],
 
     /*
+    | Max upload size for activity type "h5p" (kilobytes).
+    | 204800 = 200 MB
+    */
+    'h5p_max_kb' => (int) env('MOOC_H5P_MAX_KB', 204800),
+
+    /*
     | Max upload size for activity type "video" (kilobytes).
     | 51200 = 50 MB
     */

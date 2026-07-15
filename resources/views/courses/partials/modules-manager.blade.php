@@ -180,7 +180,7 @@
                                         </div>
                                     @elseif ($lesson->normalizedType() === 'h5p')
                                         @php
-                                            $h5pMaxMb = round(((int) config('mooc.berkas_max_kb', 51200)) / 1024, 1);
+                                            $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
                                         @endphp
                                         <div class="col-12">
                                             <label class="form-label fs-12">{{ __('Upload Package (.h5p)') }}</label>
@@ -191,7 +191,7 @@
                                             @endif
                                             <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
                                                 accept=".h5p"
-                                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 51200) }}"
+                                                data-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
                                                 data-label="{{ __('Berkas H5P') }}"
                                                 @required(! $lesson->file_url)>
                                             <div class="form-text fs-11">
@@ -388,12 +388,15 @@
                         </div>
                         <div class="mb-3 d-none" id="activityFieldH5p">
                             <label class="form-label">{{ __('Upload Package (.h5p)') }} <span class="text-danger">*</span></label>
+                            @php
+                                $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
+                            @endphp
                             <input type="file" name="berkas_file" class="form-control js-upload-size"
                                 accept=".h5p"
-                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 51200) }}"
+                                data-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
                                 data-label="{{ __('Berkas H5P') }}">
                             <div class="form-text">
-                                {{ __('Maksimal 50 MB. Format: .h5p') }}
+                                {{ __('Maksimal :max MB. Format: .h5p', ['max' => $h5pMaxMb]) }}
                             </div>
                         </div>
                     </div>
