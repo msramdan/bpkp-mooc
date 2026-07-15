@@ -10,7 +10,7 @@ namespace App\Support;
  */
 class ActivityTypes
 {
-    public const ENABLED = ['berkas', 'video', 'url', 'penugasan'];
+    public const ENABLED = ['berkas', 'video', 'url', 'penugasan', 'survey', 'h5p'];
 
     /**
      * Legacy Moodle/import types → simplified keys.
@@ -33,12 +33,12 @@ class ActivityTypes
             ['key' => 'pre_test', 'label' => 'Pre-Test', 'enabled' => false, 'icon' => 'bi-clipboard-check', 'color' => '#16a34a'],
             ['key' => 'berkas', 'label' => 'Berkas', 'enabled' => true, 'icon' => 'bi-file-earmark', 'color' => '#2563eb'],
             ['key' => 'video', 'label' => 'Video', 'enabled' => true, 'icon' => 'bi-play-btn', 'color' => '#dc2626'],
-            ['key' => 'h5p', 'label' => 'H5P', 'enabled' => false, 'icon' => 'bi-puzzle', 'color' => '#ca8a04'],
+            ['key' => 'h5p', 'label' => 'H5P', 'enabled' => true, 'icon' => 'bi-puzzle', 'color' => '#ca8a04'],
             ['key' => 'scorm', 'label' => 'SCORM', 'enabled' => false, 'icon' => 'bi-box', 'color' => '#65a30d'],
             ['key' => 'url', 'label' => 'URL', 'enabled' => true, 'icon' => 'bi-link-45deg', 'color' => '#0284c7'],
             ['key' => 'penugasan', 'label' => 'Penugasan', 'enabled' => true, 'icon' => 'bi-pencil-square', 'color' => '#7c3aed'],
             ['key' => 'forum', 'label' => 'Forum', 'enabled' => false, 'icon' => 'bi-chat-dots', 'color' => '#9333ea'],
-            ['key' => 'survey', 'label' => 'Survey/Kuesioner', 'enabled' => false, 'icon' => 'bi-bar-chart', 'color' => '#0891b2'],
+            ['key' => 'survey', 'label' => 'Survey/Kuesioner', 'enabled' => true, 'icon' => 'bi-clipboard2-data', 'color' => '#0891b2'],
             ['key' => 'post_test', 'label' => 'Post-Test', 'enabled' => false, 'icon' => 'bi-clipboard2-check', 'color' => '#ea580c'],
             ['key' => 'sertifikat', 'label' => 'Sertifikat', 'enabled' => false, 'icon' => 'bi-award', 'color' => '#d97706'],
         ];
