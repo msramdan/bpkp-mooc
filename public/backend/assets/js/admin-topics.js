@@ -223,5 +223,16 @@
         initTopicSortable();
         initActivityModals();
         initUploadSizeValidation();
+
+        // Tambahkan feedback visual saat mengunggah form yang memiliki file
+        document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                var submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + (submitBtn.getAttribute('data-loading-text') || 'Mengunggah...');
+                }
+            });
+        });
     });
 })();

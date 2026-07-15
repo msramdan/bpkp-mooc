@@ -34,8 +34,8 @@ class H5PService
         }
 
         // 2. Extract the package
-        $absoluteSourcePath = storage_path("app/{$packagePath}");
-        $absoluteExtractPath = storage_path("app/{$baseDir}/extract");
+        $absoluteSourcePath = Storage::path($packagePath);
+        $absoluteExtractPath = Storage::path("{$baseDir}/extract");
 
         try {
             $this->extractor->extract($absoluteSourcePath, $absoluteExtractPath);
