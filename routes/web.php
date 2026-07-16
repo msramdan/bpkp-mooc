@@ -74,6 +74,7 @@ Route::middleware(['auth', 'web'])->group(function () {
 
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
+        Route::resource('surveys', \App\Http\Controllers\SurveyController::class);
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
         Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');
     });
