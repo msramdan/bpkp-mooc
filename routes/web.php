@@ -75,6 +75,13 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
         Route::resource('surveys', \App\Http\Controllers\SurveyController::class);
+        
+        // Survey Builder Routes
+        Route::get('surveys/{survey}/builder', [\App\Http\Controllers\SurveyQuestionController::class, 'builder'])->name('surveys.builder');
+        Route::post('surveys/{survey}/questions', [\App\Http\Controllers\SurveyQuestionController::class, 'store'])->name('surveys.questions.store');
+        Route::put('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
+        Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
+        Route::post('surveys/{survey}/questions/reorder', [\App\Http\Controllers\SurveyQuestionController::class, 'reorder'])->name('surveys.questions.reorder');
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
         Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');
     });

@@ -53,7 +53,10 @@
                                 <td>{{ $survey->questions()->count() }} {{ __('Butir') }}</td>
                                 <td class="text-center">
                                     <div class="btn-list">
-                                        <a href="{{ route('surveys.edit', $survey) }}" class="btn btn-sm btn-info-light btn-wave">
+                                        <a href="{{ route('surveys.builder', $survey) }}" class="btn btn-sm btn-primary-light btn-wave" title="Pembangun Kuesioner (Builder)">
+                                            <i class="ri-list-settings-line"></i> Builder
+                                        </a>
+                                        <a href="{{ route('surveys.edit', $survey) }}" class="btn btn-sm btn-info-light btn-wave" title="Edit Info">
                                             <i class="ri-edit-line"></i>
                                         </a>
                                         <form action="{{ route('surveys.destroy', $survey) }}" method="POST" class="d-inline">
