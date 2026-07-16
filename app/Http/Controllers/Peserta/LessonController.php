@@ -12,9 +12,12 @@ use App\Support\ActivityTypes;
 use App\Support\PesertaAccess;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\SurveyResponse;
 
 class LessonController extends Controller implements HasMiddleware
 {
@@ -65,7 +68,7 @@ class LessonController extends Controller implements HasMiddleware
                 ->first();
         } elseif ($lesson->normalizedType() === 'survey') {
             $lesson->load('survey.questions.options');
-            $surveyResponse = \App\Models\SurveyResponse::where('survey_id', $lesson->survey_id)
+            $surveyResponse = SurveyResponse::where('survey_id', $lesson->survey_id)
                 ->where('user_id', $user->id)
                 ->where('course_lesson_id', $lesson->id)
                 ->first();
@@ -185,7 +188,7 @@ class LessonController extends Controller implements HasMiddleware
     }
 
     public function submitSurvey(
-        \Illuminate\Http\Request $request,
+        Request $request,
         Course $course,
         CourseLesson $lesson,
         LearningProgressService $progress
@@ -224,8 +227,8 @@ class LessonController extends Controller implements HasMiddleware
         $validated = $request->validate($rules, $messages);
         $answers = $request->input('answers', []);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($lesson, $user, $answers) {
-            $response = \App\Models\SurveyResponse::firstOrCreate([
+        DB::transaction(function () use ($lesson, $user, $answers) {
+            $response = SurveyResponse::firstOrCreate([
                 'survey_id' => $lesson->survey_id,
                 'user_id' => $user->id,
                 'course_lesson_id' => $lesson->id,

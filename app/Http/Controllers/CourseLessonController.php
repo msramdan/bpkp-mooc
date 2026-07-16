@@ -6,6 +6,7 @@ use App\Http\Requests\Courses\StoreCourseLessonRequest;
 use App\Models\Course;
 use App\Models\CourseLesson;
 use App\Models\CourseModule;
+use App\Services\H5P\H5PService;
 use App\Support\ActivityTypes;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
@@ -63,7 +64,7 @@ class CourseLessonController extends Controller implements HasMiddleware
             ]);
 
             if ($tipe === 'h5p' && $request->hasFile('berkas_file')) {
-                $h5pService = app(\App\Services\H5P\H5PService::class);
+                $h5pService = app(H5PService::class);
                 $lesson->update([
                     'file_url' => $h5pService->processPackage($request->file('berkas_file'), $lesson)
                 ]);
@@ -121,7 +122,7 @@ class CourseLessonController extends Controller implements HasMiddleware
             $payload['video_url'] = null;
         } elseif ($tipe === 'h5p') {
             if ($request->hasFile('berkas_file')) {
-                $h5pService = app(\App\Services\H5P\H5PService::class);
+                $h5pService = app(H5PService::class);
                 $h5pService->deletePackage($lesson);
                 $payload['file_url'] = $h5pService->processPackage($request->file('berkas_file'), $lesson);
             }
@@ -148,7 +149,7 @@ class CourseLessonController extends Controller implements HasMiddleware
             $this->deleteStoredPath($lesson->file_url, 'courses/activities/');
             $this->deleteStoredPath($lesson->file_url, 'courses/assignments/');
             if ($lesson->tipe === 'h5p') {
-                app(\App\Services\H5P\H5PService::class)->deletePackage($lesson);
+                app(H5PService::class)->deletePackage($lesson);
             }
             $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
             $lesson->delete();

@@ -6,6 +6,7 @@ use App\Support\Roles;
 use App\Http\Requests\Courses\StoreCourseRequest;
 use App\Http\Requests\Courses\UpdateCourseRequest;
 use App\Models\Course;
+use App\Models\Survey;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -137,7 +138,7 @@ class CourseController extends Controller implements HasMiddleware
             }
         }
 
-        $surveys = \App\Models\Survey::where('is_active', true)->orderBy('title')->get(['id', 'title']);
+        $surveys = Survey::where('is_active', true)->orderBy('title')->get(['id', 'title']);
 
         return view('courses.show', [
             'course' => $course,
