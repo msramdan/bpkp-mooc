@@ -40,6 +40,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
+        Route::post('/kursus/{course}/materi/{lesson}/survey', [PesertaLessonController::class, 'submitSurvey'])->middleware('permission:peserta kursus view')->name('kursus.lessons.survey.submit');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
         Route::post('/katalog/{course}/daftar', [CatalogEnrollmentController::class, 'store'])->middleware('permission:peserta katalog view')->name('katalog.enroll');
         Route::get('/progres', [PortalController::class, 'progres'])->middleware('permission:peserta progres view')->name('progres.index');

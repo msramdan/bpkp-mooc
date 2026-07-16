@@ -173,10 +173,108 @@
                     </article>
                 @elseif ($type === 'survey')
                     <article class="peserta-lesson__card">
-                        <div class="peserta-lesson__soon">
-                            <i class="bi bi-clipboard2-data"></i>
-                            <p class="mb-0">{{ __('Belum ada pertanyaan pada survey ini.') }}</p>
-                        </div>
+                        @if($lesson->survey && $lesson->survey->questions->count() > 0)
+                            <div class="mb-4">
+                                <h3 class="mb-2">{{ $lesson->survey->title }}</h3>
+                                @if($lesson->survey->description)
+                                    <p class="text-muted fs-14">{{ $lesson->survey->description }}</p>
+                                @endif
+                            </div>
+
+                            @if($surveyResponse)
+                                <div class="alert alert-success d-flex align-items-center mb-4">
+                                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                                    <div>
+                                        <strong>{{ __('Selesai!') }}</strong><br>
+                                        {{ __('Anda telah mengisi kuesioner ini pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
+                                    </div>
+                                </div>
+                            @endif
+
+                            <form action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST">
+                                @csrf
+                                <div class="survey-questions">
+                                    @foreach($lesson->survey->questions as $index => $q)
+                                        <div class="survey-question-item p-4 border rounded mb-3 {{ $errors->has('answers.'.$q->id) ? 'border-danger' : 'border-light' }}" style="background-color: #f8f9fa;">
+                                            <div class="mb-3">
+                                                <h5 class="fs-15 fw-medium mb-1">
+                                                    {{ $index + 1 }}. {{ $q->question_text }}
+                                                    @if($q->is_required)
+                                                        <span class="text-danger">*</span>
+                                                    @endif
+                                                </h5>
+                                                @error('answers.'.$q->id)
+                                                    <div class="text-danger fs-12 mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="ms-3">
+                                                @php
+                                                    $oldVal = old('answers.'.$q->id);
+                                                    if (is_null($oldVal) && $surveyResponse) {
+                                                        $answered = clone $surveyResponse->answers;
+                                                        $ans = $answered->where('survey_question_id', $q->id);
+                                                        
+                                                        if ($q->type === 'checkbox') {
+                                                            $oldVal = $ans->pluck('survey_option_id')->toArray();
+                                                        } else if ($q->type === 'radio') {
+                                                            $oldVal = $ans->first()?->survey_option_id;
+                                                        } else if ($q->type === 'text' || $q->type === 'rating') {
+                                                            $oldVal = $ans->first()?->answer_text;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                @if($q->type === 'text')
+                                                    <textarea name="answers[{{ $q->id }}]" class="form-control" rows="3" placeholder="{{ __('Tuliskan jawaban Anda di sini...') }}" @required($q->is_required)>{{ $oldVal }}</textarea>
+                                                
+                                                @elseif($q->type === 'rating')
+                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                                                        <span class="text-muted fs-13">{{ __('Sangat Buruk') }}</span>
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            <div class="form-check form-check-inline m-0">
+                                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="q_{{ $q->id }}_{{ $i }}" value="{{ $i }}" 
+                                                                    @checked($oldVal == $i) @required($q->is_required)>
+                                                                <label class="form-check-label ms-1" for="q_{{ $q->id }}_{{ $i }}">{{ $i }}</label>
+                                                            </div>
+                                                        @endfor
+                                                        <span class="text-muted fs-13">{{ __('Sangat Baik') }}</span>
+                                                    </div>
+
+                                                @elseif($q->type === 'radio')
+                                                    @foreach($q->options as $opt)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="q_{{ $q->id }}_{{ $opt->id }}" value="{{ $opt->id }}" 
+                                                                @checked($oldVal == $opt->id) @required($q->is_required)>
+                                                            <label class="form-check-label" for="q_{{ $q->id }}_{{ $opt->id }}">{{ $opt->option_text }}</label>
+                                                        </div>
+                                                    @endforeach
+
+                                                @elseif($q->type === 'checkbox')
+                                                    @foreach($q->options as $opt)
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" name="answers[{{ $q->id }}][]" id="q_{{ $q->id }}_{{ $opt->id }}" value="{{ $opt->id }}" 
+                                                                @checked(is_array($oldVal) && in_array($opt->id, $oldVal))>
+                                                            <label class="form-check-label" for="q_{{ $q->id }}_{{ $opt->id }}">{{ $opt->option_text }}</label>
+                                                        </div>
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="text-end mt-4">
+                                    <button type="submit" class="btn btn-primary btn-wave px-4">
+                                        <i class="bi bi-send-check me-2"></i>{{ $surveyResponse ? __('Perbarui Jawaban') : __('Kirim Kuesioner') }}
+                                    </button>
+                                </div>
+                            </form>
+                        @else
+                            <div class="peserta-lesson__soon">
+                                <i class="bi bi-clipboard2-data"></i>
+                                <p class="mb-0">{{ __('Belum ada pertanyaan pada survey ini.') }}</p>
+                            </div>
+                        @endif
                     </article>
                 @elseif ($type === 'h5p')
                     <article class="peserta-lesson__card" style="padding: 0; overflow: hidden; border: none; background: transparent;">
