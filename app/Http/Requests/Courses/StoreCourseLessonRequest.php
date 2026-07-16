@@ -81,6 +81,11 @@ class StoreCourseLessonRequest extends FormRequest
                 'mimes:'.$videoMimes,
                 'max:'.$videoMaxKb,
             ],
+            'survey_id' => [
+                Rule::requiredIf(fn () => $tipe === 'survey'),
+                'nullable',
+                'exists:surveys,id',
+            ],
             'is_preview' => ['sometimes', 'boolean'],
             'is_required' => ['sometimes', 'boolean'],
         ];

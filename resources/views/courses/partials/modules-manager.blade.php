@@ -198,6 +198,21 @@
                                                 {{ __('Kosongkan jika tidak diganti. Maks. :max MB.', ['max' => $h5pMaxMb]) }}
                                             </div>
                                         </div>
+                                    @elseif ($lesson->normalizedType() === 'survey')
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Pilih Master Survey / Kuesioner') }}</label>
+                                            <select name="survey_id" class="form-select form-select-sm" required>
+                                                <option value="">{{ __('-- Pilih Survey --') }}</option>
+                                                @foreach($surveys ?? [] as $svy)
+                                                    <option value="{{ $svy->id }}" @selected($lesson->survey_id == $svy->id)>
+                                                        {{ $svy->title }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="form-text fs-11">
+                                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
+                                            </div>
+                                        </div>
                                     @else
                                         @php
                                             $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
@@ -387,6 +402,18 @@
                                 data-label="{{ __('Berkas') }}">
                             <div class="form-text">
                                 {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
+                            </div>
+                        </div>
+                        <div class="mb-3 d-none" id="activityFieldSurvey">
+                            <label class="form-label">{{ __('Pilih Master Survey / Kuesioner') }} <span class="text-danger">*</span></label>
+                            <select name="survey_id" class="form-select" id="surveySelectInput">
+                                <option value="">{{ __('-- Pilih Survey --') }}</option>
+                                @foreach($surveys ?? [] as $svy)
+                                    <option value="{{ $svy->id }}">{{ $svy->title }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
                             </div>
                         </div>
                     </div>

@@ -137,6 +137,8 @@ class CourseController extends Controller implements HasMiddleware
             }
         }
 
+        $surveys = \App\Models\Survey::where('is_active', true)->orderBy('title')->get(['id', 'title']);
+
         return view('courses.show', [
             'course' => $course,
             'enrollments' => $enrollments,
@@ -144,6 +146,7 @@ class CourseController extends Controller implements HasMiddleware
             'pesertaUsers' => $pesertaUsers,
             'pesertaSearch' => $search,
             'activeTab' => $activeTab,
+            'surveys' => $surveys,
         ]);
     }
 

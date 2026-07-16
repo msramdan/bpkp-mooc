@@ -110,13 +110,16 @@
                 var videoField = document.getElementById('activityFieldVideo');
                 var urlField = document.getElementById('activityFieldUrl');
                 var berkasField = document.getElementById('activityFieldBerkas');
+                var surveyField = document.getElementById('activityFieldSurvey');
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
                 var berkasInput = form.querySelector('[name="berkas_file"]');
+                var surveyInput = form.querySelector('[name="survey_id"]');
 
                 videoField.classList.add('d-none');
                 urlField.classList.add('d-none');
                 berkasField.classList.add('d-none');
+                if (surveyField) surveyField.classList.add('d-none');
                 if (videoInput) {
                     videoInput.required = false;
                     videoInput.value = '';
@@ -128,6 +131,10 @@
                 if (berkasInput) {
                     berkasInput.required = false;
                     berkasInput.value = '';
+                }
+                if (surveyInput) {
+                    surveyInput.required = false;
+                    surveyInput.value = '';
                 }
 
                 if (key === 'video') {
@@ -145,6 +152,9 @@
                     if (urlLabel) urlLabel.innerHTML = 'Tautan URL <span class="text-danger">*</span>';
                     if (urlHelp) urlHelp.textContent = 'Masukkan tautan lengkap (http/https) yang akan dibuka peserta.';
                     if (urlInput) urlInput.placeholder = 'https://contoh.com/halaman';
+                } else if (key === 'survey') {
+                    if (surveyField) surveyField.classList.remove('d-none');
+                    if (surveyInput) surveyInput.required = true;
                 } else if (key === 'berkas' || key === 'penugasan' || key === 'h5p') {
                     berkasField.classList.remove('d-none');
                     if (berkasInput) {
