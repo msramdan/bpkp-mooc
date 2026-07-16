@@ -258,6 +258,15 @@ return [
             ],
         ],
         [
+            'group' => 'surveys',
+            'access' => [
+                'survey view',
+                'survey create',
+                'survey edit',
+                'survey delete',
+            ],
+        ],
+        [
             'group' => 'tests',
             'access' => [
                 'test view',
