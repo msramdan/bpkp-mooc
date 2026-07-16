@@ -110,9 +110,12 @@
 }
 
 .peserta-lesson__aside {
+    align-self: start;
     position: sticky;
-    top: 1.25rem;
+    top: 50vh;
+    transform: translateY(-50%);
     z-index: 10;
+    transition: transform 0.3s ease-out;
 }
 
 .peserta-lesson__card-title {
@@ -421,5 +424,6 @@
 
     .peserta-lesson__aside {
         position: static;
+        transform: none;
     }
 }
