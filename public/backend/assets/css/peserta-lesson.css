@@ -109,6 +109,12 @@
     margin-top: 1rem;
 }
 
+.peserta-lesson__aside {
+    position: sticky;
+    top: 1.25rem;
+    z-index: 10;
+}
+
 .peserta-lesson__card-title {
     margin: 0 0 0.75rem;
     font-size: 0.78rem;
@@ -411,5 +417,9 @@
     .peserta-lesson__player,
     .peserta-lesson__preview iframe {
         min-height: 260px;
+    }
+
+    .peserta-lesson__aside {
+        position: static;
     }
 }
