@@ -127,14 +127,14 @@ return [
         ],
         [
             'header' => 'Utama',
-            'permissions' => ['learning category view', 'learning tag view'],
+            'permissions' => ['learning category view', 'learning tag view', 'survey view'],
             'menus' => [
                 [
                     'title' => 'Data Utama',
                     'icon' => '<i class="bi bi-collection"></i>',
                     'route' => null,
                     'permission' => null,
-                    'permissions' => ['learning category view', 'learning tag view'],
+                    'permissions' => ['learning category view', 'learning tag view', 'survey view'],
                     'submenus' => [
                         [
                             'title' => 'Learning Categories',
@@ -145,6 +145,11 @@ return [
                             'title' => 'Learning Tags',
                             'route' => '/learning-tags',
                             'permission' => 'learning tag view',
+                        ],
+                        [
+                            'title' => 'Bank Survey',
+                            'route' => '/surveys',
+                            'permission' => 'survey view',
                         ],
                     ],
                 ],
