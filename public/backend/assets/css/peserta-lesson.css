@@ -109,6 +109,15 @@
     margin-top: 1rem;
 }
 
+.peserta-lesson__aside {
+    align-self: start;
+    position: sticky;
+    top: 50vh;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: transform 0.3s ease-out;
+}
+
 .peserta-lesson__card-title {
     margin: 0 0 0.75rem;
     font-size: 0.78rem;
@@ -373,6 +382,80 @@
     margin-top: 0.1rem;
 }
 
+/* Survey / Kuesioner hero */
+.peserta-lesson__survey-hero {
+    position: relative;
+    text-align: center;
+    padding: 2rem 1.25rem 1.5rem;
+    border-radius: 14px;
+    background: linear-gradient(160deg, color-mix(in srgb, #0891b2 12%, transparent), transparent 70%);
+}
+
+.peserta-lesson__survey-icon-wrap {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, #0891b2 14%, transparent);
+    color: #0891b2;
+    font-size: 1.7rem;
+}
+
+.peserta-lesson__survey-hero h3 {
+    position: relative;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--lesson-ink);
+    margin-bottom: 0.35rem;
+}
+
+/* Micro-animations untuk Survey Form */
+.survey-question-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.survey-question-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    border-color: rgba(148, 163, 184, 0.4) !important;
+}
+
+.survey-question-item .form-check-input {
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.survey-question-item .form-check-input:hover {
+    transform: scale(1.15);
+}
+
+.survey-question-item .form-check-input:active {
+    transform: scale(0.9);
+}
+
+.survey-question-item .form-check-label {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.survey-question-item .form-check-input:checked ~ .form-check-label {
+    font-weight: 600;
+    color: var(--bs-primary);
+}
+
+.survey-question-item textarea {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.survey-question-item textarea:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #86b7fe;
+}
+
 @media (max-width: 991.98px) {
     .peserta-lesson__grid {
         grid-template-columns: 1fr;
@@ -381,5 +464,10 @@
     .peserta-lesson__player,
     .peserta-lesson__preview iframe {
         min-height: 260px;
+    }
+
+    .peserta-lesson__aside {
+        position: static;
+        transform: none;
     }
 }

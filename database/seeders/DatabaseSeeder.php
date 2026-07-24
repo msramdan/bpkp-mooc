@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
                 PesertaSeeder::class,
                 LearningCategorySeeder::class,
                 LearningTagSeeder::class,
+                SurveySeeder::class,
                 CourseSeeder::class,
                 CourseContentSeeder::class,
                 CourseEnrollmentSeeder::class,

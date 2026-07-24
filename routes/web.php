@@ -27,6 +27,10 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     Route::get('/dashboard', HomeController::class)->name('dashboard');
 
+    Route::get('/h5p-assets/{lesson}/{path?}', [\App\Http\Controllers\Peserta\H5PAssetController::class, 'serve'])
+        ->where('path', '.*')
+        ->name('h5p.assets');
+
     Route::middleware('role:peserta')->prefix('peserta')->name('peserta.')->group(function () {
         Route::get('/dashboard', [PortalController::class, 'dashboard'])
             ->middleware('permission:peserta dashboard view')
@@ -36,6 +40,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
+        Route::post('/kursus/{course}/materi/{lesson}/survey', [PesertaLessonController::class, 'submitSurvey'])->middleware('permission:peserta kursus view')->name('kursus.lessons.survey.submit');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
         Route::post('/katalog/{course}/daftar', [CatalogEnrollmentController::class, 'store'])->middleware('permission:peserta katalog view')->name('katalog.enroll');
         Route::get('/progres', [PortalController::class, 'progres'])->middleware('permission:peserta progres view')->name('progres.index');
@@ -70,6 +75,14 @@ Route::middleware(['auth', 'web'])->group(function () {
 
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
+        Route::resource('surveys', \App\Http\Controllers\SurveyController::class);
+        
+        // Survey Builder Routes
+        Route::get('surveys/{survey}/builder', [\App\Http\Controllers\SurveyQuestionController::class, 'builder'])->name('surveys.builder');
+        Route::post('surveys/{survey}/questions', [\App\Http\Controllers\SurveyQuestionController::class, 'store'])->name('surveys.questions.store');
+        Route::put('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
+        Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
+        Route::post('surveys/{survey}/questions/reorder', [\App\Http\Controllers\SurveyQuestionController::class, 'reorder'])->name('surveys.questions.reorder');
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
         Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');
     });

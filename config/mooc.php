@@ -7,7 +7,7 @@ return [
     /*
     | Enabled activity keys for create UI (others appear disabled).
     */
-    'enabled_activities' => ['berkas', 'video', 'url', 'penugasan'],
+    'enabled_activities' => ['berkas', 'video', 'url', 'penugasan', 'survey'],
 
     /*
     | Max upload size for activity type "berkas" (kilobytes).
@@ -24,6 +24,12 @@ return [
     'penugasan_max_kb' => (int) env('MOOC_PENUGASAN_MAX_KB', 10240),
 
     'penugasan_mimes' => ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip'],
+
+    /*
+    | Max upload size for activity type "h5p" (kilobytes).
+    | 204800 = 200 MB
+    */
+    'h5p_max_kb' => (int) env('MOOC_H5P_MAX_KB', 204800),
 
     /*
     | Max upload size for activity type "video" (kilobytes).

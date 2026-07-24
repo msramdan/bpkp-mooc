@@ -12,9 +12,12 @@ use App\Support\ActivityTypes;
 use App\Support\PesertaAccess;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\SurveyResponse;
 
 class LessonController extends Controller implements HasMiddleware
 {
@@ -56,8 +59,16 @@ class LessonController extends Controller implements HasMiddleware
         $isCompleted = $completedIds->contains($lesson->id);
 
         $submission = null;
+        $surveyResponse = null;
+
         if ($lesson->normalizedType() === 'penugasan') {
             $submission = AssignmentSubmission::query()
+                ->where('user_id', $user->id)
+                ->where('course_lesson_id', $lesson->id)
+                ->first();
+        } elseif ($lesson->normalizedType() === 'survey') {
+            $lesson->load('survey.questions.options');
+            $surveyResponse = SurveyResponse::where('survey_id', $lesson->survey_id)
                 ->where('user_id', $user->id)
                 ->where('course_lesson_id', $lesson->id)
                 ->first();
@@ -77,6 +88,7 @@ class LessonController extends Controller implements HasMiddleware
                 $completedIds
             ),
             'submission' => $submission,
+            'surveyResponse' => $surveyResponse,
             'typeMeta' => ActivityTypes::find($lesson->normalizedType()),
         ]);
     }
@@ -173,5 +185,89 @@ class LessonController extends Controller implements HasMiddleware
 
         return to_route('peserta.kursus.lessons.show', [$course, $lesson])
             ->with('success', __('Hasil pengerjaan berhasil diunggah.'));
+    }
+
+    public function submitSurvey(
+        Request $request,
+        Course $course,
+        CourseLesson $lesson,
+        LearningProgressService $progress
+    ): RedirectResponse {
+        $this->authorize('view', $course);
+
+        if (! $progress->belongsToCourse($lesson, $course) || $lesson->normalizedType() !== 'survey') {
+            abort(404);
+        }
+
+        $user = PesertaAccess::user();
+        $completedIds = $progress->completedLessonIds($user, $course);
+
+        if (! $progress->isLessonAccessible($user, $course, $lesson, $completedIds)) {
+            return to_route('peserta.kursus.show', $course)
+                ->with('error', __('Materi ini masih terkunci. Selesaikan materi sebelumnya terlebih dahulu.'));
+        }
+
+        $lesson->load('survey.questions');
+
+        // Validation for required questions
+        $rules = [];
+        $messages = [];
+        foreach ($lesson->survey->questions as $question) {
+            if ($question->is_required) {
+                if ($question->type === 'checkbox') {
+                    $rules['answers.' . $question->id] = ['required', 'array'];
+                    $messages['answers.' . $question->id . '.required'] = __('Pertanyaan ":text" wajib diisi.', ['text' => $question->question_text]);
+                } else {
+                    $rules['answers.' . $question->id] = ['required'];
+                    $messages['answers.' . $question->id . '.required'] = __('Pertanyaan ":text" wajib diisi.', ['text' => $question->question_text]);
+                }
+            }
+        }
+
+        $validated = $request->validate($rules, $messages);
+        $answers = $request->input('answers', []);
+
+        DB::transaction(function () use ($lesson, $user, $answers) {
+            $response = SurveyResponse::firstOrCreate([
+                'survey_id' => $lesson->survey_id,
+                'user_id' => $user->id,
+                'course_lesson_id' => $lesson->id,
+            ]);
+
+            // Clear old answers if updating
+            $response->answers()->delete();
+
+            foreach ($answers as $questionId => $answerVal) {
+                if (is_array($answerVal)) {
+                    foreach ($answerVal as $optId) {
+                        $response->answers()->create([
+                            'survey_question_id' => $questionId,
+                            'survey_option_id' => $optId,
+                        ]);
+                    }
+                } else {
+                    $q = $lesson->survey->questions->firstWhere('id', $questionId);
+                    if ($q) {
+                        if (in_array($q->type, ['radio', 'rating'])) {
+                            $response->answers()->create([
+                                'survey_question_id' => $questionId,
+                                'survey_option_id' => $q->type === 'radio' ? $answerVal : null,
+                                'answer_text' => $q->type === 'rating' ? $answerVal : null,
+                            ]);
+                        } else if ($q->type === 'text') {
+                            $response->answers()->create([
+                                'survey_question_id' => $questionId,
+                                'answer_text' => $answerVal,
+                            ]);
+                        }
+                    }
+                }
+            }
+        });
+
+        $progress->completeLesson($user, $course, $lesson);
+
+        return to_route('peserta.kursus.lessons.show', [$course, $lesson])
+            ->with('success', __('Terima kasih! Kuesioner berhasil dikirim.'));
     }
 }

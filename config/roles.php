@@ -8,9 +8,9 @@ return [
     |--------------------------------------------------------------------------
     */
     'super_admin' => [
-        'name' => env('SUPER_ADMIN_NAME', 'Agus Reza Pahlevi'),
-        'email' => env('SUPER_ADMIN_EMAIL', 'agus.pahlevi@bpkp.go.id'),
-        'password' => env('SUPER_ADMIN_PASSWORD'),
+        'name' => env('SUPER_ADMIN_NAME', 'Admin'),
+        'email' => env('SUPER_ADMIN_EMAIL', 'admin@example.com'),
+        'password' => env('SUPER_ADMIN_PASSWORD', 'password'),
     ],
 
 ];

@@ -23,6 +23,7 @@ class CourseLesson extends Model
         'durasi_menit',
         'video_url',
         'file_url',
+        'survey_id',
         'body',
         'show_description',
         'is_preview',
@@ -43,6 +44,11 @@ class CourseLesson extends Model
     public function module(): BelongsTo
     {
         return $this->belongsTo(CourseModule::class, 'course_module_id');
+    }
+
+    public function survey(): BelongsTo
+    {
+        return $this->belongsTo(Survey::class, 'survey_id');
     }
 
     public function assignmentSubmissions(): HasMany

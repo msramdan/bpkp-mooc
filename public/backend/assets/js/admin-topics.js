@@ -110,13 +110,16 @@
                 var videoField = document.getElementById('activityFieldVideo');
                 var urlField = document.getElementById('activityFieldUrl');
                 var berkasField = document.getElementById('activityFieldBerkas');
+                var surveyField = document.getElementById('activityFieldSurvey');
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
                 var berkasInput = form.querySelector('[name="berkas_file"]');
+                var surveyInput = form.querySelector('[name="survey_id"]');
 
                 videoField.classList.add('d-none');
                 urlField.classList.add('d-none');
                 berkasField.classList.add('d-none');
+                if (surveyField) surveyField.classList.add('d-none');
                 if (videoInput) {
                     videoInput.required = false;
                     videoInput.value = '';
@@ -129,6 +132,10 @@
                     berkasInput.required = false;
                     berkasInput.value = '';
                 }
+                if (surveyInput) {
+                    surveyInput.required = false;
+                    surveyInput.value = '';
+                }
 
                 if (key === 'video') {
                     videoField.classList.remove('d-none');
@@ -140,7 +147,15 @@
                     if (urlInput) {
                         urlInput.required = true;
                     }
-                } else if (key === 'berkas' || key === 'penugasan') {
+                    var urlLabel = urlField.querySelector('.form-label');
+                    var urlHelp = urlField.querySelector('.form-text');
+                    if (urlLabel) urlLabel.innerHTML = 'Tautan URL <span class="text-danger">*</span>';
+                    if (urlHelp) urlHelp.textContent = 'Masukkan tautan lengkap (http/https) yang akan dibuka peserta.';
+                    if (urlInput) urlInput.placeholder = 'https://contoh.com/halaman';
+                } else if (key === 'survey') {
+                    if (surveyField) surveyField.classList.remove('d-none');
+                    if (surveyInput) surveyInput.required = true;
+                } else if (key === 'berkas' || key === 'penugasan' || key === 'h5p') {
                     berkasField.classList.remove('d-none');
                     if (berkasInput) {
                         berkasInput.required = true;
@@ -158,6 +173,18 @@
                             berkasInput.setAttribute('accept', '.pdf,.doc,.docx,.ppt,.pptx,.zip');
                             berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-penugasan-max-kb') || '10240');
                             berkasInput.setAttribute('data-label', 'Berkas instruksi');
+                        }
+                    } else if (key === 'h5p') {
+                        if (berkasLabel) {
+                            berkasLabel.innerHTML = 'Upload Package (.h5p) <span class="text-danger">*</span>';
+                        }
+                        if (berkasHelp) {
+                            berkasHelp.textContent = berkasField.getAttribute('data-h5p-help') || 'Maksimal 200 MB. Format: .h5p';
+                        }
+                        if (berkasInput) {
+                            berkasInput.setAttribute('accept', '.h5p');
+                            berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-h5p-max-kb') || '204800');
+                            berkasInput.setAttribute('data-label', 'Berkas H5P');
                         }
                     } else {
                         if (berkasLabel) {
@@ -206,5 +233,16 @@
         initTopicSortable();
         initActivityModals();
         initUploadSizeValidation();
+
+        // Tambahkan feedback visual saat mengunggah form yang memiliki file
+        document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                var submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + (submitBtn.getAttribute('data-loading-text') || 'Mengunggah...');
+                }
+            });
+        });
     });
 })();

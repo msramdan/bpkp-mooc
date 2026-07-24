@@ -155,6 +155,7 @@
                                                 inputmode="url" autocomplete="url" required>
                                             <div class="form-text fs-11">{{ __('Tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
                                         </div>
+
                                     @elseif ($lesson->normalizedType() === 'penugasan')
                                         @php
                                             $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
@@ -175,6 +176,41 @@
                                                 @required(! $lesson->file_url)>
                                             <div class="form-text fs-11">
                                                 {{ __('Kosongkan jika tidak diganti. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
+                                            </div>
+                                        </div>
+                                    @elseif ($lesson->normalizedType() === 'h5p')
+                                        @php
+                                            $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
+                                        @endphp
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Upload Package (.h5p)') }}</label>
+                                            @if ($lesson->file_url)
+                                                <div class="mb-1 fs-12">
+                                                    <i class="ri-attachment-2 me-1"></i>{{ __('Berkas H5P sudah diunggah') }}
+                                                </div>
+                                            @endif
+                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
+                                                accept=".h5p"
+                                                data-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
+                                                data-label="{{ __('Berkas H5P') }}"
+                                                @required(! $lesson->file_url)>
+                                            <div class="form-text fs-11">
+                                                {{ __('Kosongkan jika tidak diganti. Maks. :max MB.', ['max' => $h5pMaxMb]) }}
+                                            </div>
+                                        </div>
+                                    @elseif ($lesson->normalizedType() === 'survey')
+                                        <div class="col-12">
+                                            <label class="form-label fs-12">{{ __('Pilih Master Survey / Kuesioner') }}</label>
+                                            <select name="survey_id" class="form-select form-select-sm" required>
+                                                <option value="">{{ __('-- Pilih Survey --') }}</option>
+                                                @foreach($surveys ?? [] as $svy)
+                                                    <option value="{{ $svy->id }}" @selected($lesson->survey_id == $svy->id)>
+                                                        {{ $svy->title }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="form-text fs-11">
+                                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
                                             </div>
                                         </div>
                                     @else
@@ -351,11 +387,14 @@
                         @php
                             $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
                             $berkasMimes = implode(', ', (array) config('mooc.berkas_mimes', ['pdf']));
+                            $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
                         @endphp
                         <div class="mb-3 d-none" id="activityFieldBerkas"
                             data-berkas-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
                             data-penugasan-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
-                            data-berkas-help="{{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}">
+                            data-h5p-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
+                            data-berkas-help="{{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}"
+                            data-h5p-help="{{ __('Maksimal :max MB. Format: .h5p', ['max' => $h5pMaxMb]) }}">
                             <label class="form-label">{{ __('Unggah berkas') }} <span class="text-danger">*</span></label>
                             <input type="file" name="berkas_file" class="form-control js-upload-size"
                                 accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp"
@@ -363,6 +402,18 @@
                                 data-label="{{ __('Berkas') }}">
                             <div class="form-text">
                                 {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
+                            </div>
+                        </div>
+                        <div class="mb-3 d-none" id="activityFieldSurvey">
+                            <label class="form-label">{{ __('Pilih Master Survey / Kuesioner') }} <span class="text-danger">*</span></label>
+                            <select name="survey_id" class="form-select" id="surveySelectInput">
+                                <option value="">{{ __('-- Pilih Survey --') }}</option>
+                                @foreach($surveys ?? [] as $svy)
+                                    <option value="{{ $svy->id }}">{{ $svy->title }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">
+                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
                             </div>
                         </div>
                     </div>
