@@ -88,7 +88,7 @@
                     </div>
                     <div class="peserta-dash-panel__body peserta-dash-panel__body--chart">
                         @if (count($chartProgress['labels']))
-                            <div id="chartProgressKursus" class="peserta-dash-chart"></div>
+                            <div id="chartProgressKursus" class="peserta-dash-chart peserta-dash-chart--bar"></div>
                         @else
                             <p class="peserta-dash-panel__empty">{{ __('Belum ada data progres.') }}</p>
                         @endif
@@ -101,7 +101,7 @@
                         <span class="peserta-dash-panel__title">{{ __('Komposisi status') }}</span>
                     </div>
                     <div class="peserta-dash-panel__body peserta-dash-panel__body--chart">
-                        <div id="chartStatusKursus" class="peserta-dash-chart"></div>
+                        <div id="chartStatusKursus" class="peserta-dash-chart peserta-dash-chart--donut"></div>
                     </div>
                 </div>
             </div>

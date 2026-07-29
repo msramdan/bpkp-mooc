@@ -88,7 +88,8 @@
                 series: total > 0 ? data.status : [1, 0],
                 chart: {
                     type: 'donut',
-                    height: 240,
+                    height: 260,
+                    width: 260,
                     fontFamily: 'inherit',
                 },
                 labels: [data.labels.aktif, data.labels.selesai],

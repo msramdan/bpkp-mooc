@@ -25,7 +25,7 @@
         var total = series.reduce(function (a, b) { return a + b; }, 0);
         return {
             series: total > 0 ? series : [1, 0],
-            chart: { type: 'donut', height: 230, fontFamily: 'inherit' },
+            chart: { type: 'donut', height: 260, width: 260, fontFamily: 'inherit' },
             labels: labels,
             colors: colors,
             legend: {
@@ -102,7 +102,7 @@
                 series: [{ name: data.labels.peserta, data: data.topCourses.series }],
                 chart: {
                     type: 'bar',
-                    height: 230,
+                    height: 260,
                     toolbar: { show: false },
                     fontFamily: 'inherit',
                 },

@@ -33,15 +33,6 @@
                     @endforeach
                 </div>
             </div>
-            @can('course delete')
-                <form action="{{ route('courses.destroy', $course) }}" method="post" class="d-inline">
-                    @csrf
-                    @method('delete')
-                    <button type="button" class="btn btn-sm btn-danger-light btn-wave js-delete-confirm">
-                        <i class="ri-delete-bin-line me-1"></i>{{ __('Hapus kursus') }}
-                    </button>
-                </form>
-            @endcan
         </div>
 
         <x-alert />

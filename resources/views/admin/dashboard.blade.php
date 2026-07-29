@@ -15,11 +15,6 @@
                     <li class="breadcrumb-item active" aria-current="page">{{ __('Ringkasan MOOC') }}</li>
                 </ol>
             </div>
-            @can('course create')
-                <a href="{{ route('courses.create') }}" class="btn btn-primary btn-sm btn-wave">
-                    <i class="bi bi-plus-lg me-1"></i>{{ __('Tambah kursus') }}
-                </a>
-            @endcan
         </div>
 
         <section class="admin-dash-welcome">
@@ -98,14 +93,14 @@
             </div>
         </div>
 
-        <div class="row g-2 mb-2">
+        <div class="row g-3 mb-3">
             <div class="col-lg-4">
                 <div class="admin-dash-panel">
                     <div class="admin-dash-panel__head">
                         <span class="admin-dash-panel__title">{{ __('Status publikasi') }}</span>
                     </div>
                     <div class="admin-dash-panel__body admin-dash-panel__body--chart">
-                        <div id="chartAdminPublish" class="admin-dash-chart"></div>
+                        <div id="chartAdminPublish" class="admin-dash-chart admin-dash-chart--donut"></div>
                     </div>
                 </div>
             </div>
@@ -115,7 +110,7 @@
                         <span class="admin-dash-panel__title">{{ __('Progres peserta') }}</span>
                     </div>
                     <div class="admin-dash-panel__body admin-dash-panel__body--chart">
-                        <div id="chartAdminEnrollment" class="admin-dash-chart"></div>
+                        <div id="chartAdminEnrollment" class="admin-dash-chart admin-dash-chart--donut"></div>
                     </div>
                 </div>
             </div>
@@ -126,7 +121,7 @@
                     </div>
                     <div class="admin-dash-panel__body admin-dash-panel__body--chart">
                         @if (count($chartTopCourses['labels']))
-                            <div id="chartAdminTopCourses" class="admin-dash-chart"></div>
+                            <div id="chartAdminTopCourses" class="admin-dash-chart admin-dash-chart--bar"></div>
                         @else
                             <p class="admin-dash-panel__empty">{{ __('Belum ada data kursus.') }}</p>
                         @endif
