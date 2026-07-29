@@ -16,6 +16,24 @@
     <link href="{{ asset('backend') }}/assets/icon-fonts/icons.css" rel="stylesheet">
     <script>
         (function () {
+            var html = document.documentElement;
+            try {
+                localStorage.removeItem('zynixdarktheme');
+                localStorage.removeItem('zynixMenu');
+                localStorage.removeItem('zynixHeader');
+                localStorage.removeItem('bodyBgRGB');
+                localStorage.removeItem('bodylightRGB');
+            } catch (e) {
+                // Ignore storage access issues and still force light mode.
+            }
+
+            html.setAttribute('data-theme-mode', 'light');
+            html.setAttribute('data-header-styles', 'light');
+            html.setAttribute('data-menu-styles', 'light');
+        })();
+    </script>
+    <script>
+        (function () {
             var bpkpPrimary = '43, 72, 139';
             var zynixDefaultPurple = '115, 93, 255';
             var prevRgb = [
@@ -31,6 +49,19 @@
         })();
     </script>
     <script src="{{ asset('backend') }}/assets/js/authentication-main.js"></script>
+    <script>
+        (function () {
+            var html = document.documentElement;
+            html.setAttribute('data-theme-mode', 'light');
+            html.setAttribute('data-header-styles', 'light');
+            html.setAttribute('data-menu-styles', 'light');
+            html.style.removeProperty('--body-bg-rgb');
+            html.style.removeProperty('--body-bg-rgb2');
+            html.style.removeProperty('--light-rgb');
+            html.style.removeProperty('--form-control-bg');
+            html.style.removeProperty('--input-border');
+        })();
+    </script>
     @stack('css')
 </head>
 

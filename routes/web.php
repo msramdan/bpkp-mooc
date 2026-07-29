@@ -41,7 +41,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('/kursus/{course}', [PortalController::class, 'kursusShow'])->middleware('permission:peserta kursus view')->name('kursus.show');
         Route::get('/kursus/{course}/forum', [CourseForumController::class, 'index'])->middleware('permission:peserta kursus view')->name('kursus.forum.index');
         Route::post('/kursus/{course}/forum', [CourseForumController::class, 'storeThread'])->middleware('permission:peserta kursus view')->name('kursus.forum.store');
+        Route::put('/kursus/{course}/forum/{thread}', [CourseForumController::class, 'updateThread'])->middleware('permission:peserta kursus view')->name('kursus.forum.update');
         Route::post('/kursus/{course}/forum/{thread}/reply', [CourseForumController::class, 'storeReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply');
+        Route::put('/kursus/{course}/forum/{thread}/reply/{reply}', [CourseForumController::class, 'updateReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply.update');
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
@@ -79,7 +81,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::delete('courses/{course}/modules/{module}/lessons/{lesson}', [CourseLessonController::class, 'destroy'])->name('courses.modules.lessons.destroy');
 
         Route::post('courses/{course}/forum', [AdminCourseForumController::class, 'storeThread'])->name('courses.forum.store');
+        Route::put('courses/{course}/forum/{thread}', [AdminCourseForumController::class, 'updateThread'])->name('courses.forum.update');
         Route::post('courses/{course}/forum/{thread}/reply', [AdminCourseForumController::class, 'storeReply'])->name('courses.forum.reply');
+        Route::put('courses/{course}/forum/{thread}/reply/{reply}', [AdminCourseForumController::class, 'updateReply'])->name('courses.forum.reply.update');
 
         Route::get('learning-categories-export', [LearningCategoryController::class, 'export'])->name('learning-categories.export');
         Route::get('learning-categories-template', [LearningCategoryController::class, 'downloadTemplate'])->name('learning-categories.template');
