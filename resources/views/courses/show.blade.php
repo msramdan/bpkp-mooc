@@ -67,6 +67,13 @@
                 <span class="badge bg-primary-transparent ms-1">{{ $enrollmentsCount }}</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ ($activeTab ?? '') === 'forum' ? 'active' : '' }}"
+                href="{{ route('courses.show', [$course, 'tab' => 'forum']) }}">
+                {{ __('Forum') }}
+                <span class="badge bg-primary-transparent ms-1">{{ (int) ($course->forum_threads_count ?? 0) }}</span>
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content">
@@ -307,6 +314,12 @@
                     </div>
                 </div>
             </div>
+            @endif
+        </div>
+
+        <div class="tab-pane fade {{ ($activeTab ?? '') === 'forum' ? 'show active' : '' }}" id="tab-forum">
+            @if (($activeTab ?? '') === 'forum')
+                @include('courses.partials.forum-manager', ['course' => $course, 'forumThreads' => $forumThreads])
             @endif
         </div>
     </div>

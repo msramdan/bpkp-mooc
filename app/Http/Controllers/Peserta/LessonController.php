@@ -150,33 +150,47 @@ class LessonController extends Controller implements HasMiddleware
                 ->with('error', __('Materi ini masih terkunci. Selesaikan materi sebelumnya terlebih dahulu.'));
         }
 
-        $file = $request->file('submission_file');
-        $path = $file->store('courses/submissions/'.$lesson->id, 'public');
-
         $existing = AssignmentSubmission::query()
             ->where('user_id', $user->id)
             ->where('course_lesson_id', $lesson->id)
             ->first();
 
+        $file = $request->file('submission_file');
+        $path = $existing?->file_path;
+        $originalName = $existing?->original_name;
+        $fileSize = $existing?->file_size ?? 0;
+        $mimeType = $existing?->mime_type;
+
+        if ($file) {
+            $path = $file->store('courses/submissions/'.$lesson->id, 'public');
+            $originalName = $file->getClientOriginalName();
+            $fileSize = $file->getSize() ?: 0;
+            $mimeType = $file->getClientMimeType();
+        }
+
         if ($existing) {
-            if ($existing->file_path && Storage::disk('public')->exists($existing->file_path)) {
+            if ($file && $existing->file_path && Storage::disk('public')->exists($existing->file_path)) {
                 Storage::disk('public')->delete($existing->file_path);
             }
             $existing->update([
+                'submission_text' => $request->input('submission_text'),
+                'submission_link' => $request->input('submission_link'),
                 'file_path' => $path,
-                'original_name' => $file->getClientOriginalName(),
-                'file_size' => $file->getSize() ?: 0,
-                'mime_type' => $file->getClientMimeType(),
+                'original_name' => $originalName,
+                'file_size' => $fileSize,
+                'mime_type' => $mimeType,
                 'submitted_at' => now(),
             ]);
         } else {
             AssignmentSubmission::create([
                 'user_id' => $user->id,
                 'course_lesson_id' => $lesson->id,
+                'submission_text' => $request->input('submission_text'),
+                'submission_link' => $request->input('submission_link'),
                 'file_path' => $path,
-                'original_name' => $file->getClientOriginalName(),
-                'file_size' => $file->getSize() ?: 0,
-                'mime_type' => $file->getClientMimeType(),
+                'original_name' => $originalName,
+                'file_size' => $fileSize,
+                'mime_type' => $mimeType,
                 'submitted_at' => now(),
             ]);
         }
@@ -184,7 +198,7 @@ class LessonController extends Controller implements HasMiddleware
         $progress->completeLesson($user, $course, $lesson);
 
         return to_route('peserta.kursus.lessons.show', [$course, $lesson])
-            ->with('success', __('Hasil pengerjaan berhasil diunggah.'));
+            ->with('success', __('Jawaban penugasan berhasil disimpan.'));
     }
 
     public function submitSurvey(

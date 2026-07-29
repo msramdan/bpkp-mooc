@@ -3,6 +3,7 @@
 use App\Support\Roles;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseEnrollmentController;
+use App\Http\Controllers\CourseForumController as AdminCourseForumController;
 use App\Http\Controllers\CourseLessonController;
 use App\Http\Controllers\CourseModuleController;
 use App\Http\Controllers\DatabaseBackupController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\LearningCategoryController;
 use App\Http\Controllers\LearningTagController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Peserta\CatalogEnrollmentController;
+use App\Http\Controllers\Peserta\CourseForumController;
 use App\Http\Controllers\Peserta\CertificateController as PesertaCertificateController;
 use App\Http\Controllers\Peserta\LessonController as PesertaLessonController;
 use App\Http\Controllers\Peserta\PortalController;
@@ -37,6 +39,9 @@ Route::middleware(['auth', 'web'])->group(function () {
             ->name('dashboard');
         Route::get('/kursus', [PortalController::class, 'kursus'])->middleware('permission:peserta kursus view')->name('kursus.index');
         Route::get('/kursus/{course}', [PortalController::class, 'kursusShow'])->middleware('permission:peserta kursus view')->name('kursus.show');
+        Route::get('/kursus/{course}/forum', [CourseForumController::class, 'index'])->middleware('permission:peserta kursus view')->name('kursus.forum.index');
+        Route::post('/kursus/{course}/forum', [CourseForumController::class, 'storeThread'])->middleware('permission:peserta kursus view')->name('kursus.forum.store');
+        Route::post('/kursus/{course}/forum/{thread}/reply', [CourseForumController::class, 'storeReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply');
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
@@ -72,6 +77,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::post('courses/{course}/modules/{module}/lessons', [CourseLessonController::class, 'store'])->name('courses.modules.lessons.store');
         Route::put('courses/{course}/modules/{module}/lessons/{lesson}', [CourseLessonController::class, 'update'])->name('courses.modules.lessons.update');
         Route::delete('courses/{course}/modules/{module}/lessons/{lesson}', [CourseLessonController::class, 'destroy'])->name('courses.modules.lessons.destroy');
+
+        Route::post('courses/{course}/forum', [AdminCourseForumController::class, 'storeThread'])->name('courses.forum.store');
+        Route::post('courses/{course}/forum/{thread}/reply', [AdminCourseForumController::class, 'storeReply'])->name('courses.forum.reply');
 
         Route::get('learning-categories-export', [LearningCategoryController::class, 'export'])->name('learning-categories.export');
         Route::get('learning-categories-template', [LearningCategoryController::class, 'downloadTemplate'])->name('learning-categories.template');

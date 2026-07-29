@@ -38,10 +38,23 @@ class ActivityTypes
             ['key' => 'url', 'label' => 'URL', 'enabled' => true, 'icon' => 'bi-link-45deg', 'color' => '#0284c7'],
             ['key' => 'penugasan', 'label' => 'Penugasan', 'enabled' => true, 'icon' => 'bi-pencil-square', 'color' => '#7c3aed'],
             ['key' => 'forum', 'label' => 'Forum', 'enabled' => false, 'icon' => 'bi-chat-dots', 'color' => '#9333ea'],
-            ['key' => 'survey', 'label' => 'Survey/Kuesioner', 'enabled' => true, 'icon' => 'bi-clipboard2-data', 'color' => '#0891b2'],
+            ['key' => 'survey', 'label' => 'Soal / Kuesioner', 'enabled' => true, 'icon' => 'bi-clipboard2-data', 'color' => '#0891b2'],
             ['key' => 'post_test', 'label' => 'Post-Test', 'enabled' => false, 'icon' => 'bi-clipboard2-check', 'color' => '#ea580c'],
             ['key' => 'sertifikat', 'label' => 'Sertifikat', 'enabled' => false, 'icon' => 'bi-award', 'color' => '#d97706'],
         ];
+    }
+
+    /**
+     * Palette khusus picker admin: gabungkan jenis soal/kuesioner jadi satu tile.
+     *
+     * @return list<array{key: string, label: string, enabled: bool, icon: string, color: string}>
+     */
+    public static function pickerPalette(): array
+    {
+        return array_values(array_filter(
+            self::palette(),
+            fn (array $item) => ! in_array($item['key'], ['pre_test', 'post_test', 'sertifikat', 'forum'], true)
+        ));
     }
 
     /** @return list<string> */

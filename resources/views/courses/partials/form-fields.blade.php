@@ -11,6 +11,7 @@
     ))->map(fn ($id) => (string) $id)->all();
     $selectedKategori = old('kategori', $course?->kategori);
     $selectedInstansi = old('instansi', $course?->instansi ?? 'Internal');
+    $forumOpen = old('is_forum_open', $course?->is_forum_open ?? false);
 @endphp
 <div class="course-form-moodle">
     <div class="course-form-section">
@@ -173,6 +174,20 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <div class="course-form-section mt-4">
+        <div class="form-check form-switch mb-3">
+            <input type="hidden" name="is_forum_open" value="0">
+            <input type="checkbox" name="is_forum_open" value="1" class="form-check-input"
+                id="isForumOpen-{{ $course?->id ?? 'new' }}"
+                role="switch"
+                @checked($forumOpen)>
+            <label class="form-check-label" for="isForumOpen-{{ $course?->id ?? 'new' }}">
+                {{ __('Buka forum') }}
+            </label>
+        </div>
+        <div class="form-text">{{ __('Jika aktif, peserta dapat membuka forum diskusi khusus untuk kursus ini dan admin dapat memantau semua percakapan.') }}</div>
     </div>
 
     <div class="course-form-section mt-4">

@@ -110,6 +110,7 @@
                 var videoField = document.getElementById('activityFieldVideo');
                 var urlField = document.getElementById('activityFieldUrl');
                 var berkasField = document.getElementById('activityFieldBerkas');
+                var penugasanRequirementsField = document.getElementById('activityFieldPenugasanRequirements');
                 var surveyField = document.getElementById('activityFieldSurvey');
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
@@ -119,6 +120,7 @@
                 videoField.classList.add('d-none');
                 urlField.classList.add('d-none');
                 berkasField.classList.add('d-none');
+                if (penugasanRequirementsField) penugasanRequirementsField.classList.add('d-none');
                 if (surveyField) surveyField.classList.add('d-none');
                 if (videoInput) {
                     videoInput.required = false;
@@ -164,16 +166,18 @@
                     var berkasHelp = berkasField.querySelector('.form-text');
                     if (key === 'penugasan') {
                         if (berkasLabel) {
-                            berkasLabel.innerHTML = 'Berkas instruksi <span class="text-danger">*</span>';
+                            berkasLabel.innerHTML = 'Berkas instruksi';
                         }
                         if (berkasHelp) {
-                            berkasHelp.textContent = 'Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.';
+                            berkasHelp.textContent = 'Opsional. Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.';
                         }
                         if (berkasInput) {
                             berkasInput.setAttribute('accept', '.pdf,.doc,.docx,.ppt,.pptx,.zip');
                             berkasInput.setAttribute('data-max-kb', berkasField.getAttribute('data-penugasan-max-kb') || '10240');
                             berkasInput.setAttribute('data-label', 'Berkas instruksi');
+                            berkasInput.required = false;
                         }
+                        if (penugasanRequirementsField) penugasanRequirementsField.classList.remove('d-none');
                     } else if (key === 'h5p') {
                         if (berkasLabel) {
                             berkasLabel.innerHTML = 'Upload Package (.h5p) <span class="text-danger">*</span>';

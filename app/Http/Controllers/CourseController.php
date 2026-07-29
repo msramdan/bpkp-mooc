@@ -76,6 +76,7 @@ class CourseController extends Controller implements HasMiddleware
             $data['kode'] = $this->uniqueCourseCode($data['judul']);
             $data['slug'] = $this->uniqueCourseSlug($data['judul'], $data['kode']);
             $data['is_published'] = $request->boolean('is_published');
+            $data['is_forum_open'] = $request->boolean('is_forum_open');
             $data['ends_at_enabled'] = $request->boolean('ends_at_enabled');
             if (! $data['ends_at_enabled']) {
                 $data['ends_at'] = null;
@@ -99,11 +100,11 @@ class CourseController extends Controller implements HasMiddleware
         $this->authorize('view', $course);
 
         $search = trim((string) $request->query('q', ''));
-        $activeTab = in_array($request->query('tab'), ['info', 'modules', 'peserta'], true)
+        $activeTab = in_array($request->query('tab'), ['info', 'modules', 'peserta', 'forum'], true)
             ? (string) $request->query('tab')
             : (($search !== '' || $request->has('page')) ? 'peserta' : 'info');
 
-        $course->loadCount(['modules', 'enrollments']);
+        $course->loadCount(['modules', 'enrollments', 'forumThreads']);
         $course->load(['tags:id,name']);
 
         // Heavy module tree only when needed.
@@ -113,6 +114,16 @@ class CourseController extends Controller implements HasMiddleware
                     'lessons' => fn ($l) => $l->orderBy('urutan'),
                 ]),
             ]);
+        }
+
+        $forumThreads = collect();
+        if ($activeTab === 'forum') {
+            $forumThreads = $course->forumThreads()
+                ->with([
+                    'user:id,name,email',
+                    'replies' => fn ($query) => $query->with('user:id,name,email')->oldest(),
+                ])
+                ->get();
         }
 
         $enrollments = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 25);
@@ -152,6 +163,7 @@ class CourseController extends Controller implements HasMiddleware
             'pesertaSearch' => $search,
             'activeTab' => $activeTab,
             'surveys' => $surveys,
+            'forumThreads' => $forumThreads,
         ]);
     }
 
@@ -168,6 +180,7 @@ class CourseController extends Controller implements HasMiddleware
             $data = $request->safe()->except(['thumbnail_file', 'remove_thumbnail', 'tag_ids']);
             $data['slug'] = $this->uniqueCourseSlug($data['judul'], $course->kode, $course->id);
             $data['is_published'] = $request->boolean('is_published');
+            $data['is_forum_open'] = $request->boolean('is_forum_open');
             $data['ends_at_enabled'] = $request->boolean('ends_at_enabled');
             if (! $data['ends_at_enabled']) {
                 $data['ends_at'] = null;
@@ -212,27 +225,40 @@ class CourseController extends Controller implements HasMiddleware
             return null;
         }
 
-        $path = $request->file('thumbnail_file')->store('courses/thumbnails', 'public');
-
-        return $path ? Storage::disk('public')->url($path) : null;
+        // Store relative disk path so URLs resolve against the current app host.
+        return $request->file('thumbnail_file')->store('courses/thumbnails', 'public') ?: null;
     }
 
     private function deleteStoredThumbnail(?string $thumbnail): void
     {
-        if ($thumbnail === null || $thumbnail === '') {
+        $relative = $this->thumbnailRelativePath($thumbnail);
+        if ($relative === null) {
             return;
         }
 
-        $prefix = '/storage/';
-        $pos = strpos($thumbnail, $prefix);
-        if ($pos === false) {
-            return;
-        }
-
-        $relative = ltrim(substr($thumbnail, $pos + strlen($prefix)), '/');
-        if ($relative !== '' && str_starts_with($relative, 'courses/thumbnails/') && Storage::disk('public')->exists($relative)) {
+        if (Storage::disk('public')->exists($relative)) {
             Storage::disk('public')->delete($relative);
         }
+    }
+
+    private function thumbnailRelativePath(?string $thumbnail): ?string
+    {
+        if ($thumbnail === null || trim($thumbnail) === '') {
+            return null;
+        }
+
+        $thumbnail = trim($thumbnail);
+        $prefix = '/storage/';
+        $pos = strpos($thumbnail, $prefix);
+        if ($pos !== false) {
+            $thumbnail = ltrim(substr($thumbnail, $pos + strlen($prefix)), '/');
+        }
+
+        if (! str_starts_with($thumbnail, 'courses/thumbnails/')) {
+            return null;
+        }
+
+        return $thumbnail;
     }
 
     private function uniqueCourseCode(string $judul): string

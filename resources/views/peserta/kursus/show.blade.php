@@ -101,6 +101,19 @@
             </aside>
 
             <main class="peserta-course-detail__main">
+                @if ($course->is_forum_open)
+                    <section class="peserta-course-detail__forum-cta">
+                        <div>
+                            <span class="peserta-course-detail__forum-kicker">{{ __('Diskusi kursus') }}</span>
+                            <h3 class="mb-1">{{ __('Forum peserta sudah dibuka') }}</h3>
+                            <p class="mb-0 text-muted">{{ __('Gunakan forum untuk bertanya, berbagi jawaban, dan berdiskusi dengan peserta lain di kursus ini.') }}</p>
+                        </div>
+                        <a href="{{ route('peserta.kursus.forum.index', $course) }}" class="btn btn-primary btn-wave">
+                            <i class="bi bi-chat-dots me-1"></i>{{ __('Buka forum') }}
+                        </a>
+                    </section>
+                @endif
+
                 @foreach ($course->modules as $module)
                     @php
                         $moduleLessons = $module->lessons;

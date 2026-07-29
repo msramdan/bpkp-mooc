@@ -109,7 +109,7 @@
                                 <div class="peserta-lesson__assign-badge">
                                     <i class="bi bi-journal-text"></i>{{ __('Materi / instruksi') }}
                                 </div>
-                                <p class="mb-3">{{ __('Pelajari berkas instruksi berikut, lalu kumpulkan hasil pengerjaan Anda.') }}</p>
+                                <p class="mb-3">{{ __('Pelajari instruksi berikut, lalu kirim jawaban sesuai kebutuhan penugasan.') }}</p>
                                 <a href="{{ $lesson->externalUrl() }}" class="btn btn-outline-primary btn-wave" target="_blank" rel="noopener">
                                     <i class="bi bi-download me-1"></i>{{ __('Unduh berkas instruksi') }}
                                 </a>
@@ -119,19 +119,21 @@
                         <div class="peserta-lesson__assign-panel">
                             <div class="peserta-lesson__assign-head">
                                 <h3 class="mb-0">{{ __('Kumpulkan hasil pengerjaan') }}</h3>
-                                <p class="mb-0 text-muted fs-13">
-                                    {{ __('Format: :formats — maks. :max MB', ['formats' => strtoupper($penugasanMimes), 'max' => $penugasanMaxMb]) }}
-                                </p>
+                                <p class="mb-0 text-muted fs-13">{{ __('Lengkapi komponen jawaban yang diwajibkan oleh pengajar.') }}</p>
                             </div>
 
                             @if ($submission)
                                 <div class="peserta-lesson__submission is-done">
                                     <div class="peserta-lesson__submission-icon"><i class="bi bi-check2-circle"></i></div>
                                     <div class="min-w-0">
-                                        <div class="peserta-lesson__submission-name text-truncate">{{ $submission->original_name }}</div>
+                                        <div class="peserta-lesson__submission-name text-truncate">
+                                            {{ $submission->original_name ?: __('Jawaban telah tersimpan') }}
+                                        </div>
                                         <div class="peserta-lesson__submission-meta">
-                                            {{ $submission->humanSize() }}
-                                            · {{ $submission->submitted_at?->timezone(config('app.timezone'))->format('d M Y H:i') }}
+                                            @if ($submission->file_path)
+                                                {{ $submission->humanSize() }} ·
+                                            @endif
+                                            {{ $submission->submitted_at?->timezone(config('app.timezone'))->format('d M Y H:i') }}
                                         </div>
                                     </div>
                                     @if ($submission->publicUrl())
@@ -140,29 +142,70 @@
                                         </a>
                                     @endif
                                 </div>
+                                @if ($submission->submission_text)
+                                    <div class="mt-3">
+                                        <label class="form-label mb-1">{{ __('Uraian jawaban') }}</label>
+                                        <div class="form-control bg-light" style="min-height: 90px;">{{ $submission->submission_text }}</div>
+                                    </div>
+                                @endif
+                                @if ($submission->submission_link)
+                                    <div class="mt-3">
+                                        <label class="form-label mb-1">{{ __('Tautan jawaban') }}</label>
+                                        <div>
+                                            <a href="{{ $submission->submission_link }}" target="_blank" rel="noopener">{{ $submission->submission_link }}</a>
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
 
                             <form method="POST" action="{{ route('peserta.kursus.lessons.submit', [$course, $lesson]) }}"
                                 enctype="multipart/form-data" class="peserta-lesson__upload">
                                 @csrf
-                                <label class="peserta-lesson__dropzone" for="submission_file">
-                                    <input type="file" name="submission_file" id="submission_file" class="visually-hidden js-upload-size"
-                                        accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
-                                        data-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
-                                        data-label="{{ __('Hasil pengerjaan') }}"
-                                        required>
-                                    <span class="peserta-lesson__dropzone-icon"><i class="bi bi-cloud-arrow-up"></i></span>
-                                    <span class="peserta-lesson__dropzone-title">
-                                        {{ $submission ? __('Ganti berkas hasil pengerjaan') : __('Seret berkas ke sini atau klik untuk memilih') }}
-                                    </span>
-                                    <span class="peserta-lesson__dropzone-file text-muted fs-12" data-file-name></span>
-                                </label>
-                                @error('submission_file')
-                                    <div class="text-danger fs-13 mt-2">{{ $message }}</div>
-                                @enderror
+                                @if ($lesson->assignment_allow_text)
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ __('Uraian jawaban') }}</label>
+                                        <textarea name="submission_text" rows="4" class="form-control"
+                                            placeholder="{{ __('Tulis jawaban atau penjelasan Anda di sini...') }}">{{ old('submission_text', $submission?->submission_text) }}</textarea>
+                                        @error('submission_text')
+                                            <div class="text-danger fs-13 mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                @endif
+
+                                @if ($lesson->assignment_allow_link)
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ __('Tautan jawaban') }}</label>
+                                        <input type="url" name="submission_link" class="form-control"
+                                            value="{{ old('submission_link', $submission?->submission_link) }}"
+                                            placeholder="https://contoh.com/jawaban">
+                                        @error('submission_link')
+                                            <div class="text-danger fs-13 mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                @endif
+
+                                @if ($lesson->assignment_allow_file)
+                                    <label class="peserta-lesson__dropzone" for="submission_file">
+                                        <input type="file" name="submission_file" id="submission_file" class="visually-hidden js-upload-size"
+                                            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
+                                            data-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
+                                            data-label="{{ __('Hasil pengerjaan') }}">
+                                        <span class="peserta-lesson__dropzone-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+                                        <span class="peserta-lesson__dropzone-title">
+                                            {{ $submission?->file_path ? __('Ganti berkas hasil pengerjaan') : __('Seret berkas ke sini atau klik untuk memilih') }}
+                                        </span>
+                                        <span class="peserta-lesson__dropzone-file text-muted fs-12" data-file-name></span>
+                                    </label>
+                                    <p class="mb-0 mt-2 text-muted fs-13">
+                                        {{ __('Format: :formats — maks. :max MB', ['formats' => strtoupper($penugasanMimes), 'max' => $penugasanMaxMb]) }}
+                                    </p>
+                                    @error('submission_file')
+                                        <div class="text-danger fs-13 mt-2">{{ $message }}</div>
+                                    @enderror
+                                @endif
                                 <button type="submit" class="btn btn-primary btn-wave w-100 mt-3">
                                     <i class="bi bi-send-check me-1"></i>
-                                    {{ $submission ? __('Perbarui pengumpulan') : __('Kumpulkan sekarang') }}
+                                    {{ $submission ? __('Perbarui jawaban') : __('Kirim jawaban') }}
                                 </button>
                             </form>
                         </div>

@@ -24,6 +24,9 @@ class CourseLesson extends Model
         'video_url',
         'file_url',
         'survey_id',
+        'assignment_allow_text',
+        'assignment_allow_file',
+        'assignment_allow_link',
         'body',
         'show_description',
         'is_preview',
@@ -35,6 +38,9 @@ class CourseLesson extends Model
         return [
             'urutan' => 'integer',
             'durasi_menit' => 'integer',
+            'assignment_allow_text' => 'boolean',
+            'assignment_allow_file' => 'boolean',
+            'assignment_allow_link' => 'boolean',
             'show_description' => 'boolean',
             'is_preview' => 'boolean',
             'is_required' => 'boolean',
@@ -134,11 +140,17 @@ class CourseLesson extends Model
             return null;
         }
 
+        $prefix = '/storage/';
+        $pos = strpos($value, $prefix);
+        if ($pos !== false) {
+            return asset(ltrim(substr($value, $pos), '/'));
+        }
+
         if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://') || str_starts_with($value, '/')) {
             return $value;
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+        return asset('storage/'.$value);
     }
 
     public function embedVideoUrl(): ?string

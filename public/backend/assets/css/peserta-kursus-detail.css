@@ -445,6 +445,44 @@ a.peserta-course-detail__lesson:focus-visible {
     color: inherit;
 }
 
+.peserta-course-detail__forum-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    margin: 1rem 1.1rem 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), rgba(25, 135, 84, 0.08));
+    border: 1px solid rgba(var(--primary-rgb), 0.18);
+}
+
+.peserta-course-detail__forum-kicker {
+    display: inline-block;
+    margin-bottom: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary-color);
+}
+
+.peserta-course-detail__forum-reply {
+    padding: 0.85rem 0.95rem;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.peserta-course-detail__forum-reply + .peserta-course-detail__forum-reply {
+    margin-top: 0.75rem;
+}
+
+.peserta-course-detail__forum-reply.is-admin {
+    background: rgba(var(--primary-rgb), 0.06);
+    border-color: rgba(var(--primary-rgb), 0.18);
+}
+
 /* Responsive */
 @media (max-width: 991.98px) {
     .peserta-course-detail__layout {
@@ -469,6 +507,12 @@ a.peserta-course-detail__lesson:focus-visible {
     .peserta-course-detail__hero-progress {
         width: 100%;
         text-align: left;
+    }
+
+    .peserta-course-detail__forum-cta {
+        margin: 1rem 0.75rem 0;
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 

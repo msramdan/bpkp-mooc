@@ -57,6 +57,9 @@ class CourseLessonController extends Controller implements HasMiddleware
                 'video_url' => $videoUrl,
                 'file_url' => $fileUrl,
                 'survey_id' => $tipe === 'survey' ? ($data['survey_id'] ?? null) : null,
+                'assignment_allow_text' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_text') : false,
+                'assignment_allow_file' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_file', true) : false,
+                'assignment_allow_link' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_link') : false,
                 'body' => $body,
                 'show_description' => true,
                 'is_preview' => $request->boolean('is_preview'),
@@ -91,6 +94,9 @@ class CourseLessonController extends Controller implements HasMiddleware
             'tipe' => $tipe,
             'durasi_menit' => $data['durasi_menit'] ?? 0,
             'survey_id' => $tipe === 'survey' ? ($data['survey_id'] ?? null) : null,
+            'assignment_allow_text' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_text') : false,
+            'assignment_allow_file' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_file', true) : false,
+            'assignment_allow_link' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_link') : false,
             'body' => $body,
             'show_description' => true,
             'is_preview' => $request->boolean('is_preview'),
@@ -173,9 +179,8 @@ class CourseLessonController extends Controller implements HasMiddleware
             return null;
         }
 
-        $path = $request->file($field)->store($directory, 'public');
-
-        return $path ? Storage::disk('public')->url($path) : null;
+        // Keep relative path so media URLs follow the current app host.
+        return $request->file($field)->store($directory, 'public') ?: null;
     }
 
     private function deleteStoredPath(?string $url, string $expectedPrefix): void
@@ -184,13 +189,13 @@ class CourseLessonController extends Controller implements HasMiddleware
             return;
         }
 
+        $relative = $url;
         $prefix = '/storage/';
         $pos = strpos($url, $prefix);
-        if ($pos === false) {
-            return;
+        if ($pos !== false) {
+            $relative = ltrim(substr($url, $pos + strlen($prefix)), '/');
         }
 
-        $relative = ltrim(substr($url, $pos + strlen($prefix)), '/');
         if ($relative !== '' && str_starts_with($relative, $expectedPrefix) && Storage::disk('public')->exists($relative)) {
             Storage::disk('public')->delete($relative);
         }

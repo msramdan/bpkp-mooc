@@ -18,6 +18,9 @@ class StoreCourseLessonRequest extends FormRequest
         $this->merge([
             'is_preview' => $this->boolean('is_preview'),
             'is_required' => $this->boolean('is_required', true),
+            'assignment_allow_text' => $this->boolean('assignment_allow_text'),
+            'assignment_allow_file' => $this->boolean('assignment_allow_file'),
+            'assignment_allow_link' => $this->boolean('assignment_allow_link'),
         ]);
     }
 
@@ -67,7 +70,7 @@ class StoreCourseLessonRequest extends FormRequest
                 'max:2048',
             ],
             'berkas_file' => [
-                Rule::requiredIf(fn () => in_array($tipe, ['berkas', 'penugasan', 'h5p'], true) && ! $hasExistingBerkas),
+                Rule::requiredIf(fn () => in_array($tipe, ['berkas', 'h5p'], true) && ! $hasExistingBerkas),
                 'nullable',
                 'file',
                 'mimes:'.$fileMimes,
@@ -86,6 +89,9 @@ class StoreCourseLessonRequest extends FormRequest
                 'nullable',
                 'exists:surveys,id',
             ],
+            'assignment_allow_text' => ['sometimes', 'boolean'],
+            'assignment_allow_file' => ['sometimes', 'boolean'],
+            'assignment_allow_link' => ['sometimes', 'boolean'],
             'is_preview' => ['sometimes', 'boolean'],
             'is_required' => ['sometimes', 'boolean'],
         ];
@@ -101,6 +107,9 @@ class StoreCourseLessonRequest extends FormRequest
             'berkas_file' => __('Berkas'),
             'video_file' => __('Video'),
             'body' => __('Deskripsi'),
+            'assignment_allow_text' => __('Uraian jawaban'),
+            'assignment_allow_file' => __('Unggah dokumen'),
+            'assignment_allow_link' => __('Tautan jawaban'),
         ];
     }
 
@@ -127,6 +136,22 @@ class StoreCourseLessonRequest extends FormRequest
             'video_file.max' => __('Ukuran video maksimal :max MB.', ['max' => $videoMaxMb]),
             'video_file.mimes' => __('Format video tidak didukung. Gunakan MP4, WebM, MOV, AVI, atau MKV.'),
             'video_file.mimetypes' => __('Format video tidak didukung. Gunakan MP4, WebM, MOV, AVI, atau MKV.'),
+            'assignment_allow_text.required' => __('Pilih minimal satu kebutuhan pengumpulan peserta untuk penugasan.'),
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if (ActivityTypes::normalize((string) $this->input('tipe')) !== 'penugasan') {
+                return;
+            }
+
+            if (! $this->boolean('assignment_allow_text')
+                && ! $this->boolean('assignment_allow_file')
+                && ! $this->boolean('assignment_allow_link')) {
+                $validator->errors()->add('assignment_allow_text', __('Pilih minimal satu kebutuhan pengumpulan peserta untuk penugasan.'));
+            }
+        });
     }
 }

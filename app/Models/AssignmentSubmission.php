@@ -14,6 +14,8 @@ class AssignmentSubmission extends Model
     protected $fillable = [
         'user_id',
         'course_lesson_id',
+        'submission_text',
+        'submission_link',
         'file_path',
         'original_name',
         'file_size',
@@ -41,11 +43,11 @@ class AssignmentSubmission extends Model
 
     public function publicUrl(): ?string
     {
-        if ($this->file_path === '' || ! Storage::disk('public')->exists($this->file_path)) {
+        if (! $this->file_path || ! Storage::disk('public')->exists($this->file_path)) {
             return null;
         }
 
-        return Storage::disk('public')->url($this->file_path);
+        return asset('storage/'.$this->file_path);
     }
 
     public function humanSize(): string

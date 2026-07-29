@@ -172,10 +172,29 @@
                                             <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
                                                 accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
                                                 data-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
-                                                data-label="{{ __('Berkas instruksi') }}"
-                                                @required(! $lesson->file_url)>
+                                                data-label="{{ __('Berkas instruksi') }}">
                                             <div class="form-text fs-11">
-                                                {{ __('Kosongkan jika tidak diganti. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
+                                                {{ __('Opsional. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label fs-12 mb-2">{{ __('Kebutuhan pengumpulan peserta') }}</label>
+                                            <div class="d-flex flex-wrap gap-3">
+                                                <label class="form-check mb-0">
+                                                    <input type="hidden" name="assignment_allow_text" value="0">
+                                                    <input type="checkbox" name="assignment_allow_text" value="1" class="form-check-input" @checked($lesson->assignment_allow_text)>
+                                                    <span class="form-check-label fs-12">{{ __('Uraian jawaban') }}</span>
+                                                </label>
+                                                <label class="form-check mb-0">
+                                                    <input type="hidden" name="assignment_allow_file" value="0">
+                                                    <input type="checkbox" name="assignment_allow_file" value="1" class="form-check-input" @checked($lesson->assignment_allow_file)>
+                                                    <span class="form-check-label fs-12">{{ __('Unggah dokumen') }}</span>
+                                                </label>
+                                                <label class="form-check mb-0">
+                                                    <input type="hidden" name="assignment_allow_link" value="0">
+                                                    <input type="checkbox" name="assignment_allow_link" value="1" class="form-check-input" @checked($lesson->assignment_allow_link)>
+                                                    <span class="form-check-label fs-12">{{ __('Tautan jawaban') }}</span>
+                                                </label>
                                             </div>
                                         </div>
                                     @elseif ($lesson->normalizedType() === 'h5p')
@@ -266,8 +285,9 @@
         <p class="mb-1 fw-medium">{{ __('Belum ada topik') }}</p>
         <p class="mb-3 fs-13 text-muted">{{ __('Tambahkan topik terlebih dahulu, lalu isi dengan aktivitas (Berkas, Video, URL).') }}</p>
         @can('course edit')
-            <button type="button" class="btn btn-primary btn-wave" data-bs-toggle="modal" data-bs-target="#topicCreateModal">
-                <i class="ri-add-line me-1"></i>{{ __('Tambah topik') }}
+            <button type="button" class="btn btn-wave topic-empty__cta" data-bs-toggle="modal" data-bs-target="#topicCreateModal">
+                <span class="topic-empty__cta-icon"><i class="ri-add-line"></i></span>
+                <span>{{ __('Tambah topik') }}</span>
             </button>
         @endcan
     </div>
@@ -318,7 +338,7 @@
                 <div class="modal-body">
                     <input type="search" class="form-control mb-3" id="activityTypeSearch" placeholder="{{ __('Cari') }}">
                     <div class="activity-type-grid" id="activityTypeGrid">
-                        @foreach (ActivityTypes::palette() as $item)
+                        @foreach (ActivityTypes::pickerPalette() as $item)
                             <button type="button"
                                 class="activity-type-tile {{ $item['enabled'] ? '' : 'is-disabled' }}"
                                 data-type-key="{{ $item['key'] }}"
@@ -403,6 +423,27 @@
                             <div class="form-text">
                                 {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
                             </div>
+                        </div>
+                        <div class="mb-3 d-none" id="activityFieldPenugasanRequirements">
+                            <label class="form-label">{{ __('Kebutuhan pengumpulan peserta') }} <span class="text-danger">*</span></label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <label class="form-check mb-0">
+                                    <input type="hidden" name="assignment_allow_text" value="0">
+                                    <input type="checkbox" name="assignment_allow_text" value="1" class="form-check-input">
+                                    <span class="form-check-label">{{ __('Uraian jawaban') }}</span>
+                                </label>
+                                <label class="form-check mb-0">
+                                    <input type="hidden" name="assignment_allow_file" value="0">
+                                    <input type="checkbox" name="assignment_allow_file" value="1" class="form-check-input" checked>
+                                    <span class="form-check-label">{{ __('Unggah dokumen') }}</span>
+                                </label>
+                                <label class="form-check mb-0">
+                                    <input type="hidden" name="assignment_allow_link" value="0">
+                                    <input type="checkbox" name="assignment_allow_link" value="1" class="form-check-input">
+                                    <span class="form-check-label">{{ __('Tautan jawaban') }}</span>
+                                </label>
+                            </div>
+                            <div class="form-text">{{ __('Centang apa saja yang wajib dikirim peserta untuk aktivitas penugasan ini.') }}</div>
                         </div>
                         <div class="mb-3 d-none" id="activityFieldSurvey">
                             <label class="form-label">{{ __('Pilih Master Survey / Kuesioner') }} <span class="text-danger">*</span></label>

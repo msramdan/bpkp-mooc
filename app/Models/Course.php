@@ -6,7 +6,6 @@ use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Course extends Model
 {
@@ -29,6 +28,7 @@ class Course extends Model
         'ends_at',
         'ends_at_enabled',
         'instansi',
+        'is_forum_open',
         'is_published',
     ];
 
@@ -37,6 +37,7 @@ class Course extends Model
         return [
             'is_published' => 'boolean',
             'ends_at_enabled' => 'boolean',
+            'is_forum_open' => 'boolean',
             'durasi_jam' => 'integer',
             'modul_total' => 'integer',
             'rating' => 'float',
@@ -59,6 +60,11 @@ class Course extends Model
     public function certificates(): HasMany
     {
         return $this->hasMany(Certificate::class);
+    }
+
+    public function forumThreads(): HasMany
+    {
+        return $this->hasMany(CourseForumThread::class)->orderByDesc('last_activity_at')->orderByDesc('created_at');
     }
 
     public function tags(): BelongsToMany
@@ -84,13 +90,15 @@ class Course extends Model
     public function thumbnailUrl(): string
     {
         if ($this->hasUsableThumbnail()) {
-            $thumbnail = trim((string) $this->thumbnail);
+            $relative = $this->thumbnailStoragePath();
+            if ($relative !== null) {
+                return asset('storage/'.$relative);
+            }
 
+            $thumbnail = trim((string) $this->thumbnail);
             if (str_starts_with($thumbnail, 'http://') || str_starts_with($thumbnail, 'https://') || str_starts_with($thumbnail, '/')) {
                 return $thumbnail;
             }
-
-            return Storage::disk('public')->url($thumbnail);
         }
 
         return asset((string) config('mooc.course_placeholder', 'images/course-no-image.png'));
@@ -113,5 +121,28 @@ class Course extends Model
         }
 
         return true;
+    }
+
+    /**
+     * Resolve local public-disk relative path from stored thumbnail value.
+     */
+    public function thumbnailStoragePath(): ?string
+    {
+        $thumbnail = trim((string) ($this->thumbnail ?? ''));
+        if ($thumbnail === '') {
+            return null;
+        }
+
+        $prefix = '/storage/';
+        $pos = strpos($thumbnail, $prefix);
+        if ($pos !== false) {
+            $thumbnail = ltrim(substr($thumbnail, $pos + strlen($prefix)), '/');
+        }
+
+        if (str_starts_with($thumbnail, 'courses/thumbnails/')) {
+            return $thumbnail;
+        }
+
+        return null;
     }
 }

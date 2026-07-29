@@ -19,6 +19,7 @@ class StoreCourseRequest extends FormRequest
 
         $this->merge([
             'ends_at_enabled' => $this->boolean('ends_at_enabled'),
+            'is_forum_open' => $this->boolean('is_forum_open'),
             'is_published' => $this->boolean('is_published'),
         ]);
     }
@@ -38,6 +39,7 @@ class StoreCourseRequest extends FormRequest
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'ends_at_enabled' => ['sometimes', 'boolean'],
+            'is_forum_open' => ['sometimes', 'boolean'],
             'is_published' => ['sometimes', 'boolean'],
         ];
     }
@@ -54,6 +56,7 @@ class StoreCourseRequest extends FormRequest
             'id_number' => __('Nomor ID kursus'),
             'starts_at' => __('Tanggal mulai'),
             'ends_at' => __('Tanggal selesai'),
+            'is_forum_open' => __('Buka forum'),
             'deskripsi' => __('Ringkasan kursus'),
             'thumbnail_file' => __('Thumbnail'),
         ];
