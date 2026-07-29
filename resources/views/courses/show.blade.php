@@ -12,26 +12,6 @@
                     <li class="breadcrumb-item"><a href="{{ route('courses.index') }}">{{ __('Kursus') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ $course->kode }}</li>
                 </ol>
-                <div class="admin-course-detail__meta">
-                    <span class="admin-course-detail__chip">{{ $course->kode }}</span>
-                    @if ($course->kategori)
-                        <span class="admin-course-detail__chip admin-course-detail__chip--primary">
-                            <i class="bi bi-folder2-open"></i>{{ $course->kategori }}
-                        </span>
-                    @endif
-                    @if ($course->is_published)
-                        <span class="admin-course-detail__chip admin-course-detail__chip--ok">
-                            <i class="bi bi-broadcast"></i>{{ __('Di katalog') }}
-                        </span>
-                    @else
-                        <span class="admin-course-detail__chip admin-course-detail__chip--muted">
-                            <i class="bi bi-eye-slash"></i>{{ __('Draft') }}
-                        </span>
-                    @endif
-                    @foreach ($course->tags as $tag)
-                        <span class="admin-course-detail__chip">{{ $tag->name }}</span>
-                    @endforeach
-                </div>
             </div>
         </div>
 

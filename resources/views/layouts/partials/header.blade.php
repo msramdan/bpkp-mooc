@@ -67,8 +67,11 @@
                                 <div class="header-element header-search d-md-block d-none my-auto">
 
                                     <input type="text" class="header-search-bar form-control" id="header-search"
-                                        placeholder="{{ __('Search courses') }}" spellcheck=false autocomplete="off"
-                                        autocapitalize="off">
+                                        placeholder="{{ __('Cari kursus') }}" spellcheck=false autocomplete="off"
+                                        autocapitalize="off"
+                                        data-search-url="{{ route('courses.search') }}"
+                                        data-empty="{{ __('Tidak ditemukan') }}"
+                                        data-hint="{{ __('Ketik untuk mencari kursus') }}">
                                     <a href="javascript:void(0);" class="header-search-icon border-0">
                                         <i class="bi bi-search"></i>
                                     </a>

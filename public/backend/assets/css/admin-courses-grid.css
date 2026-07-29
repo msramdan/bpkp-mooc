@@ -582,23 +582,11 @@
 .admin-course-card__footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 0.5rem;
     margin-top: auto;
     padding-top: 0.7rem;
     border-top: 1px solid rgba(15, 23, 42, 0.05);
-}
-
-.admin-course-card__code {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--ac-muted);
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-    font-variant-numeric: tabular-nums;
 }
 
 .admin-course-card__actions {
@@ -625,6 +613,22 @@
     --bs-btn-hover-bg: rgba(22, 163, 74, 0.18);
     --bs-btn-hover-border-color: transparent;
     --bs-btn-hover-color: #166534;
+}
+
+.admin-course-card__actions .btn-info {
+    --bs-btn-bg: rgba(37, 99, 235, 0.1);
+    --bs-btn-border-color: transparent;
+    --bs-btn-color: #1d4ed8;
+    --bs-btn-hover-bg: rgba(37, 99, 235, 0.18);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-hover-color: #1e40af;
+}
+
+.admin-course-card__actions .btn-info:disabled,
+.admin-course-card__actions .btn-info[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .admin-course-card__actions .btn-danger {

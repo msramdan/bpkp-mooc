@@ -117,7 +117,10 @@
             <div class="col-lg-4">
                 <div class="admin-dash-panel">
                     <div class="admin-dash-panel__head">
-                        <span class="admin-dash-panel__title">{{ __('Top kursus') }}</span>
+                        <div class="admin-dash-panel__heading">
+                            <span class="admin-dash-panel__title">{{ __('Top kursus') }}</span>
+                            <small class="admin-dash-panel__hint">{{ __('Berdasarkan jumlah pendaftaran') }}</small>
+                        </div>
                     </div>
                     <div class="admin-dash-panel__body admin-dash-panel__body--chart">
                         @if (count($chartTopCourses['labels']))

@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/%40simonwep/pickr/themes/nano.min.css">
     <link rel="stylesheet"
         href="{{ asset('backend') }}/assets/libs/%40tarekraafat/autocomplete.js/css/autoComplete.css">
+    <link href="{{ asset('backend') }}/assets/css/header-course-search.css?v={{ @filemtime(public_path('backend/assets/css/header-course-search.css')) ?: time() }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.css">
     @stack('css')

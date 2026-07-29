@@ -73,6 +73,12 @@
 
         if (searchInput) {
             searchInput.addEventListener('input', applyFilters);
+
+            const params = new URLSearchParams(window.location.search);
+            const preset = (params.get('q') || '').trim();
+            if (preset) {
+                searchInput.value = preset;
+            }
         }
 
         if (clearBtn && searchInput) {

@@ -59,9 +59,27 @@
         };
     }
 
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function truncateLabel(text, max) {
+        var value = String(text || '');
+        if (value.length <= max) {
+            return value;
+        }
+        return value.slice(0, Math.max(0, max - 1)).trimEnd() + '…';
+    }
+
     function renderCharts() {
         var data = window.adminDashboardCharts;
         var theme = chartTheme();
+        var topTitles = (data.topCourses && data.topCourses.titles) || (data.topCourses && data.topCourses.labels) || [];
 
         var elPublish = document.querySelector('#chartAdminPublish');
         if (elPublish) {
@@ -98,42 +116,66 @@
             if (elTop._chart) {
                 elTop._chart.destroy();
             }
+            var count = data.topCourses.labels.length;
             elTop._chart = new ApexCharts(elTop, {
                 series: [{ name: data.labels.peserta, data: data.topCourses.series }],
                 chart: {
                     type: 'bar',
-                    height: 260,
+                    height: Math.min(300, Math.max(220, count * 48)),
                     toolbar: { show: false },
                     fontFamily: 'inherit',
+                    parentHeightOffset: 0,
                 },
                 plotOptions: {
                     bar: {
                         horizontal: true,
                         borderRadius: 5,
-                        barHeight: '55%',
+                        barHeight: count > 3 ? '60%' : '48%',
                     },
                 },
                 colors: [theme.primary],
                 dataLabels: {
                     enabled: true,
+                    formatter: function (v) { return String(Math.round(Number(v))); },
                     style: { fontSize: '10px', fontWeight: 600, colors: ['#fff'] },
                     offsetX: 4,
                 },
                 xaxis: {
-                    labels: { style: { colors: theme.text, fontSize: '10px' } },
+                    categories: data.topCourses.labels,
+                    tickAmount: 4,
+                    decimalsInFloat: 0,
+                    labels: {
+                        style: { colors: theme.text, fontSize: '10px' },
+                        formatter: function (v) { return String(Math.round(Number(v))); },
+                    },
                 },
                 yaxis: {
                     labels: {
                         style: { colors: theme.text, fontSize: '10px' },
-                        maxWidth: 110,
+                        maxWidth: 140,
+                        formatter: function (value) {
+                            return truncateLabel(value, 24);
+                        },
                     },
                 },
                 grid: {
                     borderColor: theme.grid,
                     strokeDashArray: 4,
-                    padding: { left: 4, right: 12 },
+                    padding: { left: 4, right: 14, top: 6, bottom: 4 },
                 },
-                tooltip: { theme: theme.isDark ? 'dark' : 'light' },
+                tooltip: {
+                    theme: theme.isDark ? 'dark' : 'light',
+                    custom: function (opts) {
+                        var index = opts.dataPointIndex;
+                        var title = topTitles[index] || data.topCourses.labels[index] || '';
+                        var value = Math.round(opts.series[opts.seriesIndex][index] || 0);
+                        return '' +
+                            '<div class="admin-dash-chart-tip">' +
+                            '  <strong>' + escapeHtml(title) + '</strong>' +
+                            '  <span>' + value + ' ' + escapeHtml(data.labels.peserta || '') + '</span>' +
+                            '</div>';
+                    },
+                },
             });
             elTop._chart.render();
         }

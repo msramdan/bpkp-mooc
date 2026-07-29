@@ -381,15 +381,21 @@
 
   /* header dropdowns scroll */
   var myHeadernotification = document.getElementById("header-notification-scroll1");
-  new SimpleBar(myHeadernotification, { autoHide: true });
-
-  /* header dropdowns scroll */
-    var myHeadernotification = document.getElementById("header-notification-scroll2");
+  if (myHeadernotification) {
     new SimpleBar(myHeadernotification, { autoHide: true });
+  }
 
   /* header dropdowns scroll */
-  var myHeadernotification = document.getElementById("header-notification-scroll3");
-  new SimpleBar(myHeadernotification, { autoHide: true });
+  var myHeadernotification2 = document.getElementById("header-notification-scroll2");
+  if (myHeadernotification2) {
+    new SimpleBar(myHeadernotification2, { autoHide: true });
+  }
+
+  /* header dropdowns scroll */
+  var myHeadernotification3 = document.getElementById("header-notification-scroll3");
+  if (myHeadernotification3) {
+    new SimpleBar(myHeadernotification3, { autoHide: true });
+  }
 
   var myHeaderCart = document.getElementById("header-cart-items-scroll");
   if (myHeaderCart) {
@@ -397,35 +403,100 @@
   }
   /* header dropdowns scroll */
 
-  const autoCompleteJS = new autoComplete({
-    selector: "#header-search",
-    data: {
-      src: [
-        "What is the meaning of life?",
-        "How does gravity work?",
-        "Why is the sky blue?",
-        "What is the capital of France?",
-        "Who painted the Mona Lisa?",
-        "What is the speed of light?",
-        "Why do we dream?",
-        "How do birds fly?",
-        "What is the largest mammal?",
-        "Why do leaves change color in the fall?"
-      ],
-      cache: true,
-    },
-    resultItem: {
-      highlight: true
-    },
-    events: {
-      input: {
-        selection: (event) => {
-          const selection = event.detail.selection.value;
-          autoCompleteJS.input.value = selection;
-        }
-      }
+  const headerSearchInput = document.querySelector('#header-search');
+  if (headerSearchInput && typeof autoComplete === 'function') {
+    const searchUrl = headerSearchInput.getAttribute('data-search-url') || '/course-search';
+    const emptyLabel = headerSearchInput.getAttribute('data-empty') || 'Tidak ditemukan';
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
-  });
+
+    const headerCourseSearch = new autoComplete({
+      selector: '#header-search',
+      threshold: 0,
+      debounce: 220,
+      searchEngine: 'loose',
+      data: {
+        src: async (query) => {
+          try {
+            const response = await fetch(searchUrl + '?q=' + encodeURIComponent(query || ''), {
+              headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              credentials: 'same-origin',
+            });
+            if (!response.ok) {
+              return [];
+            }
+            return await response.json();
+          } catch (error) {
+            return [];
+          }
+        },
+        keys: ['judul', 'kategori'],
+        cache: false,
+        filter: (list) => {
+          const seen = new Set();
+          return list.filter((item) => {
+            const id = item?.value?.id;
+            if (!id || seen.has(id)) {
+              return false;
+            }
+            seen.add(id);
+            return true;
+          });
+        },
+      },
+      resultsList: {
+        maxResults: 8,
+        noResults: true,
+        element: (list, data) => {
+          if (!data.results.length) {
+            const message = document.createElement('div');
+            message.setAttribute('class', 'header-course-search__empty');
+            message.innerHTML = `<span>${escapeHtml(emptyLabel)}</span>`;
+            list.prepend(message);
+          }
+        },
+      },
+      resultItem: {
+        highlight: true,
+        element: (item, data) => {
+          const course = data.value || {};
+          const titleHtml = data.key === 'judul'
+            ? (data.match || escapeHtml(course.judul))
+            : escapeHtml(course.judul);
+          const metaParts = [course.kategori, course.topics_label].filter(Boolean);
+          item.classList.add('header-course-search__item');
+          item.innerHTML = ''
+            + `<img class="header-course-search__thumb" src="${escapeHtml(course.thumbnail)}" alt="">`
+            + `<span class="header-course-search__meta">`
+            + `  <span class="header-course-search__title">${titleHtml}</span>`
+            + `  <span class="header-course-search__sub">${escapeHtml(metaParts.join(' · '))}</span>`
+            + `</span>`;
+        },
+      },
+      events: {
+        input: {
+          selection: (event) => {
+            const selection = event.detail.selection.value;
+            if (selection && selection.url) {
+              window.location.href = selection.url;
+              return;
+            }
+            headerCourseSearch.input.value = selection?.judul || '';
+          },
+        },
+      },
+    });
+  }
 })();
 
 /* full screen */

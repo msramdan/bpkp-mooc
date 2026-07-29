@@ -48,7 +48,6 @@
         </div>
 
         <div class="admin-course-card__footer">
-            <span class="admin-course-card__code">{{ $course->kode }}</span>
             <div class="admin-course-card__actions">
                 @include('courses.include.card-actions', ['model' => $course])
             </div>

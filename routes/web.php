@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseEnrollmentController;
 use App\Http\Controllers\CourseForumController as AdminCourseForumController;
 use App\Http\Controllers\CourseLessonController;
 use App\Http\Controllers\CourseModuleController;
+use App\Http\Controllers\CourseSearchController;
 use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LearningCategoryController;
@@ -28,6 +29,8 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
 
     Route::get('/dashboard', HomeController::class)->name('dashboard');
+
+    Route::get('/course-search', CourseSearchController::class)->name('courses.search');
 
     Route::get('/h5p-assets/{lesson}/{path?}', [\App\Http\Controllers\Peserta\H5PAssetController::class, 'serve'])
         ->where('path', '.*')

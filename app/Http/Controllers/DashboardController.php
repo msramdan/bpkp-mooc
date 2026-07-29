@@ -60,8 +60,9 @@ class DashboardController extends Controller implements HasMiddleware
             'chartPublish' => [$published, $draft],
             'chartEnrollment' => [$berlangsung, $selesai],
             'chartTopCourses' => [
-                'labels' => $topCourses->map(fn (Course $c) => Str::limit($c->judul, 22))->values()->all(),
-                'series' => $topCourses->pluck('enrollments_count')->values()->all(),
+                'labels' => $topCourses->map(fn (Course $c) => Str::limit($c->judul, 28))->values()->all(),
+                'titles' => $topCourses->map(fn (Course $c) => $c->judul)->values()->all(),
+                'series' => $topCourses->pluck('enrollments_count')->map(fn ($v) => (int) $v)->values()->all(),
             ],
         ]);
     }
