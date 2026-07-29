@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleAndPermissionSeeder::class,
             SuperAdminSeeder::class,
+            DemoLoginSeeder::class,
         ]);
 
         if (filter_var(env('SEED_DEMO_DATA', false), FILTER_VALIDATE_BOOL)) {

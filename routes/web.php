@@ -73,6 +73,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::put('courses/{course}/modules/{module}/lessons/{lesson}', [CourseLessonController::class, 'update'])->name('courses.modules.lessons.update');
         Route::delete('courses/{course}/modules/{module}/lessons/{lesson}', [CourseLessonController::class, 'destroy'])->name('courses.modules.lessons.destroy');
 
+        Route::get('learning-categories-export', [LearningCategoryController::class, 'export'])->name('learning-categories.export');
+        Route::get('learning-categories-template', [LearningCategoryController::class, 'downloadTemplate'])->name('learning-categories.template');
+        Route::post('learning-categories-import', [LearningCategoryController::class, 'import'])->name('learning-categories.import');
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
         Route::resource('surveys', \App\Http\Controllers\SurveyController::class);

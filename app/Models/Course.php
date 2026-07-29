@@ -28,6 +28,7 @@ class Course extends Model
         'starts_at',
         'ends_at',
         'ends_at_enabled',
+        'instansi',
         'is_published',
     ];
 

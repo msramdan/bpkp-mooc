@@ -15,16 +15,19 @@ class DemoLoginSeeder extends Seeder
     {
         $demoPassword = (string) env('DEMO_LOGIN_PASSWORD', self::DEMO_PASSWORD);
         $pesertaEmail = strtolower(trim((string) env('DEMO_PESERTA_EMAIL', 'nurlaily.febriyuna@bpkp.go.id')));
+        $pesertaName = (string) env('DEMO_PESERTA_NAME', 'Nurlaily Febriyuna');
 
-        $peserta = User::query()->where('email', $pesertaEmail)->first();
-
-        if ($peserta === null) {
-            $this->command?->warn("Peserta demo tidak ditemukan: {$pesertaEmail}. Jalankan import sample dulu.");
-
-            return;
-        }
+        $peserta = User::query()->firstOrCreate(
+            ['email' => $pesertaEmail],
+            [
+                'name' => $pesertaName,
+                'password' => Hash::make($demoPassword),
+                'email_verified_at' => now(),
+            ]
+        );
 
         $peserta->update([
+            'name' => $peserta->name ?: $pesertaName,
             'password' => Hash::make($demoPassword),
             'email_verified_at' => $peserta->email_verified_at ?? now(),
         ]);

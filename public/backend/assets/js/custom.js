@@ -117,9 +117,10 @@
         continue;
       }
       element.dataset.choicesInit = "1";
+      var searchDisabled = (element.getAttribute("data-search-disabled") || "").toLowerCase() === "true";
       new Choices(element, {
         allowHTML: false,
-        searchEnabled: true,
+        searchEnabled: !searchDisabled,
         searchPlaceholderValue: element.getAttribute("data-search-placeholder") || (window.AppI18n && window.AppI18n.search) || "Cari...",
         itemSelectText: "",
         shouldSort: false,
@@ -132,6 +133,175 @@
     }
   });
   /* Choices JS */
+
+  /* Searchable select (pure JS, reusable) */
+  document.addEventListener("DOMContentLoaded", function () {
+    var selects = document.querySelectorAll("select[data-searchable-select]");
+
+    function closeAllSearchableSelects(except) {
+      document.querySelectorAll(".bpkp-search-select.is-open").forEach(function (wrap) {
+        if (except && wrap === except) {
+          return;
+        }
+        wrap.classList.remove("is-open");
+      });
+    }
+
+    selects.forEach(function (select) {
+      if (select.dataset.searchableSelectInit === "1") {
+        return;
+      }
+
+      select.dataset.searchableSelectInit = "1";
+      select.classList.add("d-none");
+      var isMultiple = select.multiple;
+
+      var wrapper = document.createElement("div");
+      wrapper.className = "bpkp-search-select";
+
+      var input = document.createElement("input");
+      input.type = "search";
+      input.className = "form-control bpkp-search-select__input";
+      input.placeholder = select.getAttribute("data-search-placeholder") || "Cari...";
+      input.autocomplete = "off";
+
+      var control = document.createElement("div");
+      control.className = "bpkp-search-select__control";
+
+      var chips = null;
+      if (isMultiple) {
+        wrapper.classList.add("is-multiple");
+        chips = document.createElement("div");
+        chips.className = "bpkp-search-select__chips";
+        control.appendChild(chips);
+      }
+      control.appendChild(input);
+
+      var dropdown = document.createElement("div");
+      dropdown.className = "bpkp-search-select__dropdown";
+
+      select.insertAdjacentElement("afterend", wrapper);
+      wrapper.appendChild(control);
+      wrapper.appendChild(dropdown);
+
+      function getOptions() {
+        return Array.prototype.slice.call(select.options);
+      }
+
+      function syncInputFromValue() {
+        var selected = select.options[select.selectedIndex];
+        if (!isMultiple) {
+          input.value = selected ? selected.text : (select.getAttribute("data-placeholder") || "");
+        } else {
+          input.value = "";
+        }
+      }
+
+      function renderChips() {
+        if (!chips) {
+          return;
+        }
+
+        chips.innerHTML = "";
+        Array.prototype.forEach.call(select.selectedOptions, function (option) {
+          if (!option.value) {
+            return;
+          }
+
+          var chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "bpkp-search-select__chip";
+          chip.textContent = option.text;
+          chip.addEventListener("click", function () {
+            option.selected = false;
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+          });
+          chips.appendChild(chip);
+        });
+      }
+
+      function renderOptions(query) {
+        var q = (query || "").trim().toLowerCase();
+        var options = getOptions().filter(function (option) {
+          return q === "" || option.text.toLowerCase().includes(q);
+        });
+
+        dropdown.innerHTML = "";
+
+        if (!options.length) {
+          var empty = document.createElement("button");
+          empty.type = "button";
+          empty.className = "bpkp-search-select__option is-empty";
+          empty.disabled = true;
+          empty.textContent = (window.AppI18n && window.AppI18n.noResults) || "Tidak ditemukan";
+          dropdown.appendChild(empty);
+          return;
+        }
+
+        options.forEach(function (option) {
+          var item = document.createElement("button");
+          item.type = "button";
+          item.className = "bpkp-search-select__option";
+          item.textContent = option.text;
+          if (option.selected) {
+            item.classList.add("is-selected");
+          }
+          item.addEventListener("click", function () {
+            if (isMultiple) {
+              option.selected = !option.selected;
+            } else {
+              select.value = option.value;
+            }
+            select.dispatchEvent(new Event("change", { bubbles: true }));
+            syncInputFromValue();
+            renderChips();
+            if (!isMultiple) {
+              wrapper.classList.remove("is-open");
+            } else {
+              renderOptions(input.value);
+              input.focus();
+            }
+          });
+          dropdown.appendChild(item);
+        });
+      }
+
+      input.addEventListener("focus", function () {
+        closeAllSearchableSelects(wrapper);
+        renderOptions("");
+        wrapper.classList.add("is-open");
+      });
+
+      input.addEventListener("input", function () {
+        closeAllSearchableSelects(wrapper);
+        renderOptions(input.value);
+        wrapper.classList.add("is-open");
+      });
+
+      input.addEventListener("blur", function () {
+        window.setTimeout(function () {
+          syncInputFromValue();
+        }, 120);
+      });
+
+      select.addEventListener("change", function () {
+        syncInputFromValue();
+        renderChips();
+        renderOptions("");
+      });
+
+      syncInputFromValue();
+      renderChips();
+      renderOptions("");
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".bpkp-search-select")) {
+        closeAllSearchableSelects();
+      }
+    });
+  });
+  /* Searchable select */
 
   /* footer year */
   var yearEl = document.getElementById("year");

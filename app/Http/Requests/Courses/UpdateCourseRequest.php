@@ -29,6 +29,7 @@ class UpdateCourseRequest extends FormRequest
     {
         return [
             'judul' => ['required', 'string', 'max:255'],
+            'instansi' => ['required', 'in:Internal,Eksternal'],
             'kategori' => ['required', 'string', 'max:120', 'exists:learning_categories,name'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['uuid', 'exists:learning_tags,id'],
@@ -48,6 +49,7 @@ class UpdateCourseRequest extends FormRequest
     {
         return [
             'judul' => __('Nama kursus'),
+            'instansi' => __('Instansi'),
             'kategori' => __('Kategori'),
             'tag_ids' => __('Tag'),
             'tag_ids.*' => __('Tag'),

@@ -40,6 +40,10 @@ class CourseController extends Controller implements HasMiddleware
                 $query->where('kategori', (string) $request->input('kategori'));
             }
 
+            if ($request->filled('instansi')) {
+                $query->where('instansi', (string) $request->input('instansi'));
+            }
+
             $published = $request->input('published');
             if ($published === '1' || $published === '0') {
                 $query->where('is_published', $published === '1');

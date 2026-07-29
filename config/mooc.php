@@ -33,9 +33,9 @@ return [
 
     /*
     | Max upload size for activity type "video" (kilobytes).
-    | 51200 = 50 MB
+    | 512000 = 500 MB
     */
-    'video_max_kb' => (int) env('MOOC_VIDEO_MAX_KB', 51200),
+    'video_max_kb' => (int) env('MOOC_VIDEO_MAX_KB', 512000),
 
     'video_mimes' => ['mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'],
 

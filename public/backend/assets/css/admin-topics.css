@@ -154,12 +154,152 @@
     opacity: 1;
 }
 
-/* Choices.js — samakan border dengan input */
-.course-form-section .choices__inner {
+.course-form-native-select {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.course-form-native-select--multi {
+    min-height: 10.5rem;
+    padding: 0.35rem;
+}
+
+.course-form-native-select--multi option {
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+}
+
+.bpkp-search-select {
+    position: relative;
+}
+
+.bpkp-search-select__control {
+    min-height: 2.45rem;
+}
+
+.bpkp-search-select__input {
+    padding-right: 2rem;
+}
+
+.bpkp-search-select::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--acd-muted);
+    border-bottom: 2px solid var(--acd-muted);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+}
+
+.bpkp-search-select__dropdown {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: none;
+    max-height: 16rem;
+    overflow: auto;
+    padding: 0.35rem;
+    border: 1px solid var(--acd-border, var(--input-border, #dde3ed));
+    border-radius: 10px;
+    background: var(--form-control-bg, #fff);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.bpkp-search-select.is-open .bpkp-search-select__dropdown {
+    display: block;
+}
+
+.bpkp-search-select__option {
+    width: 100%;
+    display: block;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    color: var(--acd-ink);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+.bpkp-search-select__option:hover,
+.bpkp-search-select__option.is-selected {
+    background: rgba(var(--acd-primary-rgb, 43, 72, 139), 0.12);
+    color: var(--acd-primary);
+}
+
+.bpkp-search-select__option.is-empty {
+    color: var(--acd-muted);
+    cursor: default;
+}
+
+.bpkp-search-select.is-multiple::after {
+    display: none;
+}
+
+.bpkp-search-select.is-multiple .bpkp-search-select__control {
     border: 1px solid var(--acd-border, var(--input-border, #dde3ed));
     border-radius: 8px;
-    background-color: var(--form-control-bg, #fff);
+    background: var(--form-control-bg, #fff);
     min-height: 2.45rem;
+    padding: 0 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.bpkp-search-select.is-multiple .bpkp-search-select__input {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    min-height: 1.5rem;
+    flex: 1 1 8rem;
+}
+
+.bpkp-search-select__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0;
+}
+
+.bpkp-search-select__chip {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.28rem 0.7rem;
+    background: rgba(var(--acd-primary-rgb, 43, 72, 139), 0.12);
+    color: var(--acd-primary);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.bpkp-search-select__chip::after {
+    content: " x";
+    font-weight: 500;
+}
+
+.course-form-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+}
+
+.course-form-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.1rem 0;
+}
+
+.course-form-radio .form-check-input,
+.course-form-radio .form-check-label {
+    margin: 0;
 }
 
 .course-form-section .form-text {

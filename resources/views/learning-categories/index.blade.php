@@ -13,12 +13,26 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ __('Learning Categories') }}</li>
             </ol>
         </div>
-        @can('learning category create')
-            <button type="button" class="btn btn-primary btn-wave js-open-learning-category-form" data-mode="create"
-                data-store-url="{{ route('learning-categories.store') }}">
-                <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah') }}
-            </button>
-        @endcan
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            @can('learning category view')
+                <a href="{{ route('learning-categories.template') }}" class="btn btn-outline-secondary btn-wave">
+                    <i class="bi bi-file-earmark-excel me-1"></i>{{ __('Download template') }}
+                </a>
+                <a href="{{ route('learning-categories.export') }}" class="btn btn-outline-success btn-wave">
+                    <i class="bi bi-download me-1"></i>{{ __('Export') }}
+                </a>
+            @endcan
+            @can('learning category create')
+                <button type="button" class="btn btn-outline-primary btn-wave" data-bs-toggle="modal"
+                    data-bs-target="#learningCategoryImportModal">
+                    <i class="bi bi-upload me-1"></i>{{ __('Import') }}
+                </button>
+                <button type="button" class="btn btn-primary btn-wave js-open-learning-category-form" data-mode="create"
+                    data-store-url="{{ route('learning-categories.store') }}">
+                    <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah') }}
+                </button>
+            @endcan
+        </div>
     </div>
 
     <div class="row">
@@ -46,6 +60,38 @@
     </div>
 
     @include('learning-categories.partials.detail-modal')
+    <div class="modal fade" id="learningCategoryImportModal" tabindex="-1"
+        aria-labelledby="learningCategoryImportModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('learning-categories.import') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="learningCategoryImportModalTitle">{{ __('Import kategori kursus') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="learningCategoryImportFile" class="form-label">{{ __('File import') }}</label>
+                            <input type="file" name="import_file" id="learningCategoryImportFile"
+                                class="form-control @error('import_file') is-invalid @enderror"
+                                accept=".xls,.xml,.csv,.txt" required>
+                            <div class="form-text">
+                                {{ __('Gunakan template XML yang diunduh dari halaman ini, atau file CSV. Format yang didukung: XML Spreadsheet 2003, CSV, TXT, dan XLS lama.') }}
+                            </div>
+                            @error('import_file')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Batal') }}</button>
+                        <button type="submit" class="btn btn-primary btn-wave">{{ __('Import') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal fade align-items-start" id="learningCategoryFormModal" tabindex="-1"
         aria-labelledby="learningCategoryFormModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable mt-4">
@@ -282,6 +328,11 @@
                     id: $(this).data('id') || ''
                 });
             });
+
+            var importModalEl = document.getElementById('learningCategoryImportModal');
+            if (importModalEl && @json($errors->has('import_file'))) {
+                bootstrap.Modal.getOrCreateInstance(importModalEl).show();
+            }
 
             @if ($errors->has('name') && in_array(old('_form_mode'), ['create', 'edit'], true))
                 openFormModal(@json(old('_form_mode')), {

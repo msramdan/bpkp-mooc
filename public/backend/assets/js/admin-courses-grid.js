@@ -55,8 +55,10 @@
                 url: table.dataset.ajaxUrl,
                 data: function (d) {
                     var kategori = document.getElementById('filter-kategori');
+                    var instansi = document.getElementById('filter-instansi');
                     var published = document.getElementById('filter-published');
                     d.kategori = kategori ? kategori.value : '';
+                    d.instansi = instansi ? instansi.value : '';
                     d.published = published ? published.value : '';
                 },
             },
@@ -122,6 +124,7 @@
         }
 
         var kategoriFilter = document.getElementById('filter-kategori');
+        var instansiFilter = document.getElementById('filter-instansi');
         var publishedFilter = document.getElementById('filter-published');
         var applyFilter = document.getElementById('filter-courses-apply');
         var resetFilter = document.getElementById('filter-courses-reset');
@@ -133,6 +136,9 @@
             resetFilter.addEventListener('click', function () {
                 if (kategoriFilter) {
                     kategoriFilter.value = '';
+                }
+                if (instansiFilter) {
+                    instansiFilter.value = '';
                 }
                 if (publishedFilter) {
                     publishedFilter.value = '';

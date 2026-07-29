@@ -28,11 +28,28 @@
                         <i class="bi bi-folder2-open" aria-hidden="true"></i>
                         <span>{{ __('Kategori') }}</span>
                     </label>
-                    <select id="filter-kategori" class="form-select form-select-sm admin-course-filters__select">
+                    <select
+                        id="filter-kategori"
+                        class="form-select form-select-sm admin-course-filters__select"
+                        data-searchable-select
+                        data-placeholder="{{ __('Semua kategori') }}"
+                        data-search-placeholder="{{ __('Cari kategori') }}"
+                    >
                         <option value="">{{ __('Semua kategori') }}</option>
                         @foreach ($learningCategories as $categoryName)
                             <option value="{{ $categoryName }}">{{ $categoryName }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="admin-course-filters__item">
+                    <label class="admin-course-filters__label" for="filter-instansi">
+                        <i class="bi bi-building" aria-hidden="true"></i>
+                        <span>{{ __('Instansi') }}</span>
+                    </label>
+                    <select id="filter-instansi" class="form-select form-select-sm admin-course-filters__select">
+                        <option value="">{{ __('Semua') }}</option>
+                        <option value="Internal">{{ __('Internal') }}</option>
+                        <option value="Eksternal">{{ __('Eksternal') }}</option>
                     </select>
                 </div>
                 <div class="admin-course-filters__item">

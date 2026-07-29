@@ -10,6 +10,7 @@
         : ($course?->tags()->pluck('learning_tags.id')->all() ?? [])
     ))->map(fn ($id) => (string) $id)->all();
     $selectedKategori = old('kategori', $course?->kategori);
+    $selectedInstansi = old('instansi', $course?->instansi ?? 'Internal');
 @endphp
 <div class="course-form-moodle">
     <div class="course-form-section">
@@ -24,12 +25,48 @@
             </div>
 
             <div class="col-md-6">
+                <label class="form-label d-block mb-2">{{ __('Instansi') }} <span class="text-danger">*</span></label>
+                <div class="course-form-radio-group">
+                    <div class="form-check course-form-radio">
+                        <input
+                            class="form-check-input @error('instansi') is-invalid @enderror"
+                            type="radio"
+                            name="instansi"
+                            id="instansi-internal-{{ $course?->id ?? 'new' }}"
+                            value="Internal"
+                            @checked($selectedInstansi === 'Internal')
+                        >
+                        <label class="form-check-label" for="instansi-internal-{{ $course?->id ?? 'new' }}">
+                            {{ __('Internal') }}
+                        </label>
+                    </div>
+                    <div class="form-check course-form-radio">
+                        <input
+                            class="form-check-input @error('instansi') is-invalid @enderror"
+                            type="radio"
+                            name="instansi"
+                            id="instansi-eksternal-{{ $course?->id ?? 'new' }}"
+                            value="Eksternal"
+                            @checked($selectedInstansi === 'Eksternal')
+                        >
+                        <label class="form-check-label" for="instansi-eksternal-{{ $course?->id ?? 'new' }}">
+                            {{ __('Eksternal') }}
+                        </label>
+                    </div>
+                </div>
+                @error('instansi')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="col-md-6">
                 <label class="form-label">{{ __('Kategori') }} <span class="text-danger">*</span></label>
-                <select name="kategori" class="form-select @error('kategori') is-invalid @enderror"
-                    data-trigger
+                <select
+                    name="kategori"
+                    class="form-select course-form-native-select @error('kategori') is-invalid @enderror"
+                    data-searchable-select
                     data-placeholder="{{ __('Pilih kategori...') }}"
                     data-search-placeholder="{{ __('Cari kategori') }}"
-                    required>
+                    required
+                >
                     <option value="">{{ __('Pilih kategori...') }}</option>
                     @foreach ($learningCategories as $category)
                         <option value="{{ $category->name }}" @selected($selectedKategori === $category->name)>
@@ -37,12 +74,6 @@
                         </option>
                     @endforeach
                 </select>
-                <div class="form-text">
-                    {{ __('Daftar dari Data Utama › Learning Categories.') }}
-                    @can('learning category view')
-                        <a href="{{ route('learning-categories.index') }}" target="_blank" rel="noopener">{{ __('Kelola') }}</a>
-                    @endcan
-                </div>
                 @error('kategori')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
 
@@ -53,25 +84,22 @@
                 @error('id_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
-            <div class="col-12">
+            <div class="col-md-6">
                 <label class="form-label">{{ __('Tag') }}</label>
-                <select name="tag_ids[]" class="form-select @error('tag_ids') is-invalid @enderror"
-                    multiple
-                    data-trigger
+                <select
+                    name="tag_ids[]"
+                    id="courseTagSelect-{{ $course?->id ?? 'new' }}"
+                    class="form-select course-form-native-select course-form-native-select--multi @error('tag_ids') is-invalid @enderror"
+                    data-searchable-select
+                    data-search-placeholder="{{ __('Cari tag') }}"
                     data-placeholder="{{ __('Pilih satu atau lebih tag...') }}"
-                    data-search-placeholder="{{ __('Cari tag') }}">
+                    multiple>
                     @foreach ($learningTags as $tag)
                         <option value="{{ $tag->id }}" @selected(in_array((string) $tag->id, $selectedTagIds, true))>
                             {{ $tag->name }}
                         </option>
                     @endforeach
                 </select>
-                <div class="form-text">
-                    {{ __('Multi-tag dari Data Utama › Learning Tags.') }}
-                    @can('learning tag view')
-                        <a href="{{ route('learning-tags.index') }}" target="_blank" rel="noopener">{{ __('Kelola') }}</a>
-                    @endcan
-                </div>
                 @error('tag_ids')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                 @error('tag_ids.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
