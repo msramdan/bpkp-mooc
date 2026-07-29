@@ -20,16 +20,35 @@
         };
     }
 
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function truncateLabel(text, max) {
+        var value = String(text || '');
+        if (value.length <= max) {
+            return value;
+        }
+        return value.slice(0, Math.max(0, max - 1)).trimEnd() + '…';
+    }
+
     function renderCharts() {
         var data = window.pesertaDashboardCharts;
         var theme = chartTheme();
+        var fullTitles = data.progress.titles || data.progress.labels || [];
 
         var elBar = document.querySelector('#chartProgressKursus');
         if (elBar && data.progress.labels.length) {
             if (elBar._chart) {
                 elBar._chart.destroy();
             }
-            var barHeight = Math.max(260, data.progress.labels.length * 48);
+            var count = data.progress.labels.length;
+            var barHeight = Math.min(360, Math.max(240, count * 52));
             elBar._chart = new ApexCharts(elBar, {
                 series: [{ name: data.labels.progres, data: data.progress.series }],
                 chart: {
@@ -37,12 +56,13 @@
                     height: barHeight,
                     toolbar: { show: false },
                     fontFamily: 'inherit',
+                    parentHeightOffset: 0,
                 },
                 plotOptions: {
                     bar: {
                         horizontal: true,
                         borderRadius: 6,
-                        barHeight: '58%',
+                        barHeight: count > 4 ? '62%' : '52%',
                         distributed: false,
                     },
                 },
@@ -69,18 +89,28 @@
                 yaxis: {
                     labels: {
                         style: { colors: theme.text, fontSize: '11px', fontWeight: 500 },
-                        maxWidth: 160,
+                        maxWidth: 150,
+                        formatter: function (value) {
+                            return truncateLabel(value, 26);
+                        },
                     },
                 },
                 grid: {
                     borderColor: theme.grid,
                     strokeDashArray: 4,
-                    padding: { left: 8, right: 18, top: 8, bottom: 4 },
+                    padding: { left: 4, right: 18, top: 8, bottom: 4 },
                 },
                 tooltip: {
                     theme: theme.isDark ? 'dark' : 'light',
-                    y: {
-                        formatter: function (v) { return Math.round(v) + '%'; },
+                    custom: function (opts) {
+                        var index = opts.dataPointIndex;
+                        var title = fullTitles[index] || data.progress.labels[index] || '';
+                        var value = Math.round(opts.series[opts.seriesIndex][index] || 0);
+                        return '' +
+                            '<div class="peserta-dash-chart-tip">' +
+                            '  <strong>' + escapeHtml(title) + '</strong>' +
+                            '  <span>' + value + '%</span>' +
+                            '</div>';
                     },
                 },
             });

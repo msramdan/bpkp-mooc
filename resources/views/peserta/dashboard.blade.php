@@ -84,7 +84,18 @@
             <div class="col-lg-8">
                 <div class="peserta-dash-panel">
                     <div class="peserta-dash-panel__head">
-                        <span class="peserta-dash-panel__title">{{ __('Progres per kursus') }}</span>
+                        <div class="peserta-dash-panel__heading">
+                            <span class="peserta-dash-panel__title">{{ __('Progres per kursus') }}</span>
+                            @if (($chartProgress['total'] ?? 0) > ($chartProgress['shown'] ?? 0))
+                                <small class="peserta-dash-panel__hint">
+                                    {{ __('Menampilkan :shown dari :total kursus', [
+                                        'shown' => $chartProgress['shown'],
+                                        'total' => $chartProgress['total'],
+                                    ]) }}
+                                </small>
+                            @endif
+                        </div>
+                        <a href="{{ route('peserta.kursus.index') }}" class="peserta-dash-panel__link">{{ __('Semua kursus') }}</a>
                     </div>
                     <div class="peserta-dash-panel__body peserta-dash-panel__body--chart">
                         @if (count($chartProgress['labels']))

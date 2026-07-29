@@ -41,9 +41,26 @@ class PortalController extends Controller implements HasMiddleware
         $lanjutkan = $allEnrollments->firstWhere('status', 'Berlangsung')
             ?? $allEnrollments->first();
 
+        $chartLimit = 6;
+        $chartEnrollments = $allEnrollments
+            ->sortBy(function ($enrollment) {
+                $priority = match ($enrollment->status) {
+                    'Berlangsung' => 0,
+                    'Selesai' => 2,
+                    default => 1,
+                };
+
+                return sprintf('%d-%03d', $priority, (int) $enrollment->progress);
+            })
+            ->take($chartLimit)
+            ->values();
+
         $chartProgress = [
-            'labels' => $allEnrollments->map(fn ($e) => \Illuminate\Support\Str::limit($e->course->judul, 22))->values()->all(),
-            'series' => $allEnrollments->pluck('progress')->values()->all(),
+            'labels' => $chartEnrollments->map(fn ($e) => \Illuminate\Support\Str::limit($e->course->judul, 28))->values()->all(),
+            'titles' => $chartEnrollments->map(fn ($e) => $e->course->judul)->values()->all(),
+            'series' => $chartEnrollments->pluck('progress')->map(fn ($v) => (int) $v)->values()->all(),
+            'shown' => $chartEnrollments->count(),
+            'total' => $allEnrollments->count(),
         ];
 
         return view('peserta.dashboard', [

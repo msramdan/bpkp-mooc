@@ -8,8 +8,10 @@
             @else
                 <span class="admin-course-card__status admin-course-card__status--draft">{{ __('Draft') }}</span>
             @endif
-            @if ($course->level)
-                <span class="admin-course-card__level">{{ __($course->level) }}</span>
+            @if ($course->instansi)
+                <span class="admin-course-card__level admin-course-card__level--{{ strtolower($course->instansi) }}">
+                    {{ __($course->instansi) }}
+                </span>
             @endif
         </div>
     </a>
