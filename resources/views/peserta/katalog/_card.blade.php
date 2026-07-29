@@ -14,9 +14,7 @@
             <span class="peserta-kursus-card__status peserta-kursus-card__status--primary">{{ __($course->level) }}</span>
         @endif
         <span class="peserta-kursus-card__duration">
-            {{ number_format($course->rating, 1) }}
-            <span class="peserta-kursus-card__duration-dot">·</span>
-            {{ $course->durasi_jam }} {{ __('jam') }}
+            {{ $course->modul_total }} {{ __('topik') }}
         </span>
     </div>
     <div class="peserta-kursus-card__body">

@@ -19,8 +19,6 @@
             {{ __($enrollment->status) }}
         </span>
         <span class="peserta-kursus-card__duration">
-            {{ $course->durasi_jam }} {{ __('jam') }}
-            <span class="peserta-kursus-card__duration-dot">·</span>
             {{ $course->modul_total }} {{ __('topik') }}
         </span>
         <div class="peserta-kursus-card__progress" title="{{ $enrollment->progress }}%">

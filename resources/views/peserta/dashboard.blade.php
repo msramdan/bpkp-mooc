@@ -80,7 +80,7 @@
         </div>
 
         {{-- Analytics --}}
-        <div class="row g-2 mb-2">
+        <div class="row g-3 mb-3">
             <div class="col-lg-8">
                 <div class="peserta-dash-panel">
                     <div class="peserta-dash-panel__head">
@@ -108,7 +108,7 @@
         </div>
 
         {{-- Kursus + sertifikat --}}
-        <div class="row g-2 peserta-dash-bottom">
+        <div class="row g-3 peserta-dash-bottom">
             <div class="col-lg-7">
                 <div class="peserta-dash-panel peserta-dash-panel--courses">
                     <div class="peserta-dash-panel__head">
@@ -137,7 +137,6 @@
                                     <h3 class="peserta-dash-course__title">{{ $course->judul }}</h3>
                                     <p class="peserta-dash-course__meta">
                                         {{ __('Topik') }} {{ $enrollment->modulLabel() }}
-                                        · {{ $course->durasi_jam }} {{ __('jam') }}
                                     </p>
                                     <div class="peserta-dash-course__track" aria-hidden="true">
                                         <span style="width: {{ $enrollment->progress }}%"></span>

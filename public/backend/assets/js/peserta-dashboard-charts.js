@@ -29,7 +29,7 @@
             if (elBar._chart) {
                 elBar._chart.destroy();
             }
-            var barHeight = Math.max(220, data.progress.labels.length * 42);
+            var barHeight = Math.max(260, data.progress.labels.length * 48);
             elBar._chart = new ApexCharts(elBar, {
                 series: [{ name: data.labels.progres, data: data.progress.series }],
                 chart: {
@@ -42,38 +42,47 @@
                     bar: {
                         horizontal: true,
                         borderRadius: 6,
-                        barHeight: '52%',
+                        barHeight: '58%',
                         distributed: false,
                     },
                 },
                 colors: [theme.primary],
                 dataLabels: {
                     enabled: true,
-                    formatter: function (v) { return v + '%'; },
+                    formatter: function (v) { return Math.round(v) + '%'; },
                     style: {
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         colors: ['#fff'],
                     },
                     offsetX: 6,
                 },
                 xaxis: {
+                    categories: data.progress.labels,
                     max: 100,
                     tickAmount: 5,
-                    labels: { style: { colors: theme.text, fontSize: '10px' } },
+                    labels: {
+                        style: { colors: theme.text, fontSize: '11px' },
+                        formatter: function (v) { return Math.round(Number(v)) + '%'; },
+                    },
                 },
                 yaxis: {
                     labels: {
-                        style: { colors: theme.text, fontSize: '10px', fontWeight: 500 },
-                        maxWidth: 150,
+                        style: { colors: theme.text, fontSize: '11px', fontWeight: 500 },
+                        maxWidth: 160,
                     },
                 },
                 grid: {
                     borderColor: theme.grid,
                     strokeDashArray: 4,
-                    padding: { left: 8, right: 16, top: 4, bottom: 0 },
+                    padding: { left: 8, right: 18, top: 8, bottom: 4 },
                 },
-                tooltip: { theme: theme.isDark ? 'dark' : 'light' },
+                tooltip: {
+                    theme: theme.isDark ? 'dark' : 'light',
+                    y: {
+                        formatter: function (v) { return Math.round(v) + '%'; },
+                    },
+                },
             });
             elBar._chart.render();
         }
@@ -88,15 +97,15 @@
                 series: total > 0 ? data.status : [1, 0],
                 chart: {
                     type: 'donut',
-                    height: 260,
-                    width: 260,
+                    height: 270,
+                    width: 270,
                     fontFamily: 'inherit',
                 },
                 labels: [data.labels.aktif, data.labels.selesai],
                 colors: [theme.primary, theme.success],
                 legend: {
                     position: 'bottom',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     labels: { colors: theme.text },
                     markers: { width: 8, height: 8, radius: 4 },
                 },
@@ -107,15 +116,20 @@
                 plotOptions: {
                     pie: {
                         donut: {
-                            size: '68%',
+                            size: '70%',
                             labels: {
                                 show: true,
-                                name: { fontSize: '11px', color: theme.text },
-                                value: { fontSize: '15px', fontWeight: 700, color: theme.isDark ? '#e2e8f0' : '#1e293b' },
+                                name: { fontSize: '12px', color: theme.text },
+                                value: {
+                                    fontSize: '16px',
+                                    fontWeight: 700,
+                                    color: theme.isDark ? '#e2e8f0' : '#1e293b',
+                                    formatter: function (v) { return String(Math.round(Number(v))); },
+                                },
                                 total: {
                                     show: true,
                                     label: 'Total',
-                                    fontSize: '10px',
+                                    fontSize: '11px',
                                     color: theme.text,
                                     formatter: function () { return String(total); },
                                 },

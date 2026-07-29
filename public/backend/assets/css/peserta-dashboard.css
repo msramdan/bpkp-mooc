@@ -1,11 +1,11 @@
-/* Dashboard peserta — layout premium, ringkas */
+/* Dashboard peserta — proporsional & eye-catching */
 .peserta-dash {
-    --dash-gap: 0.75rem;
+    --dash-gap: 0.9rem;
     --dash-radius: 14px;
 }
 
 .peserta-dash .page-header-breadcrumb {
-    margin-bottom: 0.65rem !important;
+    margin-bottom: 0.85rem !important;
 }
 
 .peserta-dash .page-title {
@@ -18,8 +18,8 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1.25rem 1.5rem;
-    padding: 1.15rem 1.25rem;
+    gap: 1.35rem 1.75rem;
+    padding: 1.35rem 1.45rem;
     margin-bottom: var(--dash-gap);
     border-radius: var(--dash-radius);
     background: var(--custom-white);
@@ -27,7 +27,7 @@
 }
 
 .peserta-dash-welcome__copy {
-    flex: 1 1 260px;
+    flex: 1 1 280px;
     min-width: 0;
 }
 
@@ -38,27 +38,27 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--primary-color);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
 }
 
 .peserta-dash-welcome__title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin: 0 0 0.25rem;
+    margin: 0 0 0.3rem;
     color: var(--default-text-color);
     letter-spacing: -0.02em;
 }
 
 .peserta-dash-welcome__sub {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.85rem;
     max-width: 36rem;
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 .peserta-dash-welcome__cta {
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
 }
 
 .peserta-dash-welcome__hint {
@@ -68,9 +68,9 @@
 
 .peserta-dash-welcome__meter {
     position: relative;
-    flex: 0 0 5.5rem;
-    width: 5.5rem;
-    height: 5.5rem;
+    flex: 0 0 5.75rem;
+    width: 5.75rem;
+    height: 5.75rem;
     aspect-ratio: 1 / 1;
 }
 
@@ -89,7 +89,7 @@
 .peserta-dash-welcome__ring::after {
     content: '';
     position: absolute;
-    inset: 0.55rem;
+    inset: 0.58rem;
     border-radius: 50%;
     background: var(--custom-white);
 }
@@ -106,7 +106,7 @@
 }
 
 .peserta-dash-welcome__meter-text strong {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--default-text-color);
 }
@@ -114,37 +114,40 @@
 .peserta-dash-welcome__meter-text small {
     font-size: 0.62rem;
     color: var(--text-muted);
-    margin-top: 0.1rem;
+    margin-top: 0.12rem;
+    max-width: 3.6rem;
 }
 
 /* ---- Metric tiles ---- */
 .peserta-dash-metrics {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.65rem;
+    gap: var(--dash-gap);
     margin-bottom: var(--dash-gap);
 }
 
 .peserta-dash-metric {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    padding: 0.85rem 1rem;
+    gap: 0.9rem;
+    padding: 1.05rem 1.15rem;
     border-radius: var(--dash-radius);
     background: var(--custom-white);
     box-shadow: var(--bpkp-surface-shadow);
     min-width: 0;
+    min-height: 4.75rem;
 }
 
 .peserta-dash-metric__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
-    font-size: 1rem;
-    flex-shrink: 0;
+    font-size: 1.1rem;
+    flex: 0 0 2.75rem;
 }
 
 .peserta-dash-metric__icon--primary {
@@ -174,17 +177,17 @@
 }
 
 .peserta-dash-metric__body strong {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.3rem;
+    font-weight: 700;
     line-height: 1.1;
     color: var(--default-text-color);
     letter-spacing: -0.02em;
 }
 
 .peserta-dash-metric__body span {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     color: var(--text-muted);
-    margin-top: 0.12rem;
+    margin-top: 0.18rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -205,12 +208,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.7rem 1rem;
+    padding: 0.85rem 1.1rem;
     border-bottom: 1px solid var(--default-border);
 }
 
 .peserta-dash-panel__title {
-    font-size: 0.8125rem;
+    font-size: 0.84rem;
     font-weight: 600;
     margin: 0;
     color: var(--default-text-color);
@@ -229,7 +232,7 @@
 }
 
 .peserta-dash-panel__body {
-    padding: 0.75rem 1rem 1rem;
+    padding: 0.9rem 1.1rem 1.15rem;
     flex: 1;
 }
 
@@ -237,8 +240,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 15rem;
-    padding: 0.75rem 0.85rem 0.9rem;
+    min-height: 17rem;
+    padding: 0.85rem 1rem 1rem;
 }
 
 .peserta-dash-chart {
@@ -247,7 +250,7 @@
 }
 
 .peserta-dash-chart--donut {
-    max-width: 16rem;
+    max-width: 16.5rem;
     margin-inline: auto;
 }
 
@@ -293,7 +296,6 @@
     padding: 1rem 0.5rem;
 }
 
-/* Equal height bottom row */
 .peserta-dash-bottom > [class*='col-'] {
     display: flex;
     flex-direction: column;
@@ -303,16 +305,16 @@
 .peserta-dash-panel--certs .peserta-dash-panel__body {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.65rem;
 }
 
 /* ---- Course cards ---- */
 .peserta-dash-course {
     display: grid;
-    grid-template-columns: 7.5rem 1fr auto;
+    grid-template-columns: 6.5rem 1fr auto;
     align-items: center;
-    gap: 0.85rem;
-    padding: 0.65rem;
+    gap: 0.95rem;
+    padding: 0.75rem;
     border-radius: 12px;
     background: var(--default-background);
     text-decoration: none;
@@ -330,8 +332,10 @@
     position: relative;
     border-radius: 8px;
     overflow: hidden;
+    width: 100%;
     aspect-ratio: 16 / 10;
     background: var(--custom-white);
+    flex-shrink: 0;
 }
 
 .peserta-dash-course__thumb {
@@ -379,9 +383,9 @@
 }
 
 .peserta-dash-course__title {
-    font-size: 0.84rem;
+    font-size: 0.86rem;
     font-weight: 600;
-    margin: 0 0 0.25rem;
+    margin: 0 0 0.28rem;
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -393,7 +397,7 @@
 .peserta-dash-course__meta {
     font-size: 0.7rem;
     color: var(--text-muted);
-    margin: 0 0 0.45rem;
+    margin: 0 0 0.5rem;
 }
 
 .peserta-dash-course__track {
@@ -412,9 +416,10 @@
 
 .peserta-dash-course__ring {
     position: relative;
-    width: 2.75rem;
-    height: 2.75rem;
-    flex-shrink: 0;
+    width: 2.85rem;
+    height: 2.85rem;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 2.85rem;
     border-radius: 50%;
     background: conic-gradient(
         var(--primary-color) 0% var(--pct),
@@ -425,7 +430,7 @@
 .peserta-dash-course__ring::after {
     content: '';
     position: absolute;
-    inset: 0.32rem;
+    inset: 0.34rem;
     border-radius: 50%;
     background: var(--default-background);
 }
@@ -450,8 +455,8 @@
 .peserta-dash-cert {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.7rem;
+    gap: 0.8rem;
+    padding: 0.75rem 0.8rem;
     border-radius: 10px;
     background: var(--default-background);
     text-decoration: none;
@@ -468,13 +473,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    aspect-ratio: 1 / 1;
     border-radius: 10px;
     background: rgba(var(--primary-rgb, 43, 72, 139), 0.1);
     color: var(--primary-color);
     font-size: 1.1rem;
-    flex-shrink: 0;
+    flex: 0 0 2.6rem;
 }
 
 .peserta-dash-cert__body {
@@ -486,7 +492,7 @@
 }
 
 .peserta-dash-cert__body strong {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--default-text-color);
     white-space: nowrap;
@@ -514,21 +520,30 @@
 
 @media (max-width: 575.98px) {
     .peserta-dash-welcome {
-        padding: 1rem;
+        padding: 1.1rem;
     }
 
     .peserta-dash-welcome__meter {
-        width: 4.75rem;
-        height: 4.75rem;
+        flex-basis: 5rem;
+        width: 5rem;
+        height: 5rem;
     }
 
     .peserta-dash-metrics {
         grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
+        gap: 0.65rem;
     }
 
     .peserta-dash-metric {
-        padding: 0.7rem 0.75rem;
+        padding: 0.85rem 0.9rem;
+        min-height: 4.25rem;
+    }
+
+    .peserta-dash-metric__icon {
+        width: 2.4rem;
+        height: 2.4rem;
+        flex-basis: 2.4rem;
+        font-size: 1rem;
     }
 
     .peserta-dash-course {
@@ -543,7 +558,7 @@
     }
 }
 
-/* Legacy — backward compat jika masih dipakai di tempat lain */
+/* Legacy */
 .peserta-dash-hero,
 .peserta-dash-mini-stat,
 .peserta-dash-progress-pill,

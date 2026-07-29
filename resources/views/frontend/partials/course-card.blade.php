@@ -11,9 +11,6 @@
             <div class="landing-course-card__main">
                 <div class="course-one__time">
                     {{ $course->modul_total }} {{ __('Modul') }}
-                    @if ($course->durasi_jam > 0)
-                        · {{ $course->durasi_jam }} {{ __('jam') }}
-                    @endif
                 </div>
                 <div class="course-one__ratings">
                     <span class="badge bg-primary-transparent">{{ $course->kategori }}</span>
