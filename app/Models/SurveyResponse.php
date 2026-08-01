@@ -10,7 +10,12 @@ class SurveyResponse extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['survey_id', 'user_id', 'course_lesson_id'];
+    protected $fillable = ['survey_id', 'user_id', 'course_lesson_id', 'total_score', 'max_possible_score', 'grading_status'];
+
+    protected $casts = [
+        'total_score' => 'decimal:2',
+        'max_possible_score' => 'decimal:2',
+    ];
 
     public function survey()
     {

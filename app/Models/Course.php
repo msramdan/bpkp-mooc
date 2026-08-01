@@ -46,6 +46,11 @@ class Course extends Model
         ];
     }
 
+    public function getTitleAttribute()
+    {
+        return $this->judul;
+    }
+
     public function enrollments(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class);

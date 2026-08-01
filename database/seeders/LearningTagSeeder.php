@@ -15,6 +15,11 @@ class LearningTagSeeder extends Seeder
         $tags = [
             ['name' => 'Pemula'],
             ['name' => 'Sertifikasi'],
+            ['name' => 'Menengah'],
+            ['name' => 'Lanjutan (Advanced)'],
+            ['name' => 'Wajib (Mandatory)'],
+            ['name' => 'Studi Kasus Nyata'],
+            ['name' => 'Eksklusif BPKP'],
         ];
 
         foreach ($tags as $tag) {

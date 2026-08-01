@@ -10,7 +10,12 @@ class SurveyAnswer extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['survey_response_id', 'survey_question_id', 'answer_text', 'survey_option_id'];
+    protected $fillable = ['survey_response_id', 'survey_question_id', 'answer_text', 'survey_option_id', 'score', 'is_graded'];
+
+    protected $casts = [
+        'is_graded' => 'boolean',
+        'score' => 'integer',
+    ];
 
     public function response()
     {

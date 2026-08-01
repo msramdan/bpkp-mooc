@@ -8,7 +8,7 @@
             <h1 class="page-title fw-medium fs-18 mb-2">{{ __('Pembangun Kuesioner') }}</h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('surveys.index') }}">{{ __('Bank Survey') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('surveys.index') }}">{{ __('Bank Soal / Kuesioner') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ $survey->title }}</li>
             </ol>
         </div>
@@ -80,7 +80,11 @@
                                                 <li>
                                                     <form action="{{ route('surveys.questions.destroy', [$survey, $question]) }}" method="POST">
                                                         @csrf @method('DELETE')
-                                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Hapus pertanyaan ini?')">
+                                                        <button type="submit" class="dropdown-item text-danger js-delete-confirm"
+                                                            data-swal-title="{{ __('Hapus Pertanyaan Ini?') }}" 
+                                                            data-swal-text="{{ __('Pertanyaan beserta seluruh opsi jawabannya akan dihapus permanen.') }}"
+                                                            data-swal-confirm="{{ __('Ya, Hapus') }}" 
+                                                            data-swal-cancel="{{ __('Batal') }}">
                                                             <i class="ri-delete-bin-line me-2 align-middle"></i>{{ __('Hapus') }}
                                                         </button>
                                                     </form>
@@ -103,9 +107,15 @@
                                             </div>
                                         @elseif($question->type === 'radio' || $question->type === 'checkbox')
                                             @foreach($question->options as $option)
-                                                <div class="form-check mb-2">
-                                                    <input class="form-check-input" type="{{ $question->type }}" disabled>
-                                                    <label class="form-check-label">{{ $option->option_text }}</label>
+                                                <div class="form-check mb-2 d-flex align-items-center flex-wrap gap-2">
+                                                    <input class="form-check-input mt-0" type="{{ $question->type }}" disabled>
+                                                    <label class="form-check-label mb-0">{{ $option->option_text }}</label>
+                                                    @if($option->is_correct)
+                                                        <span class="badge bg-success-transparent ms-1" title="Kunci Jawaban"><i class="ri-check-line me-1"></i>Kunci</span>
+                                                    @endif
+                                                    @if($option->score_value > 0)
+                                                        <span class="badge bg-info-transparent">{{ $option->score_value }} Poin</span>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         @endif
@@ -153,7 +163,7 @@
     <div class="modal fade" id="questionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form id="questionForm" method="POST" action="{{ route('surveys.questions.store', $survey) }}">
+                <form id="questionForm" method="POST" action="{{ route('surveys.questions.store', $survey) }}" novalidate>
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
                     
@@ -183,24 +193,38 @@
                                 <textarea class="form-control" name="question_text" id="questionText" rows="3" required></textarea>
                             </div>
                             
+                            <div class="col-12" id="ratingInfo" style="display:none;">
+                                <div class="alert alert-info d-flex mb-0" role="alert">
+                                    <i class="ri-star-fill fs-20 me-2 text-primary mt-1"></i>
+                                    <div>
+                                        <strong>Penilaian Otomatis Skala Rating (1 – 5 Poin):</strong><br>
+                                        Sistem menerapkan standar evaluasi di mana semakin besar angka bernilai semakin tinggi:<br>
+                                        • <strong>1 Poin</strong> = Nilai Terendah (Sangat Buruk / Kurang / Sangat Tidak Setuju)<br>
+                                        • <strong>5 Poin</strong> = Nilai Tertinggi (Sangat Baik / Sempurna / Sangat Setuju)<br>
+                                        <span class="fs-12 text-muted"><em>Di halaman kuesioner peserta, panduan skala dari 1 (Terendah) hingga 5 (Tertinggi) telah dilengkapi indikator warna dan lambang bintang.</em></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12" id="textInfo" style="display:none;">
+                                <div class="alert alert-warning d-flex align-items-center mb-0" role="alert">
+                                    <i class="ri-time-line fs-18 me-2"></i>
+                                    <div><strong>Penilaian Manual:</strong> Jawaban Esai akan berstatus <em>Pending</em> saat dikumpulkan. Instruktur/Admin memberi nilai secara manual (0–100 Poin) melalui Dasbor Rekap.</div>
+                                </div>
+                            </div>
                             <!-- Area Opsi Jawaban (Hanya untuk Radio & Checkbox) -->
                             <div class="col-12" id="optionsArea">
                                 <hr>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <label class="form-label mb-0">{{ __('Pilihan Jawaban') }}</label>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0 fw-semibold">{{ __('Pilihan Jawaban & Penentuan Kunci') }}</label>
                                     <button type="button" class="btn btn-sm btn-light btn-wave" onclick="addOptionRow()">
                                         <i class="ri-add-line"></i> {{ __('Tambah Opsi') }}
                                     </button>
                                 </div>
+                                <div class="fs-12 text-muted mb-3 d-flex align-items-center">
+                                    <i class="ri-information-fill text-primary me-1 fs-15"></i>
+                                    <span id="keyHintText">{{ __('Untuk Pilihan Ganda (Radio), Anda hanya dapat menandai 1 Kunci Jawaban. Soal bernilai 100 jika benar, 0 jika salah.') }}</span>
+                                </div>
                                 <div id="optionsContainer">
-                                    <div class="input-group mb-2 option-row">
-                                        <input type="text" name="options[]" class="form-control" placeholder="Teks opsi jawaban..." required>
-                                        <button class="btn btn-danger-light btn-icon" type="button" onclick="removeOptionRow(this)"><i class="ri-close-line"></i></button>
-                                    </div>
-                                    <div class="input-group mb-2 option-row">
-                                        <input type="text" name="options[]" class="form-control" placeholder="Teks opsi jawaban..." required>
-                                        <button class="btn btn-danger-light btn-icon" type="button" onclick="removeOptionRow(this)"><i class="ri-close-line"></i></button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -222,11 +246,59 @@
             // Logika Visibilitas Opsi
             const typeSelect = document.getElementById('questionType');
             const optionsArea = document.getElementById('optionsArea');
+            const keyHintText = document.getElementById('keyHintText');
             
+            function updateOptionInputsType() {
+                const type = typeSelect.value;
+                const inputs = document.querySelectorAll('.option-correct-checkbox');
+                let hasChecked = false;
+
+                inputs.forEach((input) => {
+                    if (type === 'radio') {
+                        input.type = 'radio';
+                        input.name = 'option_correct_radio_ui';
+                        // Jika pindah dari checkbox yang tadinya dicentang > 1, sisakan HANYA yang pertama!
+                        if (input.checked) {
+                            if (hasChecked) {
+                                input.checked = false;
+                                const hidden = input.parentElement.querySelector('.option-correct-hidden');
+                                if (hidden) hidden.value = '0';
+                            } else {
+                                hasChecked = true;
+                            }
+                        }
+                    } else {
+                        input.type = 'checkbox';
+                        input.removeAttribute('name');
+                    }
+                });
+            }
+
             function toggleOptions() {
-                if (['radio', 'checkbox'].includes(typeSelect.value)) {
+                const type = typeSelect.value;
+                const ratingInfo = document.getElementById('ratingInfo');
+                const textInfo = document.getElementById('textInfo');
+                if (ratingInfo) ratingInfo.style.display = type === 'rating' ? 'block' : 'none';
+                if (textInfo) textInfo.style.display = type === 'text' ? 'block' : 'none';
+
+                if (['radio', 'checkbox'].includes(type)) {
                     optionsArea.style.display = 'block';
+                    const container = document.getElementById('optionsContainer');
+                    const currentCount = container ? container.querySelectorAll('.option-row').length : 0;
+                    if (currentCount < 2) {
+                        for (let i = currentCount; i < 2; i++) {
+                            addOptionRow('', 0, false);
+                        }
+                    }
                     document.querySelectorAll('input[name="options[]"]').forEach(el => el.required = true);
+                    if (keyHintText) {
+                        if (type === 'radio') {
+                            keyHintText.textContent = 'Untuk Pilihan Ganda (Radio), hanya boleh 1 Kunci Jawaban. Soal bernilai 100 jika benar, dan 0 jika salah.';
+                        } else {
+                            keyHintText.textContent = 'Untuk Kotak Centang (Checkbox), Anda bisa memilih lebih dari 1 Kunci. Aturan All-or-Nothing: Peserta harus mencentang SEMUA kunci dengan tepat untuk mendapat 100 poin (jika kurang atau salah 1 saja bernilai 0).';
+                        }
+                    }
+                    updateOptionInputsType();
                 } else {
                     optionsArea.style.display = 'none';
                     document.querySelectorAll('input[name="options[]"]').forEach(el => el.required = false);
@@ -235,6 +307,111 @@
             
             typeSelect.addEventListener('change', toggleOptions);
             toggleOptions();
+
+            // Hapus bingkai merah (is-invalid) saat user mulai mengetik
+            document.addEventListener('input', function(e) {
+                if (e.target && (e.target.id === 'questionText' || e.target.name === 'options[]')) {
+                    if (e.target.value.trim()) {
+                        e.target.classList.remove('is-invalid');
+                    }
+                }
+            });
+
+            const questionForm = document.getElementById('questionForm');
+            if (questionForm) {
+                questionForm.addEventListener('submit', function (e) {
+                    const type = typeSelect.value;
+                    
+                    // Kustomisasi Validasi Wajib Isi
+                    let isFormValid = true;
+                    let firstEmptyInput = null;
+                    questionForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+                    const questionText = document.getElementById('questionText');
+                    if (!questionText.value.trim()) {
+                        isFormValid = false;
+                        questionText.classList.add('is-invalid');
+                        if (!firstEmptyInput) firstEmptyInput = questionText;
+                    }
+
+                    if (['radio', 'checkbox'].includes(type)) {
+                        const optionInputs = document.querySelectorAll('input[name="options[]"]');
+                        optionInputs.forEach(input => {
+                            if (!input.value.trim()) {
+                                isFormValid = false;
+                                input.classList.add('is-invalid');
+                                if (!firstEmptyInput) firstEmptyInput = input;
+                            }
+                        });
+                    }
+
+                    if (!isFormValid) {
+                        e.preventDefault();
+                        if (firstEmptyInput) firstEmptyInput.focus();
+                        if (typeof BpkpSwal !== 'undefined') {
+                            BpkpSwal.alert('Harap isi Teks Pertanyaan dan seluruh teks Opsi Jawaban sebelum menyimpan!', 'Data Belum Lengkap', 'warning');
+                        } else {
+                            alert('Harap isi Teks Pertanyaan dan seluruh teks Opsi Jawaban sebelum menyimpan!');
+                        }
+                        return false;
+                    }
+
+                    // Logic Validasi Opsi Minimal
+                    if (['radio', 'checkbox'].includes(type)) {
+                        const optionRows = document.querySelectorAll('.option-row');
+                        if (optionRows.length < 2) {
+                            e.preventDefault();
+                            if (typeof BpkpSwal !== 'undefined') {
+                                BpkpSwal.alert('Pertanyaan bertipe Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban!', 'Gagal Menyimpan', 'error');
+                            } else {
+                                alert('Pertanyaan bertipe Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban!');
+                            }
+                            return false;
+                        }
+                    }
+
+                    if (type === 'radio') {
+                        const checkedKeys = document.querySelectorAll('.option-correct-checkbox:checked').length;
+                        if (checkedKeys !== 1) {
+                            e.preventDefault();
+                            if (typeof BpkpSwal !== 'undefined') {
+                                BpkpSwal.alert('Tipe Pilihan Ganda (Radio) mewajibkan tepat 1 Kunci Jawaban yang benar! Silakan pilih salah satu opsi sebagai Kunci Jawaban sebelum menyimpan.', 'Kunci Jawaban Belum Dipilih', 'warning');
+                            } else {
+                                alert('Tipe Pilihan Ganda (Radio) mewajibkan tepat 1 Kunci Jawaban yang benar!');
+                            }
+                            return false;
+                        }
+                    } else if (type === 'checkbox') {
+                        const checkedKeys = document.querySelectorAll('.option-correct-checkbox:checked').length;
+                        if (checkedKeys < 2) {
+                            e.preventDefault();
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    title: 'Kunci Jawaban Checkbox Kurang',
+                                    text: 'Syarat memakai tipe Kotak Centang (Checkbox) adalah memiliki minimal 2 Kunci Jawaban yang benar. Jika Anda memang memilih hanya 1 jawaban benar, silakan ubah menjadi Pilihan Ganda.',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: '<i class="ri-arrow-left-right-line me-1"></i> Ubah ke Pilihan Ganda (Radio)',
+                                    cancelButtonText: 'Batal & Tandai Kunci Lagi',
+                                    customClass: {
+                                        confirmButton: 'btn btn-primary btn-wave me-2 px-3',
+                                        cancelButton: 'btn btn-light btn-wave px-3'
+                                    },
+                                    buttonsStyling: false
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        typeSelect.value = 'radio';
+                                        typeSelect.dispatchEvent(new Event('change'));
+                                    }
+                                });
+                            } else {
+                                alert('Tipe Kotak Centang (Checkbox) minimal harus memiliki 2 Kunci Jawaban yang benar!');
+                            }
+                            return false;
+                        }
+                    }
+                });
+            }
 
             // Drag and Drop (SortableJS)
             const list = document.getElementById('question-list');
@@ -246,7 +423,6 @@
                         const items = Array.from(list.querySelectorAll('li.list-group-item'));
                         const order = items.map(item => item.getAttribute('data-id'));
                         
-                        // Kirim AJAX ke server untuk simpan urutan
                         fetch('{{ route("surveys.questions.reorder", $survey) }}', {
                             method: 'POST',
                             headers: {
@@ -256,7 +432,6 @@
                             body: JSON.stringify({ order: order })
                         }).then(response => response.json()).then(data => {
                             if(data.success) {
-                                // Update penomoran visual
                                 items.forEach((item, idx) => {
                                     const h6 = item.querySelector('h6');
                                     h6.innerHTML = (idx + 1) + '. ' + h6.innerHTML.substring(h6.innerHTML.indexOf('. ') + 2);
@@ -268,12 +443,40 @@
             }
         });
 
-        function addOptionRow(val = '') {
+        function syncCorrectHidden(cb) {
+            const type = document.getElementById('questionType').value;
+            if (type === 'radio') {
+                // Untuk radio: saat satu opsi dipilih, set nilainya jadi 1 dan force reset semua opsi lain jadi 0
+                document.querySelectorAll('.option-correct-checkbox').forEach(input => {
+                    const hidden = input.parentElement.querySelector('.option-correct-hidden');
+                    if (hidden) {
+                        hidden.value = (input === cb && cb.checked) ? '1' : '0';
+                    }
+                });
+            } else {
+                const hidden = cb.parentElement.querySelector('.option-correct-hidden');
+                if (hidden) hidden.value = cb.checked ? '1' : '0';
+            }
+        }
+
+        function addOptionRow(val = '', score = 0, isCorrect = false) {
             const container = document.getElementById('optionsContainer');
+            const type = document.getElementById('questionType').value;
+            const inputType = type === 'radio' ? 'radio' : 'checkbox';
+            const inputName = type === 'radio' ? 'name="option_correct_radio_ui"' : '';
+            const checkedStr = isCorrect ? 'checked' : '';
+            const hiddenVal = isCorrect ? '1' : '0';
             const html = `
                 <div class="input-group mb-2 option-row">
-                    <input type="text" name="options[]" class="form-control" placeholder="Teks opsi jawaban..." value="${val}" required>
-                    <button class="btn btn-danger-light btn-icon" type="button" onclick="removeOptionRow(this)"><i class="ri-close-line"></i></button>
+                    <label class="input-group-text bg-light border-end-0 px-3 d-flex align-items-center mb-0 user-select-none" title="Klik untuk menconteng sebagai Kunci Jawaban" style="cursor:pointer;">
+                        <input class="form-check-input mt-0 option-correct-checkbox me-2" type="${inputType}" ${inputName} onchange="syncCorrectHidden(this)" ${checkedStr} aria-label="Kunci" style="cursor:pointer;">
+                        <input type="hidden" name="options_correct[]" value="${hiddenVal}" class="option-correct-hidden">
+                        <i class="ri-key-2-line text-primary me-1 fs-15"></i>
+                        <span class="fw-medium text-dark fs-13">Kunci</span>
+                    </label>
+                    <input type="text" name="options[]" class="form-control" placeholder="Tuliskan teks opsi jawaban..." value="${val}" required>
+                    <input type="hidden" name="options_score[]" value="100">
+                    <button class="btn btn-danger-light btn-icon" type="button" onclick="removeOptionRow(this)" title="Hapus Opsi"><i class="ri-close-line fs-16"></i></button>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -281,10 +484,14 @@
 
         function removeOptionRow(btn) {
             const rows = document.querySelectorAll('.option-row');
-            if(rows.length > 1) {
+            if(rows.length > 2) {
                 btn.closest('.option-row').remove();
             } else {
-                alert('Minimal harus ada 1 opsi jawaban.');
+                if (typeof BpkpSwal !== 'undefined') {
+                    BpkpSwal.alert('Tipe Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban! Opsi ini tidak dapat dihapus.', 'Tidak Dapat Menghapus', 'warning');
+                } else {
+                    alert('Tipe Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban! Opsi ini tidak dapat dihapus.');
+                }
             }
         }
 
@@ -298,8 +505,8 @@
             document.getElementById('isRequired').checked = true;
             
             document.getElementById('optionsContainer').innerHTML = '';
-            addOptionRow();
-            addOptionRow();
+            addOptionRow('', 0, false);
+            addOptionRow('', 0, false);
             
             document.getElementById('questionType').dispatchEvent(new Event('change'));
         }
@@ -315,10 +522,10 @@
             
             document.getElementById('optionsContainer').innerHTML = '';
             if (options && options.length > 0) {
-                options.forEach(opt => addOptionRow(opt.option_text));
+                options.forEach(opt => addOptionRow(opt.option_text, opt.score_value || 0, opt.is_correct || false));
             } else {
-                addOptionRow();
-                addOptionRow();
+                addOptionRow('', 0, false);
+                addOptionRow('', 0, false);
             }
             
             document.getElementById('questionType').dispatchEvent(new Event('change'));

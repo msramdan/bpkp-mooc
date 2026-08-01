@@ -15,6 +15,11 @@ class LearningCategorySeeder extends Seeder
         $categories = [
             ['name' => 'Audit Internal'],
             ['name' => 'Manajemen Risiko'],
+            ['name' => 'Sistem Pengendalian Intern Pemerintah (SPIP)'],
+            ['name' => 'Akuntabilitas & Keuangan Negara'],
+            ['name' => 'Audit Investigatif & Anti-Fraud'],
+            ['name' => 'Tata Kelola & Good Governance'],
+            ['name' => 'Teknologi Informasi & Pengawasan Digital'],
         ];
 
         foreach ($categories as $category) {

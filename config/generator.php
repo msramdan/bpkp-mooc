@@ -149,7 +149,7 @@ return [
                     ],
                 ],
                 [
-                    'title' => 'Bank Survey',
+                    'title' => 'Bank Soal / Kuesioner',
                     'icon' => '<i class="bi bi-ui-radios"></i>',
                     'route' => '/surveys',
                     'permission' => 'survey view',

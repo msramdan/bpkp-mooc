@@ -168,14 +168,16 @@
       var control = document.createElement("div");
       control.className = "bpkp-search-select__control";
 
-      var chips = null;
       if (isMultiple) {
         wrapper.classList.add("is-multiple");
-        chips = document.createElement("div");
-        chips.className = "bpkp-search-select__chips";
-        control.appendChild(chips);
       }
       control.appendChild(input);
+      
+      control.addEventListener("click", function (e) {
+        if (!e.target.closest(".chip-remove")) {
+          input.focus();
+        }
+      });
 
       var dropdown = document.createElement("div");
       dropdown.className = "bpkp-search-select__dropdown";
@@ -198,25 +200,30 @@
       }
 
       function renderChips() {
-        if (!chips) {
+        if (!isMultiple) {
           return;
         }
 
-        chips.innerHTML = "";
+        Array.prototype.slice.call(control.querySelectorAll('.bpkp-search-select__chip')).forEach(function (oldChip) {
+          oldChip.remove();
+        });
+
         Array.prototype.forEach.call(select.selectedOptions, function (option) {
           if (!option.value) {
             return;
           }
 
-          var chip = document.createElement("button");
-          chip.type = "button";
+          var chip = document.createElement("span");
           chip.className = "bpkp-search-select__chip";
-          chip.textContent = option.text;
-          chip.addEventListener("click", function () {
+          chip.innerHTML = '<span class="chip-text">' + option.text + '</span><button type="button" class="chip-remove" title="Hapus tag">&times;</button>';
+          chip.querySelector(".chip-remove").addEventListener("click", function (e) {
+            e.stopPropagation();
             option.selected = false;
             select.dispatchEvent(new Event("change", { bubbles: true }));
+            renderOptions(input.value);
+            input.focus();
           });
-          chips.appendChild(chip);
+          control.insertBefore(chip, input);
         });
       }
 
@@ -241,8 +248,8 @@
         options.forEach(function (option) {
           var item = document.createElement("button");
           item.type = "button";
-          item.className = "bpkp-search-select__option";
-          item.textContent = option.text;
+          item.className = "bpkp-search-select__option d-flex justify-content-between align-items-center";
+          item.innerHTML = '<span>' + option.text + '</span>' + (option.selected ? '<span class="text-primary fw-bold">&check;</span>' : '');
           if (option.selected) {
             item.classList.add("is-selected");
           }

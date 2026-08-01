@@ -34,8 +34,32 @@
                 cancelButtonText: pick(opts.cancelButtonText, defaults.cancelButtonText),
                 customClass: {
                     popup: 'bpkp-swal-confirm-danger',
+                    confirmButton: 'btn btn-danger btn-wave me-2 px-4',
+                    cancelButton: 'btn btn-light btn-wave px-4'
                 },
+                buttonsStyling: false
             });
+        };
+
+        w.BpkpSwal.alert = function(message, title, icon = 'warning') {
+            return Swal.fire({
+                title: title || @json(__('Pemberitahuan Sistem')),
+                text: message,
+                icon: icon,
+                confirmButtonText: @json(__('Mengerti')),
+                customClass: {
+                    confirmButton: 'btn btn-primary btn-wave px-4'
+                },
+                buttonsStyling: false
+            });
+        };
+
+        var originalAlert = w.alert;
+        w.alert = function(message, title, icon) {
+            if (typeof Swal !== 'undefined') {
+                return w.BpkpSwal.alert(message, title, icon);
+            }
+            return originalAlert(message);
         };
 
         document.addEventListener('DOMContentLoaded', function() {

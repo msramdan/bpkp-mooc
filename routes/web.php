@@ -101,6 +101,13 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::put('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
         Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
         Route::post('surveys/{survey}/questions/reorder', [\App\Http\Controllers\SurveyQuestionController::class, 'reorder'])->name('surveys.questions.reorder');
+        
+        // Survey Recap & Grading Routes
+        Route::get('surveys/{survey}/recap', [\App\Http\Controllers\SurveyRecapController::class, 'index'])->name('surveys.recap.index');
+        Route::post('surveys/responses/{response}/grade-essay', [\App\Http\Controllers\SurveyRecapController::class, 'gradeEssay'])->name('surveys.recap.grade-essay');
+        Route::get('surveys/{survey}/recap/export-participants', [\App\Http\Controllers\SurveyRecapController::class, 'exportParticipants'])->name('surveys.recap.export-participants');
+        Route::get('surveys/{survey}/recap/export-courses', [\App\Http\Controllers\SurveyRecapController::class, 'exportCourses'])->name('surveys.recap.export-courses');
+
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
         Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');
     });

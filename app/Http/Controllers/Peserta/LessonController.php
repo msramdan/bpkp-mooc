@@ -66,12 +66,16 @@ class LessonController extends Controller implements HasMiddleware
                 ->where('user_id', $user->id)
                 ->where('course_lesson_id', $lesson->id)
                 ->first();
-        } elseif ($lesson->normalizedType() === 'survey') {
+        } elseif ($lesson->normalizedType() === 'survey' || $lesson->survey_id) {
             $lesson->load('survey.questions.options');
-            $surveyResponse = SurveyResponse::where('survey_id', $lesson->survey_id)
+            $surveyResponse = SurveyResponse::with('answers')->where('survey_id', $lesson->survey_id)
                 ->where('user_id', $user->id)
                 ->where('course_lesson_id', $lesson->id)
                 ->first();
+
+            if (! $surveyResponse) {
+                $isCompleted = false;
+            }
         }
 
         return view('peserta.kursus.lesson', [
@@ -109,6 +113,17 @@ class LessonController extends Controller implements HasMiddleware
 
             if (! $hasSubmission) {
                 return back()->with('error', __('Unggah hasil pengerjaan terlebih dahulu sebelum menandai selesai.'));
+            }
+        }
+
+        if (in_array($lesson->normalizedType(), ['survey', 'pre_test', 'post_test'], true) || $lesson->survey_id) {
+            $hasSurveyResponse = \App\Models\SurveyResponse::query()
+                ->where('user_id', PesertaAccess::user()->id)
+                ->where('course_lesson_id', $lesson->id)
+                ->exists();
+
+            if (! $hasSurveyResponse) {
+                return back()->with('error', __('Silakan isi dan kirim kuesioner/soal terlebih dahulu sebelum menyelesaikan materi ini.'));
             }
         }
 
@@ -251,32 +266,89 @@ class LessonController extends Controller implements HasMiddleware
             // Clear old answers if updating
             $response->answers()->delete();
 
-            foreach ($answers as $questionId => $answerVal) {
-                if (is_array($answerVal)) {
-                    foreach ($answerVal as $optId) {
-                        $response->answers()->create([
-                            'survey_question_id' => $questionId,
-                            'survey_option_id' => $optId,
-                        ]);
+            $totalScore = 0;
+            $maxPossibleScore = 0;
+            $hasPendingEssay = false;
+
+            foreach ($lesson->survey->questions as $q) {
+                $answerVal = $answers[$q->id] ?? null;
+                if ($answerVal === null && !$q->is_required) {
+                    continue;
+                }
+
+                if ($q->type === 'rating') {
+                    $maxPossibleScore += 5;
+                    $score = (int) $answerVal;
+                    $totalScore += $score;
+                    $response->answers()->create([
+                        'survey_question_id' => $q->id,
+                        'answer_text' => $answerVal,
+                        'score' => $score,
+                        'is_graded' => true,
+                    ]);
+                } elseif ($q->type === 'radio') {
+                    $maxPossibleScore += 100;
+                    $score = 0;
+                    if ($answerVal) {
+                        $option = $q->options()->where('id', $answerVal)->first();
+                        if ($option && ($option->is_correct || $option->score_value >= 100)) {
+                            $score = 100;
+                        }
                     }
-                } else {
-                    $q = $lesson->survey->questions->firstWhere('id', $questionId);
-                    if ($q) {
-                        if (in_array($q->type, ['radio', 'rating'])) {
+                    $totalScore += $score;
+                    $response->answers()->create([
+                        'survey_question_id' => $q->id,
+                        'survey_option_id' => $answerVal ?: null,
+                        'score' => $score,
+                        'is_graded' => true,
+                    ]);
+                } elseif ($q->type === 'checkbox') {
+                    $maxPossibleScore += 100;
+                    $selectedIds = is_array($answerVal) ? $answerVal : [];
+                    $correctIds = $q->options()->where('is_correct', true)->pluck('id')->toArray();
+                    
+                    $score = 0;
+                    if (count($correctIds) > 0) {
+                        sort($selectedIds);
+                        sort($correctIds);
+                        if (count($selectedIds) === count($correctIds) && empty(array_diff($selectedIds, $correctIds))) {
+                            $score = 100;
+                        } else {
+                            $score = 0;
+                        }
+                    } else {
+                        $score = count($selectedIds) > 0 ? 100 : 0;
+                    }
+
+                    $totalScore += $score;
+
+                    if (is_array($answerVal)) {
+                        foreach ($answerVal as $idx => $optId) {
                             $response->answers()->create([
-                                'survey_question_id' => $questionId,
-                                'survey_option_id' => $q->type === 'radio' ? $answerVal : null,
-                                'answer_text' => $q->type === 'rating' ? $answerVal : null,
-                            ]);
-                        } else if ($q->type === 'text') {
-                            $response->answers()->create([
-                                'survey_question_id' => $questionId,
-                                'answer_text' => $answerVal,
+                                'survey_question_id' => $q->id,
+                                'survey_option_id' => $optId,
+                                'score' => $idx === 0 ? $score : 0,
+                                'is_graded' => true,
                             ]);
                         }
                     }
+                } elseif ($q->type === 'text') {
+                    $maxPossibleScore += 100;
+                    $hasPendingEssay = true;
+                    $response->answers()->create([
+                        'survey_question_id' => $q->id,
+                        'answer_text' => is_array($answerVal) ? null : $answerVal,
+                        'score' => 0,
+                        'is_graded' => false,
+                    ]);
                 }
             }
+
+            $response->update([
+                'total_score' => $totalScore,
+                'max_possible_score' => $maxPossibleScore,
+                'grading_status' => $hasPendingEssay ? 'pending_essay' : 'completed',
+            ]);
         });
 
         $progress->completeLesson($user, $course, $lesson);

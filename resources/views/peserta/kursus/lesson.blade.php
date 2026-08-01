@@ -220,21 +220,55 @@
                             <div class="mb-4">
                                 <h3 class="mb-2">{{ $lesson->survey->title }}</h3>
                                 @if($lesson->survey->description)
-                                    <p class="text-muted fs-14">{{ $lesson->survey->description }}</p>
+                                    <p class="text-muted fs-14 mb-2">{{ $lesson->survey->description }}</p>
                                 @endif
+                                <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
+                                    @php
+                                        $estMenit = $lesson->durasi_menit > 0 ? $lesson->durasi_menit : max(5, $lesson->survey->questions->count() * 2);
+                                    @endphp
+                                    <span class="badge bg-info-transparent text-info border border-info-subtle d-inline-flex align-items-center py-1 px-3 fs-12">
+                                        <i class="bi bi-clock-history me-1"></i>{{ __('Estimasi pengerjaan: :menit menit', ['menit' => $estMenit]) }}
+                                    </span>
+                                    <span class="badge bg-primary-transparent text-primary border border-primary-subtle d-inline-flex align-items-center py-1 px-3 fs-12">
+                                        <i class="bi bi-list-check me-1"></i>{{ $lesson->survey->questions->count() }} {{ __('Pertanyaan') }}
+                                    </span>
+                                </div>
                             </div>
 
                             @if($surveyResponse)
-                                <div class="alert alert-success d-flex align-items-center mb-4">
-                                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                                    <div>
-                                        <strong>{{ __('Selesai!') }}</strong><br>
-                                        {{ __('Anda telah mengisi kuesioner ini pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
+                                <div class="alert alert-success d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                                        <div>
+                                            <strong>{{ __('Selesai!') }}</strong><br>
+                                            {{ __('Anda telah mengisi kuesioner ini pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-white px-3 py-2 rounded shadow-sm text-end border">
+                                        @php
+                                            $userNilai = $surveyResponse->max_possible_score > 0 ? ($surveyResponse->total_score / $surveyResponse->max_possible_score) * 100 : 0;
+                                        @endphp
+                                        <div class="text-muted fs-11 text-uppercase fw-semibold">{{ __('Nilai Evaluasi') }}</div>
+                                        <div class="fs-20 fw-bold text-primary mb-1">
+                                            {{ number_format($userNilai, 1) }} <span class="fs-13 text-muted fw-normal">/ 100</span>
+                                        </div>
+                                        <div class="text-muted fs-11 border-top pt-1">
+                                            {{ __('Poin Diperoleh:') }} <strong>{{ number_format($surveyResponse->total_score, 0) }} / {{ number_format($surveyResponse->max_possible_score, 0) }}</strong>
+                                        </div>
+                                        @if($surveyResponse->grading_status === 'pending_essay')
+                                            <div class="badge bg-warning-transparent text-warning mt-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-clock me-1"></i>{{ __('Menunggu Esai') }}
+                                            </div>
+                                        @else
+                                            <div class="badge bg-success-transparent text-success mt-1" style="font-size: 0.75rem;">
+                                                <i class="bi bi-check-all me-1"></i>{{ __('Selesai') }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @endif
 
-                            <form action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST">
+                            <form id="surveySubmitForm" action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST" novalidate>
                                 @csrf
                                 <div class="survey-questions">
                                     @foreach($lesson->survey->questions as $index => $q)
@@ -272,16 +306,23 @@
                                                     <textarea name="answers[{{ $q->id }}]" class="form-control" rows="3" placeholder="{{ __('Tuliskan jawaban Anda di sini...') }}" @required($q->is_required)>{{ $oldVal }}</textarea>
                                                 
                                                 @elseif($q->type === 'rating')
-                                                    <div class="d-flex flex-wrap gap-4 align-items-center">
-                                                        <span class="text-muted fs-13">{{ __('Sangat Buruk') }}</span>
-                                                        @for($i = 1; $i <= 5; $i++)
-                                                            <div class="form-check form-check-inline m-0">
-                                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="q_{{ $q->id }}_{{ $i }}" value="{{ $i }}" 
-                                                                    @checked($oldVal == $i) @required($q->is_required)>
-                                                                <label class="form-check-label ms-1" for="q_{{ $q->id }}_{{ $i }}">{{ $i }}</label>
-                                                            </div>
-                                                        @endfor
-                                                        <span class="text-muted fs-13">{{ __('Sangat Baik') }}</span>
+                                                    <!-- Layout Skala Linier ala Google Forms -->
+                                                    <div class="d-flex flex-wrap align-items-end gap-3 my-2 px-2">
+                                                        <div class="text-end text-dark fw-medium fs-13 pb-1">
+                                                            {{ __('Sangat Buruk (1 - Terendah)') }}
+                                                        </div>
+                                                        <div class="d-flex gap-3 align-items-center">
+                                                            @for($i = 1; $i <= 5; $i++)
+                                                                <div class="d-flex flex-column align-items-center gap-2 m-0 px-1">
+                                                                    <label class="form-check-label fw-semibold text-dark fs-14 user-select-none" style="cursor:pointer;" for="q_{{ $q->id }}_{{ $i }}">{{ $i }}</label>
+                                                                    <input class="form-check-input m-0" style="cursor:pointer; width: 1.25rem; height: 1.25rem;" type="radio" name="answers[{{ $q->id }}]" id="q_{{ $q->id }}_{{ $i }}" value="{{ $i }}" 
+                                                                        @checked($oldVal == $i) @required($q->is_required)>
+                                                                </div>
+                                                            @endfor
+                                                        </div>
+                                                        <div class="text-start text-dark fw-medium fs-13 pb-1">
+                                                            {{ __('Sangat Baik (5 - Tertinggi)') }}
+                                                        </div>
                                                     </div>
 
                                                 @elseif($q->type === 'radio')
@@ -351,11 +392,26 @@
                             <span>{{ __('Status') }}</span>
                             <strong>{{ $isCompleted ? __('Selesai') : __('Belum selesai') }}</strong>
                         </li>
+                        <li>
+                            <span>{{ __('Estimasi Waktu') }}</span>
+                            <strong>{{ $lesson->durasi_menit > 0 ? $lesson->durasi_menit : (in_array($type, ['survey', 'pre_test', 'post_test'], true) && $lesson->survey ? max(5, $lesson->survey->questions->count() * 2) : 10) }} {{ __('Menit') }}</strong>
+                        </li>
                         @if ($type === 'penugasan')
                             <li>
                                 <span>{{ __('Pengumpulan') }}</span>
                                 <strong>{{ $submission ? __('Sudah dikumpulkan') : __('Belum dikumpulkan') }}</strong>
                             </li>
+                        @elseif (in_array($type, ['survey', 'pre_test', 'post_test'], true) || $lesson->survey_id)
+                            <li>
+                                <span>{{ __('Pengisian') }}</span>
+                                <strong>{{ $surveyResponse ? __('Sudah mengerjakan') : __('Belum mengerjakan') }}</strong>
+                            </li>
+                            @if ($surveyResponse)
+                                <li>
+                                    <span>{{ __('Nilai Akhir') }}</span>
+                                    <strong class="text-primary">{{ number_format(($surveyResponse->max_possible_score > 0 ? ($surveyResponse->total_score / $surveyResponse->max_possible_score) * 100 : 0), 1) }} / 100</strong>
+                                </li>
+                            @endif
                         @endif
                     </ul>
 
@@ -367,14 +423,14 @@
                             </a>
                         @endif
 
-                        @if (! $isCompleted && $type !== 'penugasan')
+                        @if (! $isCompleted && ! in_array($type, ['penugasan', 'survey', 'pre_test', 'post_test'], true) && ! $lesson->survey_id)
                             <form action="{{ route('peserta.kursus.lessons.complete', [$course, $lesson]) }}" method="post" class="flex-grow-1">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-wave w-100">
                                     <i class="bi bi-check-lg me-1"></i>{{ __('Tandai selesai') }}
                                 </button>
                             </form>
-                        @elseif (! $isCompleted && $type === 'penugasan' && $submission)
+                        @elseif (! $isCompleted && (($type === 'penugasan' && $submission) || (in_array($type, ['survey', 'pre_test', 'post_test'], true) && $surveyResponse)))
                             <form action="{{ route('peserta.kursus.lessons.complete', [$course, $lesson]) }}" method="post" class="flex-grow-1">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-wave w-100">
@@ -429,6 +485,50 @@
                     nameEl.textContent = '';
                 });
             });
+
+            const surveyForm = document.getElementById('surveySubmitForm');
+            if (surveyForm) {
+                surveyForm.addEventListener('submit', function (e) {
+                    let isComplete = true;
+                    let firstUnansweredItem = null;
+                    surveyForm.querySelectorAll('.survey-question-item').forEach(item => {
+                        const hasRequired = item.querySelector('[required]');
+                        if (hasRequired) {
+                            const inputs = item.querySelectorAll('input[type="radio"], input[type="checkbox"], textarea');
+                            let answered = false;
+                            inputs.forEach(el => {
+                                if (el.type === 'radio' || el.type === 'checkbox') {
+                                    if (el.checked) answered = true;
+                                } else {
+                                    if (el.value.trim() !== '') answered = true;
+                                }
+                            });
+                            if (!answered) {
+                                isComplete = false;
+                                item.classList.add('border-danger', 'border-2');
+                                if (!firstUnansweredItem) firstUnansweredItem = item;
+                            } else {
+                                item.classList.remove('border-danger', 'border-2');
+                            }
+                        }
+                    });
+
+                    if (!isComplete) {
+                        e.preventDefault();
+                        if (firstUnansweredItem) {
+                            firstUnansweredItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        if (typeof BpkpSwal !== 'undefined') {
+                            BpkpSwal.alert('Harap jawab seluruh pertanyaan kuesioner yang berstatus wajib (*) sebelum mengirimkan!', 'Belum Lengkap', 'warning');
+                        } else if (typeof Swal !== 'undefined') {
+                            Swal.fire('Belum Lengkap', 'Harap jawab seluruh pertanyaan kuesioner yang berstatus wajib (*) sebelum mengirimkan!', 'warning');
+                        } else {
+                            alert('Harap jawab seluruh pertanyaan kuesioner yang berstatus wajib (*) sebelum mengirimkan!');
+                        }
+                        return false;
+                    }
+                });
+            }
         });
     </script>
     @if ($type === 'h5p')

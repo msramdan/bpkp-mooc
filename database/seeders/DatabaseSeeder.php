@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
                 LearningCategorySeeder::class,
                 LearningTagSeeder::class,
                 SurveySeeder::class,
+                BankSoalPilihanGandaSeeder::class,
+                BankSoalCampuranSeeder::class,
                 CourseSeeder::class,
                 CourseContentSeeder::class,
                 CourseEnrollmentSeeder::class,
