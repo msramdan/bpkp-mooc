@@ -48,6 +48,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::post('/kursus/{course}/forum/{thread}/reply', [CourseForumController::class, 'storeReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply');
         Route::put('/kursus/{course}/forum/{thread}/reply/{reply}', [CourseForumController::class, 'updateReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply.update');
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
+        Route::get('/kursus/{course}/materi/{lesson}/cetak-sertifikat', [PesertaLessonController::class, 'printCertificate'])->middleware('permission:peserta kursus view')->name('kursus.lessons.certificate.print');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
         Route::post('/kursus/{course}/materi/{lesson}/survey', [PesertaLessonController::class, 'submitSurvey'])->middleware('permission:peserta kursus view')->name('kursus.lessons.survey.submit');
@@ -93,6 +94,9 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::post('learning-categories-import', [LearningCategoryController::class, 'import'])->name('learning-categories.import');
         Route::resource('learning-categories', LearningCategoryController::class);
         Route::resource('learning-tags', LearningTagController::class);
+        Route::get('certificate-templates/{certificateTemplate}/layout', [\App\Http\Controllers\CertificateTemplateController::class, 'editLayout'])->name('certificate-templates.layout.edit');
+        Route::put('certificate-templates/{certificateTemplate}/layout', [\App\Http\Controllers\CertificateTemplateController::class, 'updateLayout'])->name('certificate-templates.layout.update');
+        Route::resource('certificate-templates', \App\Http\Controllers\CertificateTemplateController::class);
         Route::resource('surveys', \App\Http\Controllers\SurveyController::class);
         
         // Survey Builder Routes

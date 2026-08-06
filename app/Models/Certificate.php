@@ -13,6 +13,7 @@ class Certificate extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'certificate_template_id',
         'nomor',
         'nilai_akhir',
         'issued_at',
@@ -34,6 +35,11 @@ class Certificate extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(CertificateTemplate::class, 'certificate_template_id');
     }
 
     public function isIssued(): bool

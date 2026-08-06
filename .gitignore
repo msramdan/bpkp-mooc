@@ -2,6 +2,12 @@
 .DS_Store
 .env
 .agents
+.superpowers
+.claude
+.gemini
+GEMINI.md
+tests
+.mcp.json
 project-review.md
 SKILL.md
 docs

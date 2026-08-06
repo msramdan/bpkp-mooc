@@ -10,7 +10,7 @@ namespace App\Support;
  */
 class ActivityTypes
 {
-    public const ENABLED = ['berkas', 'video', 'url', 'penugasan', 'survey', 'h5p'];
+    public const ENABLED = ['berkas', 'video', 'url', 'penugasan', 'survey', 'h5p', 'sertifikat'];
 
     /**
      * Legacy Moodle/import types → simplified keys.
@@ -40,7 +40,7 @@ class ActivityTypes
             ['key' => 'forum', 'label' => 'Forum', 'enabled' => false, 'icon' => 'bi-chat-dots', 'color' => '#9333ea'],
             ['key' => 'survey', 'label' => 'Soal / Kuesioner', 'enabled' => true, 'icon' => 'bi-clipboard2-data', 'color' => '#0891b2'],
             ['key' => 'post_test', 'label' => 'Post-Test', 'enabled' => false, 'icon' => 'bi-clipboard2-check', 'color' => '#ea580c'],
-            ['key' => 'sertifikat', 'label' => 'Sertifikat', 'enabled' => false, 'icon' => 'bi-award', 'color' => '#d97706'],
+            ['key' => 'sertifikat', 'label' => 'Sertifikat', 'enabled' => true, 'icon' => 'bi-award', 'color' => '#d97706'],
         ];
     }
 
@@ -53,7 +53,7 @@ class ActivityTypes
     {
         return array_values(array_filter(
             self::palette(),
-            fn (array $item) => ! in_array($item['key'], ['pre_test', 'post_test', 'sertifikat', 'forum'], true)
+            fn (array $item) => ! in_array($item['key'], ['pre_test', 'post_test', 'forum'], true)
         ));
     }
 

@@ -112,6 +112,7 @@
                 var berkasField = document.getElementById('activityFieldBerkas');
                 var penugasanRequirementsField = document.getElementById('activityFieldPenugasanRequirements');
                 var surveyField = document.getElementById('activityFieldSurvey');
+                var sertifikatField = document.getElementById('activityFieldSertifikat');
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
                 var berkasInput = form.querySelector('[name="berkas_file"]');
@@ -122,6 +123,7 @@
                 berkasField.classList.add('d-none');
                 if (penugasanRequirementsField) penugasanRequirementsField.classList.add('d-none');
                 if (surveyField) surveyField.classList.add('d-none');
+                if (sertifikatField) sertifikatField.classList.add('d-none');
                 if (videoInput) {
                     videoInput.required = false;
                     videoInput.value = '';
@@ -157,6 +159,8 @@
                 } else if (key === 'survey') {
                     if (surveyField) surveyField.classList.remove('d-none');
                     if (surveyInput) surveyInput.required = true;
+                } else if (key === 'sertifikat') {
+                    if (sertifikatField) sertifikatField.classList.remove('d-none');
                 } else if (key === 'berkas' || key === 'penugasan' || key === 'h5p') {
                     berkasField.classList.remove('d-none');
                     if (berkasInput) {

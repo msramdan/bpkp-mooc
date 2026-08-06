@@ -146,6 +146,11 @@ return [
                             'route' => '/learning-tags',
                             'permission' => 'learning tag view',
                         ],
+                        [
+                            'title' => 'Template Sertifikat',
+                            'route' => '/certificate-templates',
+                            'permission' => 'learning category view',
+                        ],
                     ],
                 ],
                 [

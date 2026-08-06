@@ -18,6 +18,9 @@ use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\SurveyResponse;
+use App\Models\Certificate;
+use App\Models\CertificateTemplate;
+use App\Services\CertificateService;
 
 class LessonController extends Controller implements HasMiddleware
 {
@@ -78,11 +81,21 @@ class LessonController extends Controller implements HasMiddleware
             }
         }
 
+        $certGate = null;
+        if ($lesson->normalizedType() === 'sertifikat') {
+            $certGate = $this->evaluateCertificateGate($user, $course, $lesson, $ordered, $completedIds, $enrollment);
+            if ($certGate['unlocked'] && ! $isCompleted) {
+                $progress->completeLesson($user, $course, $lesson);
+                $isCompleted = true;
+            }
+        }
+
         return view('peserta.kursus.lesson', [
             'course' => $course,
             'lesson' => $lesson,
             'enrollment' => $enrollment,
             'isCompleted' => $isCompleted,
+            'certGate' => $certGate,
             'previousLesson' => $previousLesson,
             'nextLesson' => $nextLesson,
             'nextAccessible' => $nextLesson && $progress->isLessonAccessible(
@@ -355,5 +368,130 @@ class LessonController extends Controller implements HasMiddleware
 
         return to_route('peserta.kursus.lessons.show', [$course, $lesson])
             ->with('success', __('Terima kasih! Kuesioner berhasil dikirim.'));
+    }
+
+    public function printCertificate(Course $course, CourseLesson $lesson, LearningProgressService $progress, CertificateService $certService): View|RedirectResponse
+    {
+        $this->authorize('view', $course);
+
+        if (! $progress->belongsToCourse($lesson, $course)) {
+            abort(404);
+        }
+
+        $user = PesertaAccess::user();
+        $enrollment = PesertaAccess::enrollmentForCourse($course);
+        $completedIds = $progress->completedLessonIds($user, $course);
+        $ordered = $progress->orderedLessons($course);
+        $certGate = $this->evaluateCertificateGate($user, $course, $lesson, $ordered, $completedIds, $enrollment);
+
+        if (! $certGate['unlocked']) {
+            return back()->with('error', __('Sertifikat masih terkunci. Selesaikan seluruh prasyarat dan penuhi nilai minimal kelulusan terlebih dahulu.'));
+        }
+
+        $userScore = (int) round($certGate['user_score']);
+        $templateId = $lesson->certificate_template_id ?? CertificateTemplate::where('is_default', true)->value('id');
+        
+        $certificate = Certificate::firstOrCreate(
+            ['user_id' => $user->id, 'course_id' => $course->id],
+            [
+                'nomor' => 'SERT-' . str_pad((string) $course->id, 3, '0', STR_PAD_LEFT) . '/' . str_pad((string) $user->id, 4, '0', STR_PAD_LEFT) . '/MOOC/' . date('Y'),
+                'certificate_template_id' => $templateId,
+                'nilai_akhir' => min(100, max(0, $userScore)),
+                'issued_at' => now(),
+            ]
+        );
+
+        $updateData = [];
+        if (! $certificate->certificate_template_id && $templateId) {
+            $updateData['certificate_template_id'] = $templateId;
+        }
+        if (isset($certificate->nilai_akhir) && (int) $certificate->nilai_akhir !== min(100, max(0, $userScore))) {
+            $updateData['nilai_akhir'] = min(100, max(0, $userScore));
+        }
+        if (!empty($updateData)) {
+            $certificate->update($updateData);
+        }
+
+        if (! $completedIds->contains($lesson->id)) {
+            $progress->completeLesson($user, $course, $lesson);
+        }
+
+        $certificate->load(['course', 'user', 'template']);
+
+        return view('peserta.kursus.certificate_print', [
+            'certificate' => $certificate,
+            'template' => $certificate->template ?? CertificateTemplate::where('is_default', true)->first(),
+            'course' => $course,
+            'user' => $user,
+            'lesson' => $lesson,
+        ]);
+    }
+
+    private function evaluateCertificateGate($user, Course $course, CourseLesson $lesson, $ordered, $completedIds, $enrollment): array
+    {
+        $allRequiredCompleted = true;
+        if ($lesson->require_all_lessons ?? true) {
+            $requiredLessons = $ordered->filter(fn (CourseLesson $l) => $l->id !== $lesson->id && ($l->is_required || $l->tipe !== 'sertifikat'));
+            foreach ($requiredLessons as $reqLesson) {
+                if (! $completedIds->contains($reqLesson->id)) {
+                    $allRequiredCompleted = false;
+                    break;
+                }
+            }
+        }
+
+        $surveyRequirementCompleted = true;
+        $prereqSurvey = null;
+        $userScore = 0;
+        $scoreCalculated = false;
+
+        if ($lesson->prerequisite_survey_id) {
+            $prereqSurvey = \App\Models\Survey::find($lesson->prerequisite_survey_id);
+            $prereqResp = SurveyResponse::where('survey_id', $lesson->prerequisite_survey_id)
+                ->where('user_id', $user->id)
+                ->first();
+            if ($prereqResp) {
+                $surveyRequirementCompleted = true;
+                if ($prereqResp->max_possible_score > 0) {
+                    $userScore = ($prereqResp->total_score / $prereqResp->max_possible_score) * 100;
+                    $scoreCalculated = true;
+                }
+            } else {
+                $surveyRequirementCompleted = false;
+            }
+        }
+
+        if (! $scoreCalculated) {
+            $courseSurveyIds = $ordered->where('survey_id', '!=', null)->pluck('survey_id')->unique()->toArray();
+            if (!empty($courseSurveyIds)) {
+                $responses = SurveyResponse::whereIn('survey_id', $courseSurveyIds)
+                    ->where('user_id', $user->id)
+                    ->where('max_possible_score', '>', 0)
+                    ->get();
+                if ($responses->count() > 0) {
+                    $userScore = $responses->sum(fn($r) => ($r->total_score / $r->max_possible_score) * 100) / $responses->count();
+                    $scoreCalculated = true;
+                }
+            }
+        }
+
+        if (! $scoreCalculated) {
+            $userScore = $allRequiredCompleted ? 100 : ($enrollment ? $enrollment->progress : 0);
+        }
+
+        $passingGrade = (float) ($lesson->passing_grade ?? 0);
+        $passedGrade = $passingGrade <= 0 || $userScore >= $passingGrade;
+
+        $isGateUnlocked = $allRequiredCompleted && $surveyRequirementCompleted && $passedGrade;
+
+        return [
+            'unlocked' => $isGateUnlocked,
+            'all_required_completed' => $allRequiredCompleted,
+            'survey_completed' => $surveyRequirementCompleted,
+            'prereq_survey' => $prereqSurvey,
+            'passing_grade' => $passingGrade,
+            'user_score' => round($userScore, 1),
+            'passed_grade' => $passedGrade,
+        ];
     }
 }

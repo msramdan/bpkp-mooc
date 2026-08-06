@@ -364,7 +364,69 @@
                     <article class="peserta-lesson__card" style="padding: 0; overflow: hidden; border: none; background: transparent;">
                         <div id="h5p-container"></div>
                     </article>
-                @elseif (in_array($type, ['pre_test', 'post_test', 'scorm', 'forum', 'sertifikat'], true))
+                @elseif ($type === 'sertifikat')
+                    <article class="peserta-lesson__card border-0 shadow-sm p-4 text-center rounded-3 bg-white" style="border-top: 5px solid #d4a017 !important;">
+                        @if ($certGate && $certGate['unlocked'])
+                            <div class="py-4">
+                                <div class="mb-3">
+                                    <span class="d-inline-block rounded-circle p-4 bg-warning-subtle text-warning">
+                                        <i class="bi bi-award-fill" style="font-size: 3.5rem; color: #d4a017;"></i>
+                                    </span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-2">{{ __('Selamat! Sertifikat Anda Siap Diterbitkan') }}</h3>
+                                <p class="text-muted max-w-lg mx-auto mb-4">{{ __('Anda telah menyelesaikan seluruh rangkaian prasyarat kelulusan dan evaluasi pembelajaran pada kursus ini dengan sukses.') }}</p>
+                                <a href="{{ route('peserta.kursus.lessons.certificate.print', [$course, $lesson]) }}" target="_blank" class="btn btn-lg fw-semibold shadow px-4 py-2" style="background-color: #0f2a4a; color: #fff;">
+                                    <i class="bi bi-printer-fill me-2"></i>{{ __('Cetak / Unduh Sertifikat (PDF A4 Landscape)') }}
+                                </a>
+                            </div>
+                        @else
+                            <div class="py-3 text-start">
+                                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded bg-danger-subtle border-start border-danger border-4">
+                                    <i class="bi bi-lock-fill text-danger fs-1"></i>
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1">{{ __('Gerbang Sertifikat Terkunci (Activity Gate)') }}</h5>
+                                        <p class="mb-0 text-muted fs-14">{{ __('Sertifikat kelulusan belum dapat diunduh. Silahkan selesaikan daftar prasyarat berikut terlebih dahulu:') }}</p>
+                                    </div>
+                                </div>
+                                <div class="card bg-light border-0 mb-3">
+                                    <ul class="list-group list-group-flush fs-14">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                            <span><i class="bi bi-journal-check me-2 text-muted"></i>{{ __('Menyelesaikan 100% seluruh modul dan materi pembelajaran') }}</span>
+                                            @if ($certGate['all_required_completed'])
+                                                <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i> {{ __('Terpenuhi') }}</span>
+                                            @else
+                                                <span class="badge bg-danger rounded-pill px-3 py-2"><i class="bi bi-x-circle-fill me-1"></i> {{ __('Belum Selesai') }}</span>
+                                            @endif
+                                        </li>
+                                        @if ($certGate && $certGate['prereq_survey'])
+                                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                                <span><i class="bi bi-clipboard2-check me-2 text-muted"></i>{{ __('Mengisi Kuesioner Evaluasi: ') }} <strong>{{ $certGate['prereq_survey']->title }}</strong></span>
+                                                @if ($certGate['survey_completed'])
+                                                    <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i> {{ __('Sudah Diisi') }}</span>
+                                                @else
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2"><i class="bi bi-x-circle-fill me-1"></i> {{ __('Belum Diisi') }}</span>
+                                                @endif
+                                            </li>
+                                        @endif
+                                        @if ($certGate && ($certGate['passing_grade'] ?? 0) > 0)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                                <span>
+                                                    <i class="bi bi-award me-2 text-muted"></i>{{ __('Memenuhi Nilai Minimal Kelulusan (Passing Grade): ') }} 
+                                                    <strong class="text-dark">{{ number_format($certGate['passing_grade'], 0) }} / 100</strong>
+                                                </span>
+                                                @if ($certGate['passed_grade'] ?? true)
+                                                    <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-check-circle-fill me-1"></i> {{ __('Lulus (Nilai: ') . ($certGate['user_score'] ?? 100) . '/100)' }}</span>
+                                                @else
+                                                    <span class="badge bg-danger rounded-pill px-3 py-2"><i class="bi bi-x-circle-fill me-1"></i> {{ __('Belum Lulus (Nilai: ') . ($certGate['user_score'] ?? 0) . '/100)' }}</span>
+                                                @endif
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+                    </article>
+                @elseif (in_array($type, ['pre_test', 'post_test', 'scorm', 'forum'], true))
                     <article class="peserta-lesson__card">
                         <div class="peserta-lesson__soon">
                             <i class="bi bi-stars"></i>
@@ -423,7 +485,7 @@
                             </a>
                         @endif
 
-                        @if (! $isCompleted && ! in_array($type, ['penugasan', 'survey', 'pre_test', 'post_test'], true) && ! $lesson->survey_id)
+                        @if (! $isCompleted && ! in_array($type, ['penugasan', 'survey', 'pre_test', 'post_test', 'sertifikat'], true) && ! $lesson->survey_id)
                             <form action="{{ route('peserta.kursus.lessons.complete', [$course, $lesson]) }}" method="post" class="flex-grow-1">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-wave w-100">
