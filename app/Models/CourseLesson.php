@@ -24,6 +24,10 @@ class CourseLesson extends Model
         'video_url',
         'file_url',
         'survey_id',
+        'certificate_template_id',
+        'require_all_lessons',
+        'prerequisite_survey_id',
+        'passing_grade',
         'assignment_allow_text',
         'assignment_allow_file',
         'assignment_allow_link',
@@ -38,6 +42,8 @@ class CourseLesson extends Model
         return [
             'urutan' => 'integer',
             'durasi_menit' => 'integer',
+            'require_all_lessons' => 'boolean',
+            'passing_grade' => 'integer',
             'assignment_allow_text' => 'boolean',
             'assignment_allow_file' => 'boolean',
             'assignment_allow_link' => 'boolean',
@@ -55,6 +61,16 @@ class CourseLesson extends Model
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class, 'survey_id');
+    }
+
+    public function certificateTemplate(): BelongsTo
+    {
+        return $this->belongsTo(CertificateTemplate::class, 'certificate_template_id');
+    }
+
+    public function prerequisiteSurvey(): BelongsTo
+    {
+        return $this->belongsTo(Survey::class, 'prerequisite_survey_id');
     }
 
     public function assignmentSubmissions(): HasMany

@@ -236,6 +236,37 @@
                                                 {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
                                             </div>
                                         </div>
+                                    @elseif ($lesson->normalizedType() === 'sertifikat')
+                                        <div class="col-12 border rounded p-3 bg-light mb-2">
+                                            <h6 class="fw-bold text-warning-dark mb-2"><i class="bi bi-shield-check me-1"></i> {{ __('Konfigurasi Gerbang Sertifikat (Activity Gate)') }}</h6>
+                                            <div class="mb-2">
+                                                <label class="form-label fs-12 fw-semibold">{{ __('Pilih Template Desain Sertifikat') }}</label>
+                                                <select name="certificate_template_id" class="form-select form-select-sm">
+                                                    <option value="">{{ __('Gunakan Template Default Sistem') }}</option>
+                                                    @foreach($certificateTemplates ?? [] as $tpl)
+                                                        <option value="{{ $tpl->id }}" @selected($lesson->certificate_template_id == $tpl->id)>{{ $tpl->title }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label fs-12 fw-semibold">{{ __('Prasyarat Kuesioner Evaluasi (Wajib Diisi Peserta)') }}</label>
+                                                <select name="prerequisite_survey_id" class="form-select form-select-sm">
+                                                    <option value="">{{ __('-- Tanpa Prasyarat Kuesioner --') }}</option>
+                                                    @foreach($surveys ?? [] as $svy)
+                                                        <option value="{{ $svy->id }}" @selected($lesson->prerequisite_survey_id == $svy->id)>{{ $svy->title }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label fs-12 fw-semibold">{{ __('Nilai Minimal Kelulusan (Passing Grade Penugasan / Test)') }}</label>
+                                                <input type="number" name="passing_grade" class="form-control form-control-sm" value="{{ $lesson->passing_grade ?? 0 }}" min="0" max="100">
+                                            </div>
+                                            <div class="form-check mt-2">
+                                                <input type="hidden" name="require_all_lessons" value="0">
+                                                <input type="checkbox" name="require_all_lessons" value="1" class="form-check-input" id="req_all_{{ $lesson->id }}" @checked($lesson->require_all_lessons ?? true)>
+                                                <label class="form-check-label fs-12 fw-medium" for="req_all_{{ $lesson->id }}">{{ __('Wajib selesaikan seluruh materi lain sebelum mengunduh sertifikat') }}</label>
+                                            </div>
+                                        </div>
                                     @else
                                         @php
                                             $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
@@ -465,6 +496,38 @@
                             </select>
                             <div class="form-text">
                                 {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
+                            </div>
+                        </div>
+                        <div class="mb-3 d-none border rounded p-3 bg-light shadow-sm" id="activityFieldSertifikat">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ __('Gerbang Kelulusan Sertifikat') }}</h6>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold fs-13">{{ __('Pilih Master Template Sertifikat') }}</label>
+                                <select name="certificate_template_id" class="form-select">
+                                    <option value="">{{ __('Gunakan Template Default Sistem') }}</option>
+                                    @foreach($certificateTemplates ?? [] as $tpl)
+                                        <option value="{{ $tpl->id }}">{{ $tpl->title }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text fs-11">{{ __('Template master diatur dari menu Admin Data Utama > Template Sertifikat.') }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold fs-13">{{ __('Prasyarat Survey / Kuesioner Evaluasi') }}</label>
+                                <select name="prerequisite_survey_id" class="form-select">
+                                    <option value="">{{ __('-- Tanpa Prasyarat Kuesioner --') }}</option>
+                                    @foreach($surveys ?? [] as $svy)
+                                        <option value="{{ $svy->id }}">{{ $svy->title }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text fs-11">{{ __('Jika dipilih, tombol cetak sertifikat terkunci sebelum peserta mengisi kuesioner evaluasi ini.') }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold fs-13">{{ __('Passing Grade Minimal (0 - 100)') }}</label>
+                                <input type="number" name="passing_grade" class="form-control" value="70" min="0" max="100">
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                <input type="hidden" name="require_all_lessons" value="0">
+                                <input type="checkbox" name="require_all_lessons" value="1" class="form-check-input" id="req_all_create" checked>
+                                <label class="form-check-label fw-medium fs-13" for="req_all_create">{{ __('Kunci sertifikat hingga peserta menyelesaikan 100% materi kursus') }}</label>
                             </div>
                         </div>
                     </div>

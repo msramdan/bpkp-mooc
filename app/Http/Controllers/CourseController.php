@@ -154,6 +154,7 @@ class CourseController extends Controller implements HasMiddleware
         }
 
         $surveys = Survey::where('is_active', true)->orderBy('title')->get(['id', 'title']);
+        $certificateTemplates = \App\Models\CertificateTemplate::orderBy('title')->get();
 
         return view('courses.show', [
             'course' => $course,
@@ -163,6 +164,7 @@ class CourseController extends Controller implements HasMiddleware
             'pesertaSearch' => $search,
             'activeTab' => $activeTab,
             'surveys' => $surveys,
+            'certificateTemplates' => $certificateTemplates,
             'forumThreads' => $forumThreads,
         ]);
     }
