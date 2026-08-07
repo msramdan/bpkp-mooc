@@ -62,6 +62,16 @@ class CourseLesson extends Model
         return $this->hasMany(AssignmentSubmission::class, 'course_lesson_id');
     }
 
+    public function getCourseAttribute()
+    {
+        return $this->module?->course;
+    }
+
+    public function getTitleAttribute()
+    {
+        return $this->judul;
+    }
+
     public function normalizedType(): string
     {
         return ActivityTypes::normalize((string) $this->tipe);

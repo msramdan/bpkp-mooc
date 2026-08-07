@@ -113,13 +113,17 @@
                                 @method('PUT')
                                 <input type="hidden" name="tipe" value="{{ $lesson->normalizedType() }}">
                                 <div class="row g-2">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <label class="form-label fs-12">{{ __('Nama') }}</label>
                                         <input type="text" name="judul" class="form-control form-control-sm" value="{{ $lesson->judul }}" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label fs-12">{{ __('Tipe') }}</label>
                                         <input type="text" class="form-control form-control-sm" value="{{ $lesson->typeLabel() }}" disabled>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fs-12">{{ __('Estimasi (Menit)') }}</label>
+                                        <input type="number" name="durasi_menit" class="form-control form-control-sm" value="{{ $lesson->durasi_menit ?? 10 }}" min="1" max="9999" required>
                                     </div>
                                     <div class="col-12">
                                         <label class="form-label fs-12">{{ __('Deskripsi') }}</label>
@@ -376,9 +380,15 @@
                     </div>
                     <div class="modal-body">
                         <h6 class="text-muted text-uppercase fs-11 mb-3">{{ __('Umum') }}</h6>
-                        <div class="mb-3">
-                            <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
-                            <input type="text" name="judul" class="form-control" required maxlength="255">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
+                                <input type="text" name="judul" class="form-control" required maxlength="255" placeholder="{{ __('Judul aktivitas...') }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{{ __('Estimasi (Menit)') }} <span class="text-danger">*</span></label>
+                                <input type="number" name="durasi_menit" class="form-control" value="10" min="1" max="9999" required>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">{{ __('Deskripsi') }}</label>

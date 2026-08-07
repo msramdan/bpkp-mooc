@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', __('Edit Bank Survey'))
+@section('title', __('Edit Bank Soal / Kuesioner'))
 
 @section('content')
     <div class="my-4 page-header-breadcrumb d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div>
-            <h1 class="page-title fw-medium fs-18 mb-2">{{ __('Edit Bank Survey') }}</h1>
+            <h1 class="page-title fw-medium fs-18 mb-2">{{ __('Edit Bank Soal / Kuesioner') }}</h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
                     <a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{{ route('surveys.index') }}">{{ __('Bank Survey') }}</a>
+                    <a href="{{ route('surveys.index') }}">{{ __('Bank Soal / Kuesioner') }}</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">{{ __('Edit') }}</li>
             </ol>
@@ -25,14 +25,14 @@
         <div class="col-xl-8">
             <div class="card custom-card">
                 <div class="card-header">
-                    <div class="card-title">{{ __('Informasi Utama Survey') }}</div>
+                    <div class="card-title">{{ __('Informasi Utama Soal / Kuesioner') }}</div>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('surveys.update', $survey) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Judul Survey') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Judul Soal / Kuesioner') }} <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $survey->title) }}" required>
                             @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -50,7 +50,7 @@
                         <div class="mb-4">
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="1" {{ old('is_active', $survey->is_active) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="is_active">{{ __('Aktifkan survey ini agar dapat digunakan di kursus') }}</label>
+                                <label class="form-check-label" for="is_active">{{ __('Aktifkan soal / kuesioner ini agar dapat digunakan di kursus') }}</label>
                             </div>
                         </div>
 
