@@ -75,6 +75,12 @@ Route::middleware(['auth', 'web'])->group(function () {
             ->name('courses.enrollments.bulk-destroy');
         Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
             ->name('courses.enrollments.destroy');
+        Route::get('courses/{course}/enrollments/template', [CourseEnrollmentController::class, 'downloadTemplate'])
+            ->name('courses.enrollments.template');
+        Route::get('courses/{course}/enrollments/export', [CourseEnrollmentController::class, 'export'])
+            ->name('courses.enrollments.export');
+        Route::post('courses/{course}/enrollments/import', [CourseEnrollmentController::class, 'import'])
+            ->name('courses.enrollments.import');
 
         Route::post('courses/{course}/modules', [CourseModuleController::class, 'store'])->name('courses.modules.store');
         Route::put('courses/{course}/modules/reorder', [CourseModuleController::class, 'reorder'])->name('courses.modules.reorder');

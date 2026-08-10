@@ -24,6 +24,10 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'min:3', 'max:255'],
+            'nip' => ['nullable', 'string', 'max:18', 'unique:users,nip,'.$this->setId()],
+            'pangkat_golongan' => ['nullable', 'string', 'max:255'],
+            'jabatan' => ['nullable', 'string', 'max:255'],
+            'unit_organisasi' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,'.$this->setId()],
             'avatar' => ['nullable', 'image', 'max:1024'],
             'role' => ['required', 'exists:roles,id'],

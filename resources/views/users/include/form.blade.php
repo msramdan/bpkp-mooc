@@ -8,6 +8,40 @@
         @enderror
     </div>
     <div class="col-md-6">
+        <label class="form-label" for="nip">{{ __('NIP') }}</label>
+        <input type="text" name="nip" id="nip" class="form-control @error('nip') is-invalid @enderror"
+            placeholder="{{ __('Nomor Induk Pegawai (18 digit)') }}" value="{{ isset($user) ? $user->nip : old('nip') }}"
+            maxlength="18" inputmode="numeric">
+        @error('nip')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
+        <div class="form-text">{{ __('Opsional. Digunakan untuk import peserta dan sertifikat.') }}</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="pangkat_golongan">{{ __('Pangkat, Golongan') }}</label>
+        <input type="text" name="pangkat_golongan" id="pangkat_golongan" class="form-control @error('pangkat_golongan') is-invalid @enderror"
+            placeholder="{{ __('Cth: Penata, III/c') }}" value="{{ isset($user) ? $user->pangkat_golongan : old('pangkat_golongan') }}">
+        @error('pangkat_golongan')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="jabatan">{{ __('Jabatan') }}</label>
+        <input type="text" name="jabatan" id="jabatan" class="form-control @error('jabatan') is-invalid @enderror"
+            placeholder="{{ __('Cth: Auditor Ahli Muda') }}" value="{{ isset($user) ? $user->jabatan : old('jabatan') }}">
+        @error('jabatan')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="unit_organisasi">{{ __('Unit Organisasi') }}</label>
+        <input type="text" name="unit_organisasi" id="unit_organisasi" class="form-control @error('unit_organisasi') is-invalid @enderror"
+            placeholder="{{ __('Cth: Pusat Pendidikan dan Pelatihan Pengawasan') }}" value="{{ isset($user) ? $user->unit_organisasi : old('unit_organisasi') }}">
+        @error('unit_organisasi')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
+    </div>
+    <div class="col-md-6">
         <label class="form-label" for="email">{{ __('Email') }}</label>
         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror"
             placeholder="{{ __('Email') }}" value="{{ isset($user) ? $user->email : old('email') }}" required>
