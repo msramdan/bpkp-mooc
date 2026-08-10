@@ -242,9 +242,12 @@ class CertificateVariables
             'jabatan_peserta'      => "Jabatan                 : " . ($user?->jabatan ?? '-'),
             'unit_organisasi'      => "Unit Organisasi     : " . ($user?->unit_organisasi ?? '-'),
             'teks_penutup'         => 'Telah Mengikuti Pendidikan dan Pelatihan:',
-            'nama_kursus'          => ($course->judul ?? 'Kursus') . ' | ' . ($certificate->issued_at?->translatedFormat('d - t M Y') ?? date('d - t M Y')),
-            'jam_pelatihan'        => '15 Jam Pelatihan',
-            'tanggal_terbit'       => 'Bogor,    ' . ($certificate->issued_at?->translatedFormat('d F Y') ?? date('d F Y')) . '    s.d.    ' . date('d F Y', strtotime('+10 days')),
+            'nama_kursus'          => ($course->judul ?? 'Kursus') . ' | ' . 
+                                      ($course->starts_at?->translatedFormat('d') ?? '') . ' - ' . 
+                                      ($course->ends_at?->translatedFormat('d F Y') ?? '') . ' | ' . 
+                                      ($course->kode ?? '-'),
+            'jam_pelatihan'        => ($course->durasi_jam ?? '0') . ' Jam Pelatihan',
+            'tanggal_terbit'       => 'Bogor,    ' . ($course->starts_at?->translatedFormat('d F Y') ?? '') . '    s.d.    ' . ($course->ends_at?->translatedFormat('d F Y') ?? ''),
             'pasfoto_peserta'      => $user?->avatar ? asset('storage/' . $user->avatar) : asset('backend/assets/images/dummy-pasfoto.png'),
             'jabatan_penandatangan' => $template?->signer_title ?? 'Kepala Pusat',
             'nama_penandatangan'   => $template?->signer_name ?? 'Raden Murwantara',

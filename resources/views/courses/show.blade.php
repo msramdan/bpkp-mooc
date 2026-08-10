@@ -123,6 +123,25 @@
                                         <i class="ri-user-add-line me-1"></i>{{ __('Daftarkan') }}
                                     </button>
                                 </form>
+
+                                <hr class="my-3">
+                                <p class="text-muted fs-12 mb-2">
+                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>{{ __('Atau import massal via NIP') }}
+                                </p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ route('courses.enrollments.template', $course) }}"
+                                        class="btn btn-sm btn-outline-secondary btn-wave">
+                                        <i class="bi bi-file-earmark-excel me-1"></i>{{ __('Template') }}
+                                    </a>
+                                    <a href="{{ route('courses.enrollments.export', $course) }}"
+                                        class="btn btn-sm btn-outline-success btn-wave">
+                                        <i class="bi bi-download me-1"></i>{{ __('Export') }}
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn-wave"
+                                        data-bs-toggle="modal" data-bs-target="#enrollmentImportModal">
+                                        <i class="bi bi-upload me-1"></i>{{ __('Import') }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -285,6 +304,42 @@
                     </div>
                 </div>
             </div>
+            @can('course enrollment manage')
+                <div class="modal fade" id="enrollmentImportModal" tabindex="-1"
+                    aria-labelledby="enrollmentImportModalTitle" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('courses.enrollments.import', $course) }}" enctype="multipart/form-data">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="enrollmentImportModalTitle">{{ __('Import peserta via NIP') }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="enrollmentImportFile" class="form-label">{{ __('File import') }}</label>
+                                        <input type="file" name="import_file" id="import_file"
+                                            class="form-control @error('import_file') is-invalid @enderror"
+                                            accept=".xlsx,.xls,.csv" required>
+                                        <div class="form-text">
+                                            {{ __('Gunakan template yang diunduh, isi kolom NIP. Hanya file Excel (.xlsx, .xls) atau CSV yang didukung.') }}
+                                        </div>
+                                        @error('import_file')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Batal') }}</button>
+                                    <button type="submit" class="btn btn-primary btn-wave">
+                                        <i class="bi bi-upload me-1"></i>{{ __('Import') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endcan
             @endif
         </div>
 
