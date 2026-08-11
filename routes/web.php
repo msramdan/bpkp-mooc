@@ -17,6 +17,7 @@ use App\Http\Controllers\Peserta\CourseForumController;
 use App\Http\Controllers\Peserta\CertificateController as PesertaCertificateController;
 use App\Http\Controllers\Peserta\LessonController as PesertaLessonController;
 use App\Http\Controllers\Peserta\PortalController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,10 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/dashboard', HomeController::class)->name('dashboard');
 
     Route::get('/course-search', CourseSearchController::class)->name('courses.search');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     Route::get('/h5p-assets/{lesson}/{path?}', [\App\Http\Controllers\Peserta\H5PAssetController::class, 'serve'])
         ->where('path', '.*')
@@ -47,6 +52,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::put('/kursus/{course}/forum/{thread}', [CourseForumController::class, 'updateThread'])->middleware('permission:peserta kursus view')->name('kursus.forum.update');
         Route::post('/kursus/{course}/forum/{thread}/reply', [CourseForumController::class, 'storeReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply');
         Route::put('/kursus/{course}/forum/{thread}/reply/{reply}', [CourseForumController::class, 'updateReply'])->middleware('permission:peserta kursus view')->name('kursus.forum.reply.update');
+        Route::post('/kursus/{course}/forum/{thread}/like', [CourseForumController::class, 'toggleLike'])->middleware('permission:peserta kursus view')->name('kursus.forum.like');
         Route::get('/kursus/{course}/materi/{lesson}', [PesertaLessonController::class, 'show'])->middleware('permission:peserta kursus view')->name('kursus.lessons.show');
         Route::get('/kursus/{course}/materi/{lesson}/cetak-sertifikat', [PesertaLessonController::class, 'printCertificate'])->middleware('permission:peserta kursus view')->name('kursus.lessons.certificate.print');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
@@ -73,14 +79,16 @@ Route::middleware(['auth', 'web'])->group(function () {
             ->name('courses.enrollments.store');
         Route::delete('courses/{course}/enrollments/bulk', [CourseEnrollmentController::class, 'bulkDestroy'])
             ->name('courses.enrollments.bulk-destroy');
-        Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
-            ->name('courses.enrollments.destroy');
         Route::get('courses/{course}/enrollments/template', [CourseEnrollmentController::class, 'downloadTemplate'])
             ->name('courses.enrollments.template');
         Route::get('courses/{course}/enrollments/export', [CourseEnrollmentController::class, 'export'])
             ->name('courses.enrollments.export');
         Route::post('courses/{course}/enrollments/import', [CourseEnrollmentController::class, 'import'])
             ->name('courses.enrollments.import');
+        Route::get('courses/{course}/enrollments/{enrollment}/progress', [CourseEnrollmentController::class, 'progress'])
+            ->name('courses.enrollments.progress');
+        Route::delete('courses/{course}/enrollments/{enrollment}', [CourseEnrollmentController::class, 'destroy'])
+            ->name('courses.enrollments.destroy');
 
         Route::post('courses/{course}/modules', [CourseModuleController::class, 'store'])->name('courses.modules.store');
         Route::put('courses/{course}/modules/reorder', [CourseModuleController::class, 'reorder'])->name('courses.modules.reorder');
@@ -94,7 +102,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::put('courses/{course}/forum/{thread}', [AdminCourseForumController::class, 'updateThread'])->name('courses.forum.update');
         Route::post('courses/{course}/forum/{thread}/reply', [AdminCourseForumController::class, 'storeReply'])->name('courses.forum.reply');
         Route::put('courses/{course}/forum/{thread}/reply/{reply}', [AdminCourseForumController::class, 'updateReply'])->name('courses.forum.reply.update');
-
+        Route::post('courses/{course}/forum/{thread}/like', [AdminCourseForumController::class, 'toggleLike'])->name('courses.forum.like');
         Route::get('learning-categories-export', [LearningCategoryController::class, 'export'])->name('learning-categories.export');
         Route::get('learning-categories-template', [LearningCategoryController::class, 'downloadTemplate'])->name('learning-categories.template');
         Route::post('learning-categories-import', [LearningCategoryController::class, 'import'])->name('learning-categories.import');

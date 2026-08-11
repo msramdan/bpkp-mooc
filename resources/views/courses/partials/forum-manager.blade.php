@@ -44,8 +44,9 @@
             @php
                 $authorIsAdmin = $thread->user?->hasRole(\App\Support\Roles::SUPER_ADMIN);
                 $mentionables = $thread->mentionableParticipants();
+                $threadLike = $likeSummary['threads'][$thread->id] ?? ['count' => 0, 'liked' => false];
             @endphp
-            <article class="pf-post {{ $authorIsAdmin ? 'is-admin' : '' }}" data-thread-id="{{ $thread->id }}">
+            <article class="pf-post {{ $authorIsAdmin ? 'is-admin' : '' }}" data-thread-id="{{ $thread->id }}" id="thread-{{ $thread->id }}">
                 <header class="pf-post__head">
                     <img src="{{ $thread->user->avatar }}" alt="{{ $thread->user->name }}" class="pf-avatar pf-avatar--lg">
                     <div class="pf-post__who">
@@ -77,11 +78,27 @@
                 </div>
                 <p class="pf-post__body" data-thread-body>{!! \App\Models\CourseForumThread::renderBodyWithMentions($thread->body, $mentionables) !!}</p>
 
+                <div class="pf-actions">
+                    <button type="button"
+                        class="pf-like-btn js-forum-like {{ !empty($threadLike['liked']) ? 'is-liked' : '' }}"
+                        data-like-url="{{ route('courses.forum.like', [$course, $thread]) }}"
+                        data-target-type="thread"
+                        data-target-id="{{ $thread->id }}"
+                        aria-pressed="{{ !empty($threadLike['liked']) ? 'true' : 'false' }}">
+                        <i class="{{ !empty($threadLike['liked']) ? 'ri-thumb-up-fill' : 'ri-thumb-up-line' }}"></i>
+                        <span class="js-like-label">{{ __('Suka') }}</span>
+                        <span class="js-like-count" data-like-count>{{ (int) ($threadLike['count'] ?? 0) }}</span>
+                    </button>
+                </div>
+
                 @if ($thread->replies->isNotEmpty())
                     <div class="pf-replies">
                         @foreach ($thread->replies as $reply)
-                            @php $replyIsAdmin = $reply->user?->hasRole(\App\Support\Roles::SUPER_ADMIN); @endphp
-                            <div class="pf-reply {{ $replyIsAdmin ? 'is-admin' : '' }}">
+                            @php
+                                $replyIsAdmin = $reply->user?->hasRole(\App\Support\Roles::SUPER_ADMIN);
+                                $replyLike = $likeSummary['replies'][$reply->id] ?? ['count' => 0, 'liked' => false];
+                            @endphp
+                            <div class="pf-reply {{ $replyIsAdmin ? 'is-admin' : '' }}" data-reply-id="{{ $reply->id }}">
                                 <img src="{{ $reply->user->avatar }}" alt="{{ $reply->user->name }}" class="pf-avatar pf-avatar--sm">
                                 <div class="pf-reply__bubble">
                                     <div class="pf-reply__meta">
@@ -100,6 +117,16 @@
                                             @endif
                                     </div>
                                         <div class="pf-reply__text" data-reply-body>{!! \App\Models\CourseForumThread::renderBodyWithMentions($reply->body, $mentionables) !!}</div>
+                                        <button type="button"
+                                            class="pf-like-btn pf-like-btn--sm js-forum-like {{ !empty($replyLike['liked']) ? 'is-liked' : '' }}"
+                                            data-like-url="{{ route('courses.forum.like', [$course, $thread]) }}"
+                                            data-target-type="reply"
+                                            data-target-id="{{ $reply->id }}"
+                                            aria-pressed="{{ !empty($replyLike['liked']) ? 'true' : 'false' }}">
+                                            <i class="{{ !empty($replyLike['liked']) ? 'ri-thumb-up-fill' : 'ri-thumb-up-line' }}"></i>
+                                            <span class="js-like-label">{{ __('Suka') }}</span>
+                                            <span class="js-like-count" data-like-count>{{ (int) ($replyLike['count'] ?? 0) }}</span>
+                                        </button>
                                 </div>
                             </div>
                         @endforeach
@@ -228,6 +255,7 @@
             threadUpdated: @json(__('Diskusi berhasil diperbarui.')),
             replyUpdated: @json(__('Balasan berhasil diperbarui.')),
             edit: @json(__('Edit')),
+            like: @json(__('Suka')),
             error: @json(__('Terjadi kesalahan. Coba lagi.')),
         };
     </script>

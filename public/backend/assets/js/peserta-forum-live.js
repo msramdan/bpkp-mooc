@@ -40,6 +40,8 @@
     }
 
     function replyHtml(reply) {
+        var liked = !!reply.liked;
+        var likeCount = parseInt(reply.likes_count, 10) || 0;
         return '' +
             '<div class="pf-reply' + (reply.is_admin ? ' is-admin' : '') + '" data-reply-id="' + escapeHtml(reply.id) + '">' +
             '  <img src="' + escapeHtml(reply.user.avatar) + '" alt="' + escapeHtml(reply.user.name) + '" class="pf-avatar pf-avatar--sm">' +
@@ -51,6 +53,11 @@
             (reply.can_edit ? '      <button type="button" class="pf-link-btn js-reply-edit" data-body="' + escapeHtml(reply.body) + '" data-update-url="' + escapeHtml(reply.update_url) + '">' + escapeHtml(window.pfForumI18n.edit) + '</button>' : '') +
             '    </div>' +
             '    <div class="pf-reply__text" data-reply-body>' + (reply.body_html || escapeHtml(reply.body)) + '</div>' +
+            '    <button type="button" class="pf-like-btn pf-like-btn--sm js-forum-like' + (liked ? ' is-liked' : '') + '" data-like-url="' + escapeHtml(reply.like_url || '') + '" data-target-type="reply" data-target-id="' + escapeHtml(reply.id) + '" aria-pressed="' + (liked ? 'true' : 'false') + '">' +
+            '      <i class="' + (liked ? 'ri-thumb-up-fill' : 'ri-thumb-up-line') + '"></i>' +
+            '      <span class="js-like-label">' + escapeHtml(window.pfForumI18n.like || 'Suka') + '</span>' +
+            '      <span class="js-like-count" data-like-count>' + likeCount + '</span>' +
+            '    </button>' +
             '  </div>' +
             '</div>';
     }
@@ -69,8 +76,10 @@
 
     function threadHtml(thread, auth) {
         const mentionJson = JSON.stringify(thread.mentionables || []).replace(/'/g, '&#39;');
+        var liked = !!thread.liked;
+        var likeCount = parseInt(thread.likes_count, 10) || 0;
         return '' +
-            '<article class="pf-post' + (thread.is_admin ? ' is-admin' : '') + '" data-thread-id="' + escapeHtml(thread.id) + '">' +
+            '<article class="pf-post' + (thread.is_admin ? ' is-admin' : '') + '" data-thread-id="' + escapeHtml(thread.id) + '" id="thread-' + escapeHtml(thread.id) + '">' +
             '  <header class="pf-post__head">' +
             '    <img src="' + escapeHtml(thread.user.avatar) + '" alt="' + escapeHtml(thread.user.name) + '" class="pf-avatar pf-avatar--lg">' +
             '    <div class="pf-post__who">' +
@@ -87,6 +96,13 @@
             (thread.can_edit ? '    <button type="button" class="pf-link-btn js-thread-edit" data-title="' + escapeHtml(thread.title) + '" data-body="' + escapeHtml(thread.body) + '" data-update-url="' + escapeHtml(thread.update_url) + '"><i class="bi bi-pencil-square me-1"></i>' + escapeHtml(window.pfForumI18n.edit) + '</button>' : '') +
             '  </div>' +
             '  <p class="pf-post__body" data-thread-body>' + (thread.body_html || escapeHtml(thread.body)) + '</p>' +
+            '  <div class="pf-actions">' +
+            '    <button type="button" class="pf-like-btn js-forum-like' + (liked ? ' is-liked' : '') + '" data-like-url="' + escapeHtml(thread.like_url || '') + '" data-target-type="thread" data-target-id="' + escapeHtml(thread.id) + '" aria-pressed="' + (liked ? 'true' : 'false') + '">' +
+            '      <i class="' + (liked ? 'ri-thumb-up-fill' : 'ri-thumb-up-line') + '"></i>' +
+            '      <span class="js-like-label">' + escapeHtml(window.pfForumI18n.like || 'Suka') + '</span>' +
+            '      <span class="js-like-count" data-like-count>' + likeCount + '</span>' +
+            '    </button>' +
+            '  </div>' +
             '  <div class="pf-replies" hidden></div>' +
             '  <form method="POST" action="' + escapeHtml(thread.reply_url) + '" class="pf-reply-box js-forum-reply-form">' +
             '    <img src="' + escapeHtml(auth.avatar) + '" alt="' + escapeHtml(auth.name) + '" class="pf-avatar pf-avatar--sm">' +
@@ -97,6 +113,58 @@
             '    </div>' +
             '  </form>' +
             '</article>';
+    }
+
+    function applyLikeState(btn, liked, count) {
+        btn.classList.toggle('is-liked', !!liked);
+        btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+        var icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = liked ? 'ri-thumb-up-fill' : 'ri-thumb-up-line';
+        }
+        var countEl = btn.querySelector('[data-like-count]');
+        if (countEl) {
+            countEl.textContent = String(count || 0);
+        }
+    }
+
+    function bindLikeButtons(root) {
+        (root || document).querySelectorAll('.js-forum-like').forEach(function (btn) {
+            if (btn.dataset.bound === '1') return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', async function () {
+                var url = btn.getAttribute('data-like-url');
+                var targetType = btn.getAttribute('data-target-type');
+                var targetId = btn.getAttribute('data-target-id');
+                if (!url || !targetType || !targetId) return;
+                btn.disabled = true;
+                try {
+                    var response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken()
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            target_type: targetType,
+                            target_id: targetId
+                        })
+                    });
+                    var data = await response.json().catch(function () { return {}; });
+                    if (!response.ok) {
+                        throw new Error(data.message || window.pfForumI18n.error);
+                    }
+                    applyLikeState(btn, data.liked, data.likes_count);
+                } catch (error) {
+                    toast(error.message || window.pfForumI18n.error, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
     }
 
     async function postForm(form) {
@@ -169,6 +237,7 @@
                     box.hidden = false;
                     box.insertAdjacentHTML('beforeend', replyHtml(data.reply));
                     bindEditButtons(box);
+                    bindLikeButtons(box);
                     const countEl = post.querySelector('[data-reply-count]');
                     if (countEl) {
                         countEl.textContent = String(data.replies_count || 0);
@@ -217,6 +286,7 @@
                     feed.insertAdjacentHTML('afterbegin', threadHtml(data.thread, window.pfForumAuth || {}));
                     bindReplyForms(feed);
                     bindEditButtons(feed);
+                    bindLikeButtons(feed);
                     const firstTextarea = feed.querySelector('.pf-post textarea[data-mentionables]');
                     if (firstTextarea && typeof window.pfBindMention === 'function') {
                         window.pfBindMention(firstTextarea);
@@ -368,5 +438,6 @@
         bindCreateForm();
         bindEditButtons(document);
         bindEditForm();
+        bindLikeButtons(document);
     });
 })();

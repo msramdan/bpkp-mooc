@@ -202,10 +202,14 @@
 
 
 
-                    <li class="header-element notifications-dropdown d-xl-block d-none dropdown">
+                    <li class="header-element notifications-dropdown d-xl-block d-none dropdown" id="bpkpNotificationsRoot"
+                        data-poll-url="{{ route('notifications.index') }}"
+                        data-read-all-url="{{ route('notifications.read-all') }}"
+                        data-read-url-template="{{ url('/notifications/__ID__/read') }}">
 
                         <a href="javascript:void(0);" class="header-link dropdown-toggle" data-bs-toggle="dropdown"
-                            data-bs-auto-close="outside" id="messageDropdown" aria-expanded="false">
+                            data-bs-auto-close="outside" id="messageDropdown" aria-expanded="false"
+                            aria-label="{{ __('Notifikasi') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon animate-bell"
                                 viewBox="0 0 256 256">
                                 <rect width="256" height="256" fill="none" />
@@ -220,151 +224,47 @@
                                     fill="none" stroke="currentColor" stroke-linecap="round"
                                     stroke-linejoin="round" stroke-width="16" />
                             </svg>
-                            <span class="header-icon-pulse bg-secondary rounded pulse pulse-secondary"></span>
+                            <span class="bpkp-notif-pulse header-icon-pulse bg-secondary rounded pulse pulse-secondary d-none"
+                                id="bpkpNotifPulse" aria-hidden="true"></span>
+                            <span class="bpkp-notif-badge d-none" id="bpkpNotifBadge">0</span>
                         </a>
 
-
-                        <div class="main-header-dropdown dropdown-menu dropdown-menu-end"
+                        <div class="main-header-dropdown dropdown-menu dropdown-menu-end bpkp-notif-menu"
                             data-popper-placement="none">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <p class="mb-0 fs-16">Notifications</p>
-                                    <a href="javascript:void(0);" class="badge bg-secondary-transparent"
-                                        id="notifiation-data">3 Unread</a>
+                            <div class="bpkp-notif-menu__head">
+                                <div>
+                                    <p class="mb-0 fs-16 fw-semibold">{{ __('Notifikasi') }}</p>
+                                    <span class="bpkp-notif-menu__sub" id="bpkpNotifSubtitle">{{ __('Semua aktivitas forum') }}</span>
                                 </div>
+                                <button type="button" class="badge bg-secondary-transparent border-0 bpkp-notif-unread-chip"
+                                    id="bpkpNotifUnreadChip" disabled>0 {{ __('belum dibaca') }}</button>
                             </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="pb-0 px-3">
-                                <ul class="nav nav-tabs mb-0 tab-style-8 scaleX" role="tablist">
-                                    <li class="nav-item" role="presentation"> <button class="nav-link active"
-                                            id="activity-tab" data-bs-toggle="tab"
-                                            data-bs-target="#activity-tab-pane" type="button" role="tab"
-                                            aria-controls="activity-tab-pane" aria-selected="true">Activity</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation"> <button class="nav-link"
-                                            id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-tab-pane"
-                                            type="button" role="tab" aria-controls="notes-tab-pane"
-                                            aria-selected="false" tabindex="-1">Notes</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation"> <button class="nav-link"
-                                            id="alert-tab" data-bs-toggle="tab" data-bs-target="#alert-tab-pane"
-                                            type="button" role="tab" aria-controls="alert-tab-pane"
-                                            aria-selected="false" tabindex="-1">Alerts</button>
-                                    </li>
+                            <div class="bpkp-notif-tabs" role="tablist">
+                                <button type="button" class="bpkp-notif-tab is-active" data-filter="all" role="tab" aria-selected="true">
+                                    {{ __('Semua') }}
+                                </button>
+                                <button type="button" class="bpkp-notif-tab" data-filter="unread" role="tab" aria-selected="false">
+                                    {{ __('Belum dibaca') }}
+                                </button>
+                            </div>
+                            <div class="bpkp-notif-scroll" id="bpkpNotifScroll">
+                                <ul class="list-unstyled mb-0 bpkp-notif-list" id="bpkpNotifList">
+                                    <li class="bpkp-notif-loading text-muted text-center py-4">{{ __('Memuat notifikasi...') }}</li>
                                 </ul>
                             </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="tab-content">
-                                <div class="tab-pane show active p-0 border-0" id="activity-tab-pane" role="tabpanel"
-                                    aria-labelledby="activity-tab" tabindex="0">
-                                    <ul class="list-unstyled mb-0" id="header-notification-scroll1">
-                                        <li class="dropdown-item">
-                                            <div class="d-flex align-items-start">
-                                                <div class="pe-2 lh-1"> <span
-                                                        class="avatar avatar-md avatar-rounded svg-white">
-                                                        <img src="{{ asset('backend') }}/assets/images/faces/2.jpg"
-                                                            alt="img"> </span>
-                                                </div>
-                                                <div
-                                                    class="flex-grow-1 d-flex align-items-start justify-content-between">
-                                                    <div>
-                                                        <p class="mb-0 fw-semibold">Way to go Jack Miller ! &#127881;
-                                                        </p>
-                                                        <div
-                                                            class="fw-normal fs-13 header-notification-text text-truncate">
-                                                            Congratulations on snagging the Monthly Best Seller Gold
-                                                            Badge !</div>
-                                                        <span class="text-muted fs-12">2 Min
-                                                            Ago</span>
-                                                    </div>
-                                                    <div> <a href="javascript:void(0);"
-                                                            class="min-w-fit-content text-muted dropdown-item-close1"><i
-                                                                class="ri-close-line fs-5"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="tab-pane p-0 border-0" id="notes-tab-pane" role="tabpanel"
-                                    aria-labelledby="notes-tab" tabindex="0">
-                                    <ul class="list-unstyled mb-0" id="header-notification-scroll2">
-                                        <li class="dropdown-item">
-                                            <div class="d-flex align-items-start">
-                                                <div class="pe-2 lh-1"> <span
-                                                        class="avatar avatar-md avatar-rounded bg-primary">
-                                                        <i class="ri-file-text-line fs-16"></i> </span>
-                                                </div>
-                                                <div
-                                                    class="flex-grow-1 d-flex align-items-start justify-content-between">
-                                                    <div>
-                                                        <p class="mb-0 fw-semibold"><a href="javascript:void(0);">This
-                                                                Month Notes
-                                                                Prepared</a></p>
-                                                        <div
-                                                            class="fw-normal fs-13 header-notification-text text-truncate">
-                                                            Your notes for this month are ready and available. Please
-                                                            review them at your convenience.</div>
-                                                        <span class="fs-13 text-muted">2 min ago</span>
-                                                    </div>
-                                                    <div>
-                                                        <a href="javascript:void(0);"
-                                                            class="min-w-fit-content text-muted dropdown-item-close1"><i
-                                                                class="ri-close-line fs-5"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="tab-pane p-0 border-0" id="alert-tab-pane" role="tabpanel"
-                                    aria-labelledby="alert-tab" tabindex="0">
-                                    <ul class="list-unstyled mb-0" id="header-notification-scroll3">
-                                        <li class="dropdown-item">
-                                            <div class="d-flex align-items-start">
-                                                <div class="pe-2 lh-1"> <span
-                                                        class="avatar avatar-md avatar-rounded bg-primary-transparent">
-                                                        <i class="ri-mail-line fs-16"></i> </span>
-                                                </div>
-                                                <div
-                                                    class="flex-grow-1 d-flex align-items-start justify-content-between">
-                                                    <div>
-                                                        <p class="mb-0 fw-semibold"><a href="javascript:void(0);">Mail
-                                                                Login with
-                                                                Different Device</a></p>
-                                                        <div
-                                                            class="fw-normal fs-13 header-notification-text text-truncate">
-                                                            Your email account has been accessed from a new device. If
-                                                            this was you, no action is needed. </div>
-                                                        <span class="fs-13 text-muted">2 min ago</span>
-                                                    </div>
-                                                    <div> <a href="javascript:void(0);"
-                                                            class="min-w-fit-content text-muted dropdown-item-close1"><i
-                                                                class="ri-close-line fs-5"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <div class="bpkp-notif-empty d-none" id="bpkpNotifEmpty">
+                                <span class="avatar avatar-xl avatar-rounded bg-secondary-transparent">
+                                    <i class="ri-notification-off-line fs-2"></i>
+                                </span>
+                                <h6 class="fw-medium mt-3 mb-1">{{ __('Tidak ada notifikasi') }}</h6>
+                                <p class="text-muted fs-12 mb-0">{{ __('Tag, balasan, dan suka di forum akan muncul di sini.') }}</p>
                             </div>
-                            <div class="p-3 empty-header-item1 border-top">
-                                <div class="d-grid text-center">
-                                    <a href="{{ asset('backend') }}/pages/checkout.html"
-                                        class="text-primary text-decoration-underline">View All<i
-                                            class="ri-arrow-right-line"></i></a>
-                                </div>
-                            </div>
-                            <div class="p-5 empty-item1 d-none">
-                                <div class="text-center">
-                                    <span class="avatar avatar-xl avatar-rounded bg-secondary-transparent">
-                                        <i class="ri-notification-off-line fs-2"></i>
-                                    </span>
-                                    <h6 class="fw-medium mt-3">No New Notifications</h6>
-                                </div>
+                            <div class="bpkp-notif-menu__foot">
+                                <button type="button" class="btn btn-sm btn-light btn-wave" id="bpkpNotifMarkAll">
+                                    {{ __('Tandai semua dibaca') }}
+                                </button>
                             </div>
                         </div>
-
                     </li>
 
 

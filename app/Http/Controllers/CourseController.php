@@ -117,13 +117,20 @@ class CourseController extends Controller implements HasMiddleware
         }
 
         $forumThreads = collect();
+        $likeSummary = ['threads' => [], 'replies' => []];
         if ($activeTab === 'forum') {
             $forumThreads = $course->forumThreads()
                 ->with([
-                    'user:id,name,email',
-                    'replies' => fn ($query) => $query->with('user:id,name,email')->oldest(),
+                    'user:id,name,email,avatar',
+                    'replies' => fn ($query) => $query->with('user:id,name,email,avatar')->oldest(),
                 ])
                 ->get();
+
+            $likeSummary = app(\App\Services\ForumActivityNotifier::class)->likeSummaryFor(
+                (int) auth()->id(),
+                $forumThreads->pluck('id')->all(),
+                $forumThreads->flatMap(fn ($t) => $t->replies->pluck('id'))->all()
+            );
         }
 
         $enrollments = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 25);
@@ -166,6 +173,7 @@ class CourseController extends Controller implements HasMiddleware
             'surveys' => $surveys,
             'certificateTemplates' => $certificateTemplates,
             'forumThreads' => $forumThreads,
+            'likeSummary' => $likeSummary,
         ]);
     }
 

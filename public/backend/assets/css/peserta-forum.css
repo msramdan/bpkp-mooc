@@ -901,3 +901,66 @@
 .pf-live-toast.is-error {
     background: #8b1e2d;
 }
+
+.pf-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.15rem 0 0.35rem;
+}
+
+.pf-like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    margin: 0;
+    padding: 0.28rem 0.65rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pf-like-btn:hover,
+.pf-like-btn:focus-visible {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.28);
+    color: #1d4ed8;
+    outline: none;
+}
+
+.pf-like-btn.is-liked {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.3);
+    color: #1d4ed8;
+}
+
+.pf-like-btn--sm {
+    margin-top: 0.4rem;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.72rem;
+}
+
+.pf-like-btn [data-like-count] {
+    min-width: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+}
+
+[data-theme-mode='dark'] .pf-like-btn {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+}
+
+[data-theme-mode='dark'] .pf-like-btn.is-liked,
+[data-theme-mode='dark'] .pf-like-btn:hover {
+    background: rgba(147, 180, 230, 0.14);
+    border-color: rgba(147, 180, 230, 0.28);
+    color: #b8cce8;
+}

@@ -239,12 +239,18 @@
                                                 </td>
                                                 <td class="text-muted">{{ $enrollment->user->email }}</td>
                                                 <td style="min-width: 7rem">
-                                                    <div class="course-peserta-progress">
+                                                    <button type="button"
+                                                        class="course-peserta-progress course-peserta-progress--clickable js-enrollment-progress"
+                                                        data-progress-url="{{ route('courses.enrollments.progress', [$course, $enrollment]) }}"
+                                                        data-participant-name="{{ $enrollment->user->name }}"
+                                                        title="{{ __('Lihat detail progres') }}"
+                                                        aria-label="{{ __('Lihat detail progres :name', ['name' => $enrollment->user->name]) }}">
                                                         <div class="progress" role="progressbar" aria-valuenow="{{ $enrollment->progress }}" aria-valuemin="0" aria-valuemax="100">
                                                             <div class="progress-bar" style="width: {{ min(100, (int) $enrollment->progress) }}%"></div>
                                                         </div>
                                                         <span class="course-peserta-progress__label">{{ $enrollment->progress }}%</span>
-                                                    </div>
+                                                        <i class="ri-eye-line course-peserta-progress__hint" aria-hidden="true"></i>
+                                                    </button>
                                                 </td>
                                                 <td>
                                                     @php
@@ -256,7 +262,19 @@
                                                     @endphp
                                                     <span class="badge bg-{{ $statusClass }}-transparent">{{ __($enrollment->status) }}</span>
                                                 </td>
-                                                <td>{{ $enrollment->modul_selesai }} / {{ $course->modul_total }}</td>
+                                                <td>
+                                                    <button type="button"
+                                                        class="course-peserta-topik-btn js-enrollment-progress"
+                                                        data-progress-url="{{ route('courses.enrollments.progress', [$course, $enrollment]) }}"
+                                                        data-participant-name="{{ $enrollment->user->name }}"
+                                                        title="{{ __('Lihat topik & aktivitas') }}"
+                                                        aria-label="{{ __('Lihat topik & aktivitas :name', ['name' => $enrollment->user->name]) }}">
+                                                        <span class="course-peserta-topik-btn__frac">
+                                                            {{ $enrollment->modul_selesai }} / {{ $course->modul_total }}
+                                                        </span>
+                                                        <span class="course-peserta-topik-btn__label">{{ __('Detail') }}</span>
+                                                    </button>
+                                                </td>
                                                 @can('course enrollment manage')
                                                     <td class="text-center">
                                                         <form action="{{ route('courses.enrollments.destroy', [$course, $enrollment]) }}"
@@ -340,12 +358,44 @@
                     </div>
                 </div>
             @endcan
+
+            <div class="modal fade enrollment-progress-modal" id="enrollmentProgressModal" tabindex="-1"
+                aria-labelledby="enrollmentProgressModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                    <div class="modal-content enrollment-progress-modal__content">
+                        <div class="modal-header enrollment-progress-modal__header border-0">
+                            <div class="enrollment-progress-modal__heading">
+                                <span class="enrollment-progress-modal__kicker">{{ __('Detail progres') }}</span>
+                                <h5 class="modal-title" id="enrollmentProgressModalTitle">—</h5>
+                                <p class="enrollment-progress-modal__email mb-0" id="enrollmentProgressModalEmail"></p>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                        </div>
+                        <div class="enrollment-progress-modal__stats" id="enrollmentProgressModalStats" hidden></div>
+                        <div class="modal-body enrollment-progress-modal__body" id="enrollmentProgressModalBody">
+                            <div class="enrollment-progress-modal__state" data-state="idle">
+                                <div class="enrollment-progress-modal__spinner" role="status" aria-live="polite">
+                                    <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+                                    <span>{{ __('Memuat detail progres...') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer enrollment-progress-modal__footer border-0">
+                            <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Tutup') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             @endif
         </div>
 
         <div class="tab-pane fade {{ ($activeTab ?? '') === 'forum' ? 'show active' : '' }}" id="tab-forum">
             @if (($activeTab ?? '') === 'forum')
-                @include('courses.partials.forum-manager', ['course' => $course, 'forumThreads' => $forumThreads])
+                @include('courses.partials.forum-manager', [
+                    'course' => $course,
+                    'forumThreads' => $forumThreads,
+                    'likeSummary' => $likeSummary ?? ['threads' => [], 'replies' => []],
+                ])
             @endif
         </div>
     </div>
@@ -432,89 +482,306 @@
             var bulkIds = document.getElementById('coursePesertaBulkIds');
             var table = document.getElementById('coursePesertaTable');
 
-            if (!table || !checkAll || !bulkBar || !bulkForm) {
-                return;
-            }
-
-            function rowChecks() {
-                return Array.prototype.slice.call(table.querySelectorAll('.js-peserta-check'));
-            }
-
-            function selectedChecks() {
-                return rowChecks().filter(function (el) { return el.checked; });
-            }
-
-            function syncBulkUi() {
-                var all = rowChecks();
-                var selected = selectedChecks();
-                var n = selected.length;
-
-                bulkCount.textContent = String(n);
-                bulkBar.classList.toggle('d-none', n === 0);
-
-                if (all.length === 0) {
-                    checkAll.checked = false;
-                    checkAll.indeterminate = false;
-                    return;
+            if (table && checkAll && bulkBar && bulkForm) {
+                function rowChecks() {
+                    return Array.prototype.slice.call(table.querySelectorAll('.js-peserta-check'));
                 }
 
-                checkAll.checked = n === all.length;
-                checkAll.indeterminate = n > 0 && n < all.length;
-            }
-
-            checkAll.addEventListener('change', function () {
-                var on = checkAll.checked;
-                rowChecks().forEach(function (el) { el.checked = on; });
-                syncBulkUi();
-            });
-
-            table.addEventListener('change', function (e) {
-                if (e.target && e.target.classList.contains('js-peserta-check')) {
-                    syncBulkUi();
+                function selectedChecks() {
+                    return rowChecks().filter(function (el) { return el.checked; });
                 }
-            });
 
-            if (bulkDeleteBtn) {
-                bulkDeleteBtn.addEventListener('click', function () {
+                function syncBulkUi() {
+                    var all = rowChecks();
                     var selected = selectedChecks();
-                    if (selected.length === 0) {
+                    var n = selected.length;
+
+                    bulkCount.textContent = String(n);
+                    bulkBar.classList.toggle('d-none', n === 0);
+
+                    if (all.length === 0) {
+                        checkAll.checked = false;
+                        checkAll.indeterminate = false;
                         return;
                     }
 
-                    var confirmOpts = {
-                        title: @json(__('Hapus peserta terpilih?')),
-                        text: @json(__('Pendaftaran peserta yang dipilih akan dicabut dari kursus ini. Tindakan ini tidak dapat dibatalkan.')),
-                        confirmButtonText: @json(__('Ya, hapus')),
-                    };
+                    checkAll.checked = n === all.length;
+                    checkAll.indeterminate = n > 0 && n < all.length;
+                }
 
-                    function submitBulk() {
-                        bulkIds.innerHTML = '';
-                        selected.forEach(function (el) {
-                            var input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'enrollment_ids[]';
-                            input.value = el.value;
-                            bulkIds.appendChild(input);
-                        });
-                        bulkForm.submit();
-                    }
+                checkAll.addEventListener('change', function () {
+                    var on = checkAll.checked;
+                    rowChecks().forEach(function (el) { el.checked = on; });
+                    syncBulkUi();
+                });
 
-                    if (window.BpkpSwal && typeof window.BpkpSwal.confirmDanger === 'function') {
-                        window.BpkpSwal.confirmDanger(confirmOpts).then(function (result) {
-                            if (result.isConfirmed) {
-                                submitBulk();
-                            }
-                        });
-                        return;
-                    }
-
-                    if (window.confirm(confirmOpts.title + '\n\n' + confirmOpts.text)) {
-                        submitBulk();
+                table.addEventListener('change', function (e) {
+                    if (e.target && e.target.classList.contains('js-peserta-check')) {
+                        syncBulkUi();
                     }
                 });
+
+                if (bulkDeleteBtn) {
+                    bulkDeleteBtn.addEventListener('click', function () {
+                        var selected = selectedChecks();
+                        if (selected.length === 0) {
+                            return;
+                        }
+
+                        var confirmOpts = {
+                            title: @json(__('Hapus peserta terpilih?')),
+                            text: @json(__('Pendaftaran peserta yang dipilih akan dicabut dari kursus ini. Tindakan ini tidak dapat dibatalkan.')),
+                            confirmButtonText: @json(__('Ya, hapus')),
+                        };
+
+                        function submitBulk() {
+                            bulkIds.innerHTML = '';
+                            selected.forEach(function (el) {
+                                var input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'enrollment_ids[]';
+                                input.value = el.value;
+                                bulkIds.appendChild(input);
+                            });
+                            bulkForm.submit();
+                        }
+
+                        if (window.BpkpSwal && typeof window.BpkpSwal.confirmDanger === 'function') {
+                            window.BpkpSwal.confirmDanger(confirmOpts).then(function (result) {
+                                if (result.isConfirmed) {
+                                    submitBulk();
+                                }
+                            });
+                            return;
+                        }
+
+                        if (window.confirm(confirmOpts.title + '\n\n' + confirmOpts.text)) {
+                            submitBulk();
+                        }
+                    });
+                }
+
+                syncBulkUi();
             }
 
-            syncBulkUi();
+            // Modal detail topik & aktivitas per peserta
+            var progressModalEl = document.getElementById('enrollmentProgressModal');
+            if (progressModalEl && typeof bootstrap !== 'undefined') {
+                var progressModal = bootstrap.Modal.getOrCreateInstance(progressModalEl);
+                var titleEl = document.getElementById('enrollmentProgressModalTitle');
+                var emailEl = document.getElementById('enrollmentProgressModalEmail');
+                var statsEl = document.getElementById('enrollmentProgressModalStats');
+                var bodyEl = document.getElementById('enrollmentProgressModalBody');
+                var progressFetchCtrl = null;
+
+                var i18n = {
+                    loading: @json(__('Memuat detail progres...')),
+                    error: @json(__('Gagal memuat detail progres. Silakan coba lagi.')),
+                    retry: @json(__('Coba lagi')),
+                    topic: @json(__('Topik')),
+                    progress: @json(__('Progres')),
+                    status: @json(__('Status')),
+                    activities: @json(__('Aktivitas')),
+                    completed: @json(__('Selesai')),
+                    incomplete: @json(__('Belum selesai')),
+                    required: @json(__('Wajib')),
+                    optional: @json(__('Opsional')),
+                    empty: @json(__('Belum ada topik atau aktivitas pada kursus ini.')),
+                    completedAt: @json(__('Diselesaikan')),
+                    of: @json(__(':done dari :total')),
+                };
+
+                function escapeHtml(value) {
+                    return String(value == null ? '' : value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                }
+
+                function setLoading() {
+                    statsEl.hidden = true;
+                    statsEl.innerHTML = '';
+                    bodyEl.innerHTML =
+                        '<div class="enrollment-progress-modal__state" data-state="loading">' +
+                            '<div class="enrollment-progress-modal__spinner" role="status" aria-live="polite">' +
+                                '<span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>' +
+                                '<span>' + escapeHtml(i18n.loading) + '</span>' +
+                            '</div>' +
+                        '</div>';
+                }
+
+                function setError(url) {
+                    statsEl.hidden = true;
+                    statsEl.innerHTML = '';
+                    bodyEl.innerHTML =
+                        '<div class="enrollment-progress-modal__state" data-state="error">' +
+                            '<div class="enrollment-progress-modal__error">' +
+                                '<i class="ri-error-warning-line" aria-hidden="true"></i>' +
+                                '<p class="mb-2">' + escapeHtml(i18n.error) + '</p>' +
+                                '<button type="button" class="btn btn-sm btn-primary btn-wave js-progress-retry" data-url="' + escapeHtml(url) + '">' +
+                                    escapeHtml(i18n.retry) +
+                                '</button>' +
+                            '</div>' +
+                        '</div>';
+                }
+
+                function statusClass(status) {
+                    if (status === 'Selesai') return 'success';
+                    if (status === 'Berlangsung') return 'primary';
+                    return 'secondary';
+                }
+
+                function renderBreakdown(data) {
+                    var progress = Math.max(0, Math.min(100, parseInt(data.progress, 10) || 0));
+                    var modules = Array.isArray(data.modules) ? data.modules : [];
+
+                    statsEl.hidden = false;
+                    statsEl.innerHTML =
+                        '<div class="enrollment-progress-stat">' +
+                            '<span class="enrollment-progress-stat__label">' + escapeHtml(i18n.progress) + '</span>' +
+                            '<div class="enrollment-progress-stat__meter">' +
+                                '<div class="progress"><div class="progress-bar" style="width:' + progress + '%"></div></div>' +
+                                '<strong>' + progress + '%</strong>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="enrollment-progress-stat">' +
+                            '<span class="enrollment-progress-stat__label">' + escapeHtml(i18n.status) + '</span>' +
+                            '<span class="badge bg-' + statusClass(data.status) + '-transparent">' + escapeHtml(data.status_label || data.status || '—') + '</span>' +
+                        '</div>' +
+                        '<div class="enrollment-progress-stat">' +
+                            '<span class="enrollment-progress-stat__label">' + escapeHtml(i18n.topic) + '</span>' +
+                            '<strong>' + escapeHtml((data.modules_done || 0) + ' / ' + (data.modules_total || 0)) + '</strong>' +
+                        '</div>' +
+                        '<div class="enrollment-progress-stat">' +
+                            '<span class="enrollment-progress-stat__label">' + escapeHtml(i18n.activities) + '</span>' +
+                            '<strong>' + escapeHtml((data.activities_done || 0) + ' / ' + (data.activities_total || 0)) + '</strong>' +
+                        '</div>';
+
+                    if (modules.length === 0) {
+                        bodyEl.innerHTML =
+                            '<div class="enrollment-progress-modal__state" data-state="empty">' +
+                                '<p class="mb-0 text-muted">' + escapeHtml(i18n.empty) + '</p>' +
+                            '</div>';
+                        return;
+                    }
+
+                    var html = '<div class="enrollment-progress-topics">';
+                    modules.forEach(function (mod) {
+                        var done = !!mod.is_complete;
+                        var activities = Array.isArray(mod.activities) ? mod.activities : [];
+                        html +=
+                            '<section class="enrollment-progress-topic' + (done ? ' is-done' : '') + '">' +
+                                '<header class="enrollment-progress-topic__head">' +
+                                    '<div class="enrollment-progress-topic__title-wrap">' +
+                                        '<span class="enrollment-progress-topic__num">' + escapeHtml(mod.urutan) + '</span>' +
+                                        '<div>' +
+                                            '<span class="enrollment-progress-topic__kicker">' + escapeHtml(i18n.topic) + ' ' + escapeHtml(mod.urutan) + '</span>' +
+                                            '<h6 class="enrollment-progress-topic__title">' + escapeHtml(mod.title || '—') + '</h6>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="enrollment-progress-topic__meta">' +
+                                        '<span class="badge bg-' + (done ? 'success' : 'secondary') + '-transparent">' +
+                                            escapeHtml(done ? i18n.completed : i18n.incomplete) +
+                                        '</span>' +
+                                        '<span class="enrollment-progress-topic__count">' +
+                                            escapeHtml(String(mod.done_count || 0) + ' / ' + String(mod.total_count || 0)) +
+                                        '</span>' +
+                                    '</div>' +
+                                '</header>' +
+                                '<ul class="enrollment-progress-activities">';
+
+                        if (activities.length === 0) {
+                            html += '<li class="enrollment-progress-activity is-empty text-muted">' + escapeHtml(i18n.empty) + '</li>';
+                        } else {
+                            activities.forEach(function (act) {
+                                var actDone = !!act.is_complete;
+                                html +=
+                                    '<li class="enrollment-progress-activity' + (actDone ? ' is-done' : '') + '">' +
+                                        '<span class="enrollment-progress-activity__icon" aria-hidden="true">' +
+                                            '<i class="bi ' + escapeHtml(act.icon || 'bi-circle') + '"></i>' +
+                                        '</span>' +
+                                        '<div class="enrollment-progress-activity__body">' +
+                                            '<span class="enrollment-progress-activity__title">' + escapeHtml(act.title || '—') + '</span>' +
+                                            '<span class="enrollment-progress-activity__meta">' +
+                                                '<span class="enrollment-progress-activity__type">' + escapeHtml(act.type_label || act.type || '') + '</span>' +
+                                                (act.is_required
+                                                    ? '<span class="text-muted">· ' + escapeHtml(i18n.required) + '</span>'
+                                                    : '<span class="text-muted">· ' + escapeHtml(i18n.optional) + '</span>') +
+                                                (actDone && act.completed_at
+                                                    ? '<span class="text-muted">· ' + escapeHtml(i18n.completedAt) + ' ' + escapeHtml(act.completed_at) + '</span>'
+                                                    : '') +
+                                            '</span>' +
+                                        '</div>' +
+                                        '<span class="enrollment-progress-activity__state' + (actDone ? ' is-done' : '') + '" title="' + escapeHtml(actDone ? i18n.completed : i18n.incomplete) + '">' +
+                                            (actDone
+                                                ? '<i class="ri-checkbox-circle-fill" aria-hidden="true"></i>'
+                                                : '<i class="ri-checkbox-blank-circle-line" aria-hidden="true"></i>') +
+                                        '</span>' +
+                                    '</li>';
+                            });
+                        }
+
+                        html += '</ul></section>';
+                    });
+                    html += '</div>';
+                    bodyEl.innerHTML = html;
+                }
+
+                function loadProgress(url, nameHint) {
+                    if (!url) return;
+
+                    if (progressFetchCtrl) {
+                        progressFetchCtrl.abort();
+                    }
+                    progressFetchCtrl = new AbortController();
+
+                    if (nameHint) {
+                        titleEl.textContent = nameHint;
+                    }
+                    emailEl.textContent = '';
+                    setLoading();
+                    progressModal.show();
+
+                    fetch(url, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        credentials: 'same-origin',
+                        signal: progressFetchCtrl.signal,
+                    })
+                        .then(function (res) {
+                            if (!res.ok) throw new Error('bad_status');
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            if (data.participant) {
+                                titleEl.textContent = data.participant.name || nameHint || '—';
+                                emailEl.textContent = data.participant.email || '';
+                            }
+                            renderBreakdown(data);
+                        })
+                        .catch(function (err) {
+                            if (err && err.name === 'AbortError') return;
+                            setError(url);
+                        });
+                }
+
+                document.addEventListener('click', function (e) {
+                    var trigger = e.target.closest('.js-enrollment-progress');
+                    if (!trigger) return;
+                    e.preventDefault();
+                    loadProgress(
+                        trigger.getAttribute('data-progress-url'),
+                        trigger.getAttribute('data-participant-name') || ''
+                    );
+                });
+
+                bodyEl.addEventListener('click', function (e) {
+                    var retry = e.target.closest('.js-progress-retry');
+                    if (!retry) return;
+                    loadProgress(retry.getAttribute('data-url'), titleEl.textContent || '');
+                });
+            }
         });
     </script>
 @endpush

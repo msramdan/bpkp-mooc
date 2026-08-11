@@ -170,6 +170,137 @@ class LearningProgressService
         });
     }
 
+    /**
+     * Ringkasan topik & aktivitas selesai/belum untuk 1 peserta (admin modal).
+     *
+     * @return array{
+     *     participant: array{name: string, email: string},
+     *     progress: int,
+     *     status: string,
+     *     status_label: string,
+     *     modules_done: int,
+     *     modules_total: int,
+     *     activities_done: int,
+     *     activities_total: int,
+     *     modules: list<array{
+     *         id: string,
+     *         urutan: int,
+     *         title: string,
+     *         is_complete: bool,
+     *         done_count: int,
+     *         total_count: int,
+     *         activities: list<array{
+     *             id: string,
+     *             urutan: int,
+     *             title: string,
+     *             type: string,
+     *             type_label: string,
+     *             icon: string,
+     *             is_required: bool,
+     *             is_complete: bool,
+     *             completed_at: string|null,
+     *             completed_at_iso: string|null
+     *         }>
+     *     }>
+     * }
+     */
+    public function progressBreakdown(User $user, Course $course, ?CourseEnrollment $enrollment = null): array
+    {
+        $enrollment ??= CourseEnrollment::query()
+            ->where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+
+        $course->loadMissing([
+            'modules' => fn ($q) => $q->orderBy('urutan')->with([
+                'lessons' => fn ($q) => $q->orderBy('urutan'),
+            ]),
+        ]);
+
+        $lessonIds = $course->modules->flatMap(fn ($m) => $m->lessons->pluck('id'))->all();
+
+        $completions = $lessonIds === []
+            ? collect()
+            : LessonCompletion::query()
+                ->where('user_id', $user->id)
+                ->whereIn('course_lesson_id', $lessonIds)
+                ->get()
+                ->keyBy('course_lesson_id');
+
+        $modulesOut = [];
+        $activitiesDone = 0;
+        $activitiesTotal = 0;
+        $modulesDone = 0;
+
+        foreach ($course->modules as $module) {
+            $activities = [];
+            $doneCount = 0;
+            $totalCount = $module->lessons->count();
+
+            foreach ($module->lessons as $lesson) {
+                $completion = $completions->get($lesson->id);
+                $isComplete = $completion !== null;
+
+                if ($isComplete) {
+                    $doneCount++;
+                    $activitiesDone++;
+                }
+
+                $activitiesTotal++;
+
+                $activities[] = [
+                    'id' => (string) $lesson->id,
+                    'urutan' => (int) $lesson->urutan,
+                    'title' => (string) $lesson->judul,
+                    'type' => $lesson->normalizedType(),
+                    'type_label' => $lesson->typeLabel(),
+                    'icon' => $lesson->iconClass(),
+                    'is_required' => (bool) $lesson->is_required,
+                    'is_complete' => $isComplete,
+                    'completed_at' => $completion?->completed_at?->timezone(config('app.timezone'))->translatedFormat('d M Y H:i'),
+                    'completed_at_iso' => $completion?->completed_at?->toIso8601String(),
+                ];
+            }
+
+            $requiredLessons = $module->lessons->where('is_required', true);
+            // Samakan dengan recalculateEnrollment: topik dianggap selesai
+            // bila semua aktivitas wajib selesai (atau tidak ada aktivitas wajib).
+            $moduleComplete = $requiredLessons->isEmpty()
+                || $requiredLessons->every(fn (CourseLesson $l) => $completions->has($l->id));
+
+            if ($moduleComplete) {
+                $modulesDone++;
+            }
+
+            $modulesOut[] = [
+                'id' => (string) $module->id,
+                'urutan' => (int) $module->urutan,
+                'title' => (string) $module->judul,
+                'is_complete' => $moduleComplete,
+                'done_count' => $doneCount,
+                'total_count' => $totalCount,
+                'activities' => $activities,
+            ];
+        }
+
+        $status = $enrollment?->status ?? 'Berlangsung';
+
+        return [
+            'participant' => [
+                'name' => (string) $user->name,
+                'email' => (string) $user->email,
+            ],
+            'progress' => (int) ($enrollment?->progress ?? 0),
+            'status' => $status,
+            'status_label' => __($status),
+            'modules_done' => (int) ($enrollment?->modul_selesai ?? $modulesDone),
+            'modules_total' => (int) ($course->modul_total ?: $course->modules->count()),
+            'activities_done' => $activitiesDone,
+            'activities_total' => $activitiesTotal,
+            'modules' => $modulesOut,
+        ];
+    }
+
     public function recalculateEnrollment(CourseEnrollment $enrollment, ?Course $course = null): CourseEnrollment
     {
         $course ??= $enrollment->course ?? $enrollment->load('course')->course;

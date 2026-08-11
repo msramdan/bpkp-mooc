@@ -931,6 +931,28 @@
     gap: 0.45rem;
 }
 
+button.course-peserta-progress {
+    width: 100%;
+    margin: 0;
+    padding: 0.2rem 0.3rem 0.2rem 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 0.45rem;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+button.course-peserta-progress:hover,
+button.course-peserta-progress:focus-visible {
+    background: rgba(var(--acd-primary-rgb), 0.06);
+    outline: none;
+}
+
+button.course-peserta-progress:focus-visible {
+    box-shadow: 0 0 0 2px rgba(var(--acd-primary-rgb), 0.28);
+}
+
 .course-peserta-progress .progress {
     flex: 1;
     height: 0.35rem;
@@ -948,6 +970,429 @@
     color: var(--acd-muted);
     min-width: 2.25rem;
     font-variant-numeric: tabular-nums;
+}
+
+.course-peserta-progress__hint {
+    font-size: 0.85rem;
+    color: var(--acd-primary);
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+
+button.course-peserta-progress:hover .course-peserta-progress__hint,
+button.course-peserta-progress:focus-visible .course-peserta-progress__hint {
+    opacity: 1;
+}
+
+.course-peserta-topik-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: var(--acd-ink, #0f172a);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.course-peserta-topik-btn:hover,
+.course-peserta-topik-btn:focus-visible {
+    background: rgba(var(--acd-primary-rgb), 0.08);
+    border-color: rgba(var(--acd-primary-rgb), 0.28);
+    color: var(--acd-primary);
+    outline: none;
+}
+
+.course-peserta-topik-btn:focus-visible {
+    box-shadow: 0 0 0 2px rgba(var(--acd-primary-rgb), 0.22);
+}
+
+.course-peserta-topik-btn__label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--acd-muted);
+}
+
+.course-peserta-topik-btn:hover .course-peserta-topik-btn__label,
+.course-peserta-topik-btn:focus-visible .course-peserta-topik-btn__label {
+    color: var(--acd-primary);
+}
+
+/* Progress detail modal */
+.enrollment-progress-modal__content {
+    border: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+}
+
+.enrollment-progress-modal__header {
+    padding: 1.15rem 1.25rem 0.6rem;
+    background:
+        linear-gradient(180deg, rgba(var(--acd-primary-rgb), 0.08) 0%, rgba(var(--acd-primary-rgb), 0.02) 100%);
+}
+
+.enrollment-progress-modal__kicker {
+    display: inline-block;
+    margin-bottom: 0.2rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--acd-primary);
+}
+
+.enrollment-progress-modal__heading .modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--acd-ink, #0f172a);
+}
+
+.enrollment-progress-modal__email {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-modal__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+    padding: 0.65rem 1.25rem 0.85rem;
+}
+
+.enrollment-progress-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    min-width: 0;
+    padding: 0.65rem 0.7rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.enrollment-progress-stat__label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-stat strong {
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--acd-ink, #0f172a);
+}
+
+.enrollment-progress-stat__meter {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.enrollment-progress-stat__meter .progress {
+    flex: 1;
+    height: 0.38rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.enrollment-progress-stat__meter .progress-bar {
+    border-radius: 999px;
+    background: var(--acd-primary);
+}
+
+.enrollment-progress-stat__meter strong {
+    min-width: 2.35rem;
+    font-size: 0.78rem;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-modal__body {
+    padding: 0.35rem 1.25rem 1rem;
+    max-height: min(58vh, 34rem);
+}
+
+.enrollment-progress-modal__footer {
+    padding: 0.65rem 1.25rem 1rem;
+}
+
+.enrollment-progress-modal__state {
+    display: grid;
+    place-items: center;
+    min-height: 8rem;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-modal__spinner,
+.enrollment-progress-modal__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    text-align: center;
+}
+
+.enrollment-progress-modal__error > i {
+    font-size: 1.6rem;
+    color: #ef4444;
+}
+
+.enrollment-progress-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.enrollment-progress-topic {
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    border-radius: 0.85rem;
+    background: #fff;
+    overflow: hidden;
+}
+
+.enrollment-progress-topic.is-done {
+    border-color: rgba(22, 163, 74, 0.18);
+}
+
+.enrollment-progress-topic__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem 0.75rem;
+    padding: 0.75rem 0.9rem;
+    background: #f8fafc;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.enrollment-progress-topic.is-done .enrollment-progress-topic__head {
+    background: rgba(22, 163, 74, 0.04);
+}
+
+.enrollment-progress-topic__title-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.enrollment-progress-topic__num {
+    display: grid;
+    place-items: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.55rem;
+    background: rgba(var(--acd-primary-rgb), 0.1);
+    color: var(--acd-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.enrollment-progress-topic.is-done .enrollment-progress-topic__num {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.enrollment-progress-topic__kicker {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-topic__title {
+    margin: 0.05rem 0 0;
+    font-size: 0.92rem;
+    font-weight: 650;
+    color: var(--acd-ink, #0f172a);
+}
+
+.enrollment-progress-topic__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.enrollment-progress-topic__count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-activities {
+    list-style: none;
+    margin: 0;
+    padding: 0.35rem 0.45rem 0.45rem;
+}
+
+.enrollment-progress-activity {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.65rem;
+    align-items: center;
+    padding: 0.55rem 0.5rem;
+    border-radius: 0.65rem;
+}
+
+.enrollment-progress-activity + .enrollment-progress-activity {
+    margin-top: 0.15rem;
+}
+
+.enrollment-progress-activity.is-done {
+    background: rgba(22, 163, 74, 0.04);
+}
+
+.enrollment-progress-activity__icon {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.55rem;
+    background: #eef2f7;
+    color: var(--acd-primary);
+    font-size: 0.95rem;
+}
+
+.enrollment-progress-activity.is-done .enrollment-progress-activity__icon {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.enrollment-progress-activity__title {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--acd-ink, #0f172a);
+}
+
+.enrollment-progress-activity__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.35rem;
+    margin-top: 0.12rem;
+    font-size: 0.72rem;
+    color: var(--acd-muted);
+}
+
+.enrollment-progress-activity__type {
+    font-weight: 600;
+    color: #475569;
+}
+
+.enrollment-progress-activity__state {
+    font-size: 1.15rem;
+    color: #94a3b8;
+    line-height: 1;
+}
+
+.enrollment-progress-activity__state.is-done {
+    color: #16a34a;
+}
+
+[data-theme-mode='dark'] button.course-peserta-progress:hover,
+[data-theme-mode='dark'] button.course-peserta-progress:focus-visible {
+    background: rgba(147, 180, 230, 0.1);
+}
+
+[data-theme-mode='dark'] .course-peserta-topik-btn {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.16);
+    color: #e2e8f0;
+}
+
+[data-theme-mode='dark'] .course-peserta-topik-btn:hover,
+[data-theme-mode='dark'] .course-peserta-topik-btn:focus-visible {
+    background: rgba(147, 180, 230, 0.12);
+    border-color: rgba(147, 180, 230, 0.28);
+    color: #b8cce8;
+}
+
+[data-theme-mode='dark'] .enrollment-progress-modal__content {
+    background: var(--custom-white, #1a2332);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-modal__header {
+    background: linear-gradient(180deg, rgba(147, 180, 230, 0.12) 0%, transparent 100%);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-modal__heading .modal-title {
+    color: #e2e8f0;
+}
+
+[data-theme-mode='dark'] .enrollment-progress-stat,
+[data-theme-mode='dark'] .enrollment-progress-topic__head {
+    background: rgba(148, 163, 184, 0.06);
+    border-color: rgba(148, 163, 184, 0.1);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-topic {
+    background: rgba(15, 23, 42, 0.25);
+    border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-topic.is-done {
+    border-color: rgba(74, 222, 128, 0.22);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-topic.is-done .enrollment-progress-topic__head {
+    background: rgba(74, 222, 128, 0.08);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-topic__title,
+[data-theme-mode='dark'] .enrollment-progress-activity__title,
+[data-theme-mode='dark'] .enrollment-progress-stat strong {
+    color: #e2e8f0;
+}
+
+[data-theme-mode='dark'] .enrollment-progress-activity.is-done {
+    background: rgba(74, 222, 128, 0.08);
+}
+
+[data-theme-mode='dark'] .enrollment-progress-activity__icon {
+    background: rgba(148, 163, 184, 0.12);
+    color: #b8cce8;
+}
+
+[data-theme-mode='dark'] .enrollment-progress-activity__type {
+    color: #cbd5e1;
+}
+
+[data-theme-mode='dark'] .enrollment-progress-stat__meter .progress {
+    background: rgba(148, 163, 184, 0.18);
+}
+
+@media (max-width: 767.98px) {
+    .enrollment-progress-modal__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .enrollment-progress-modal__stats {
+        grid-template-columns: 1fr;
+    }
+
+    .course-peserta-topik-btn__label {
+        display: none;
+    }
 }
 
 .course-peserta-list__footer {

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="LMS BPKP untuk kursus Pusdiklatwas.">
     <meta name="author" content="{{ config('app.name') }}">
     <meta name="keywords" content="MOOC, BPKP, LMS, pusdiklatwas, kursus">
@@ -39,6 +40,7 @@
     <link rel="stylesheet"
         href="{{ asset('backend') }}/assets/libs/%40tarekraafat/autocomplete.js/css/autoComplete.css">
     <link href="{{ asset('backend') }}/assets/css/header-course-search.css?v={{ @filemtime(public_path('backend/assets/css/header-course-search.css')) ?: time() }}" rel="stylesheet">
+    <link href="{{ asset('backend') }}/assets/css/header-notifications.css?v={{ @filemtime(public_path('backend/assets/css/header-notifications.css')) ?: time() }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.css">
     @stack('css')
@@ -84,7 +86,12 @@
             noResults: @json(__('Tidak ditemukan')),
             noChoices: @json(__('Tidak ada pilihan')),
         };
+        window.bpkpNotifI18n = {
+            unread: @json(__('belum dibaca')),
+            newToast: @json(__('Notifikasi baru dari forum')),
+        };
     </script>
+    <script src="{{ asset('backend') }}/assets/js/header-notifications.js?v={{ @filemtime(public_path('backend/assets/js/header-notifications.js')) ?: time() }}"></script>
     <script src="{{ asset('backend') }}/assets/js/custom.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>

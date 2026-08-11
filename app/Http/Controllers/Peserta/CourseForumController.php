@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Peserta;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\CourseForumLike;
 use App\Models\CourseForumReply;
 use App\Models\CourseForumThread;
+use App\Services\ForumActivityNotifier;
 use App\Support\PesertaAccess;
 use App\Support\Roles;
 use Illuminate\Contracts\View\View;
@@ -31,9 +33,16 @@ class CourseForumController extends Controller
             ])
             ->get();
 
+        $likeSummary = app(ForumActivityNotifier::class)->likeSummaryFor(
+            (int) Auth::id(),
+            $threads->pluck('id')->all(),
+            $threads->flatMap(fn ($t) => $t->replies->pluck('id'))->all()
+        );
+
         return view('peserta.kursus.forum', [
             'course' => $course,
             'threads' => $threads,
+            'likeSummary' => $likeSummary,
         ]);
     }
 
@@ -68,7 +77,10 @@ class CourseForumController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => __('Diskusi berhasil dibuat.'),
-                'thread' => $this->threadPayload($thread, $course),
+                'thread' => $this->threadPayload($thread, $course, [
+                    'count' => 0,
+                    'liked' => false,
+                ]),
             ]);
         }
 
@@ -76,7 +88,7 @@ class CourseForumController extends Controller
             ->with('success', __('Diskusi berhasil dibuat.'));
     }
 
-    public function storeReply(Request $request, Course $course, CourseForumThread $thread): RedirectResponse|JsonResponse
+    public function storeReply(Request $request, Course $course, CourseForumThread $thread, ForumActivityNotifier $notifier): RedirectResponse|JsonResponse
     {
         $this->authorize('view', $course);
         $user = PesertaAccess::user();
@@ -105,11 +117,15 @@ class CourseForumController extends Controller
 
         $reply->load('user:id,name,email,avatar');
         $thread->load(['user:id,name', 'replies.user:id,name']);
+        $notifier->notifyThreadParticipantsOnReply($course, $thread, $reply, $user);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => __('Balasan berhasil dikirim.'),
-                'reply' => $this->replyPayload($reply, $thread),
+                'reply' => $this->replyPayload($reply, $thread, $course, [
+                    'count' => 0,
+                    'liked' => false,
+                ]),
                 'replies_count' => $thread->replies()->count(),
                 'mentionables' => $thread->mentionableParticipants()->values(),
             ]);
@@ -143,11 +159,16 @@ class CourseForumController extends Controller
         ]);
 
         $thread->load(['user:id,name,email,avatar', 'replies.user:id,name,email,avatar']);
+        $like = app(ForumActivityNotifier::class)->likeSummaryFor(
+            (int) Auth::id(),
+            [$thread->id],
+            []
+        )['threads'][$thread->id] ?? ['count' => 0, 'liked' => false];
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => __('Diskusi berhasil diperbarui.'),
-                'thread' => $this->threadPayload($thread, $course),
+                'thread' => $this->threadPayload($thread, $course, $like),
             ]);
         }
 
@@ -176,11 +197,16 @@ class CourseForumController extends Controller
 
         $reply->load('user:id,name,email,avatar');
         $thread->load(['user:id,name', 'replies.user:id,name']);
+        $like = app(ForumActivityNotifier::class)->likeSummaryFor(
+            (int) Auth::id(),
+            [],
+            [$reply->id]
+        )['replies'][$reply->id] ?? ['count' => 0, 'liked' => false];
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => __('Balasan berhasil diperbarui.'),
-                'reply' => $this->replyPayload($reply, $thread),
+                'reply' => $this->replyPayload($reply, $thread, $course, $like),
             ]);
         }
 
@@ -188,10 +214,51 @@ class CourseForumController extends Controller
             ->with('success', __('Balasan berhasil diperbarui.'));
     }
 
-    /** @return array<string, mixed> */
-    private function replyPayload(CourseForumReply $reply, CourseForumThread $thread): array
+    public function toggleLike(Request $request, Course $course, CourseForumThread $thread, ForumActivityNotifier $notifier): JsonResponse
+    {
+        $this->authorize('view', $course);
+        $user = PesertaAccess::user();
+        PesertaAccess::enrollmentForCourse($course);
+
+        abort_unless($course->is_forum_open && $thread->course_id === $course->id, 404);
+
+        $data = $request->validate([
+            'target_type' => ['required', 'in:thread,reply'],
+            'target_id' => ['required', 'uuid'],
+        ]);
+
+        if ($data['target_type'] === CourseForumLike::TYPE_THREAD) {
+            abort_unless($data['target_id'] === $thread->id, 404);
+        } else {
+            $exists = CourseForumReply::query()
+                ->whereKey($data['target_id'])
+                ->where('thread_id', $thread->id)
+                ->exists();
+            abort_unless($exists, 404);
+        }
+
+        $result = $notifier->toggleLike(
+            $user,
+            $course,
+            $thread,
+            $data['target_type'],
+            $data['target_id']
+        );
+
+        return response()->json([
+            'message' => $result['liked'] ? __('Disukai') : __('Batal suka'),
+            'liked' => $result['liked'],
+            'likes_count' => $result['likes_count'],
+            'target_type' => $data['target_type'],
+            'target_id' => $data['target_id'],
+        ]);
+    }
+
+    /** @param  array{count?:int, liked?:bool}|null  $like */
+    private function replyPayload(CourseForumReply $reply, CourseForumThread $thread, Course $course, ?array $like = null): array
     {
         $mentionables = $thread->mentionableParticipants();
+        $like ??= ['count' => 0, 'liked' => false];
 
         return [
             'id' => $reply->id,
@@ -200,7 +267,10 @@ class CourseForumController extends Controller
             'created_at' => $reply->created_at?->translatedFormat('d M Y H:i'),
             'is_admin' => (bool) $reply->user?->hasRole(Roles::SUPER_ADMIN),
             'can_edit' => (bool) Auth::id() && (int) $reply->user_id === (int) Auth::id(),
-            'update_url' => route('peserta.kursus.forum.reply.update', [$thread->course_id, $thread->id, $reply->id]),
+            'update_url' => route('peserta.kursus.forum.reply.update', [$course, $thread, $reply]),
+            'like_url' => route('peserta.kursus.forum.like', [$course, $thread]),
+            'likes_count' => (int) ($like['count'] ?? 0),
+            'liked' => (bool) ($like['liked'] ?? false),
             'user' => [
                 'id' => $reply->user?->id,
                 'name' => $reply->user?->name,
@@ -209,10 +279,11 @@ class CourseForumController extends Controller
         ];
     }
 
-    /** @return array<string, mixed> */
-    private function threadPayload(CourseForumThread $thread, Course $course): array
+    /** @param  array{count?:int, liked?:bool}|null  $like */
+    private function threadPayload(CourseForumThread $thread, Course $course, ?array $like = null): array
     {
         $mentionables = $thread->mentionableParticipants();
+        $like ??= ['count' => 0, 'liked' => false];
 
         return [
             'id' => $thread->id,
@@ -225,6 +296,9 @@ class CourseForumController extends Controller
             'replies_count' => $thread->replies->count(),
             'reply_url' => route('peserta.kursus.forum.reply', [$course, $thread]),
             'update_url' => route('peserta.kursus.forum.update', [$course, $thread]),
+            'like_url' => route('peserta.kursus.forum.like', [$course, $thread]),
+            'likes_count' => (int) ($like['count'] ?? 0),
+            'liked' => (bool) ($like['liked'] ?? false),
             'mentionables' => $mentionables->values(),
             'user' => [
                 'id' => $thread->user?->id,

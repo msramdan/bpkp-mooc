@@ -8,6 +8,7 @@ use App\Http\Requests\Courses\StoreCourseEnrollmentRequest;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\User;
+use App\Services\LearningProgressService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,28 @@ class CourseEnrollmentController extends Controller implements HasMiddleware
             new Middleware('role:'.Roles::SUPER_ADMIN),
             new Middleware('permission:course enrollment manage'),
         ];
+    }
+
+    public function progress(
+        Course $course,
+        CourseEnrollment $enrollment,
+        LearningProgressService $progress
+    ): JsonResponse {
+        $this->authorize('view', $course);
+
+        if ($enrollment->course_id !== $course->id) {
+            abort(404);
+        }
+
+        $enrollment->loadMissing('user:id,name,email');
+
+        if (! $enrollment->user) {
+            abort(404);
+        }
+
+        return response()->json(
+            $progress->progressBreakdown($enrollment->user, $course, $enrollment)
+        );
     }
 
     public function availableParticipants(Request $request, Course $course): JsonResponse
