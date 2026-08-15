@@ -230,7 +230,9 @@
                                 el.className = 'cert-preview-element var-' + key;
                                 el.style.left = (props.x !== undefined ? props.x : 50) + '%';
                                 el.style.top = (props.y !== undefined ? props.y : 50) + '%';
-                                el.style.fontSize = `calc(${(props.fontSize !== undefined ? props.fontSize : 14)} * 0.1188cqi)`;
+                                const baseSize = props.fontSize !== undefined ? props.fontSize : 14;
+                                el.setAttribute('data-base-font', baseSize);
+                                el.style.fontSize = '0px'; // initially hidden until ResizeObserver gives accurate size
                                 el.style.fontWeight = props.fontWeight || '400';
                                 el.style.fontStyle = props.fontStyle || 'normal';
                                 el.style.textAlign = props.textAlign || 'center';
@@ -249,6 +251,12 @@
                                     } else {
                                         el.innerHTML = '<div class="border border-secondary border-dashed px-2 py-1 bg-white bg-opacity-75 rounded text-muted fs-11"><i class="bi bi-vector-pen me-1"></i>Spesimen TTD</div>';
                                     }
+                                } else if (isImage && key === 'pasfoto_peserta') {
+                                    el.style.width = `${props.width || 14}%`;
+                                    const imgUrl = CERT_SAMPLES[key];
+                                    el.innerHTML = `<img src="${imgUrl}" alt="Pasfoto" style="width: 100%; max-height: 150px; object-fit: contain; display: block; border: 1px solid #ccc;">`;
+                                    // Make sure we override transform for images like editor does
+                                    el.style.transform = 'translate(-50%, -50%)';
                                 } else if (key === 'nama_penandatangan') {
                                     el.textContent = signerName || CERT_SAMPLES[key] || key;
                                 } else if (key === 'jabatan_penandatangan') {
@@ -272,6 +280,25 @@
                         }
                     });
                 });
+
+                // Set up ResizeObserver to update --cqi on the sheet element
+                const sheetEl = document.getElementById('modal-cert-sheet');
+                if (sheetEl) {
+                    const ro = new ResizeObserver(entries => {
+                        for (let entry of entries) {
+                            const w = entry.contentRect.width || entry.target.clientWidth;
+                            if (w > 0) {
+                                const cqi = w / 100;
+                                const elements = entry.target.querySelectorAll('.cert-preview-element');
+                                elements.forEach(el => {
+                                    const baseSize = parseFloat(el.getAttribute('data-base-font')) || 14;
+                                    el.style.fontSize = (baseSize * 0.1188 * cqi) + 'px';
+                                });
+                            }
+                        }
+                    });
+                    ro.observe(sheetEl);
+                }
             });
         </script>
     @endpush

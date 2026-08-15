@@ -9486,7 +9486,7 @@ caption {
 .authenticationcover-background .authentication .authentication-cover:before {
   position: absolute;
   content: "";
-  background-image: url(https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattren-3.svg);
+  background-image: url("../images/media/svg/pattren-3.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -18882,9 +18882,7 @@ input.error {
   inset-inline-end: 0.8rem;
 }
 @media (min-width: 992px) {
-  [data-nav-layout=horizontal] {
-    /* horizontal arrows */
-  }
+  /* [data-nav-layout=horizontal] { horizontal arrows } */
   [data-nav-layout=horizontal][data-theme-mode=light] .app-sidebar .side-menu__item.active, [data-nav-layout=horizontal][data-theme-mode=light] .app-sidebar .side-menu__item:hover, [data-nav-layout=horizontal][data-theme-mode=dark] .app-sidebar .side-menu__item.active, [data-nav-layout=horizontal][data-theme-mode=dark] .app-sidebar .side-menu__item:hover {
     background-color: transparent;
   }
@@ -20526,7 +20524,7 @@ input.error {
   content: "";
   width: 100%;
   height: 100%;
-  background-image: url("https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattern-1.svg");
+  background-image: url("../images/media/svg/pattern-1.svg");
   background-repeat: repeat;
   z-index: -1;
   opacity: 0.015;
@@ -21883,7 +21881,7 @@ input.error {
   background-repeat: repeat;
   background-position: center;
   z-index: -1;
-  background-image: url(https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattern-2.svg);
+  background-image: url("../images/media/svg/pattern-2.svg");
   opacity: 0.05;
 }
 .ecommerce-more-link {
@@ -22783,7 +22781,7 @@ ul.files-main-nav li div.filemanager-upgrade-storage img {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-image: url(https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattren-3.svg);
+  background-image: url("../images/media/svg/pattren-3.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

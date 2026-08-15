@@ -113,7 +113,7 @@
                                 @method('PUT')
                                 <input type="hidden" name="tipe" value="{{ $lesson->normalizedType() }}">
                                 <div class="row g-2">
-                                    <div class="col-md-5">
+                                    <div class="{{ $lesson->normalizedType() === 'survey' ? 'col-md-5' : 'col-md-8' }}">
                                         <label class="form-label fs-12">{{ __('Nama') }}</label>
                                         <input type="text" name="judul" class="form-control form-control-sm" value="{{ $lesson->judul }}" required>
                                     </div>
@@ -121,10 +121,12 @@
                                         <label class="form-label fs-12">{{ __('Tipe') }}</label>
                                         <input type="text" class="form-control form-control-sm" value="{{ $lesson->typeLabel() }}" disabled>
                                     </div>
+                                    @if ($lesson->normalizedType() === 'survey')
                                     <div class="col-md-3">
                                         <label class="form-label fs-12">{{ __('Estimasi (Menit)') }}</label>
-                                        <input type="number" name="durasi_menit" class="form-control form-control-sm" value="{{ $lesson->durasi_menit ?? 10 }}" min="1" max="9999" required>
+                                        <input type="number" name="durasi_menit" class="form-control form-control-sm" value="{{ $lesson->durasi_menit ?? 10 }}" min="0" max="9999" required>
                                     </div>
+                                    @endif
                                     <div class="col-12">
                                         <label class="form-label fs-12">{{ __('Deskripsi') }}</label>
                                         <textarea name="body" class="form-control form-control-sm" rows="2">{{ $lesson->body }}</textarea>
@@ -398,9 +400,8 @@
     {{-- Modal: form aktivitas (Umum) --}}
     <div class="modal fade" id="activityFormModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <form method="POST" id="activityCreateForm" enctype="multipart/form-data">
-                    @csrf
+            <form method="POST" id="activityCreateForm" enctype="multipart/form-data" class="modal-content">
+                @csrf
                     <input type="hidden" name="tipe" id="activityFormType">
                     <input type="hidden" name="is_required" value="1">
                     <div class="modal-header">
@@ -412,14 +413,14 @@
                     <div class="modal-body">
                         <h6 class="text-muted text-uppercase fs-11 mb-3">{{ __('Umum') }}</h6>
                         <div class="row g-3 mb-3">
-                            <div class="col-md-8">
-                                <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
-                                <input type="text" name="judul" class="form-control" required maxlength="255" placeholder="{{ __('Judul aktivitas...') }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">{{ __('Estimasi (Menit)') }} <span class="text-danger">*</span></label>
-                                <input type="number" name="durasi_menit" class="form-control" value="10" min="1" max="9999" required>
-                            </div>
+                            <div class="col-md-8" id="activityFieldNamaCol">
+                                        <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="judul" class="form-control" required maxlength="255" placeholder="{{ __('Judul aktivitas...') }}">
+                                    </div>
+                                    <div class="col-md-4" id="activityFieldDurasi">
+                                        <label class="form-label">{{ __('Estimasi (Menit)') }} <span class="text-danger">*</span></label>
+                                        <input type="number" name="durasi_menit" id="activityInputDurasi" class="form-control" value="10" min="0" max="9999">
+                                    </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">{{ __('Deskripsi') }}</label>
@@ -534,9 +535,8 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Batal') }}</button>
                         <button type="submit" class="btn btn-primary btn-wave">{{ __('Simpan') }}</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 @endcan

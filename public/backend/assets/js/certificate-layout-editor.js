@@ -110,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply visual properties
         el.style.left = `${props.x}%`;
         el.style.top = `${props.y}%`;
-        el.style.fontSize = `calc(${props.fontSize || 14} * 0.1188cqi)`; // exact match for pt on A4
+        const cqi = container.clientWidth / 100;
+        el.style.fontSize = `${(props.fontSize || 14) * 0.1188 * cqi}px`;
         el.style.fontWeight = props.fontWeight || '400';
         el.style.fontStyle = props.fontStyle || 'normal';
         el.style.color = props.color || '#000000';

@@ -80,7 +80,7 @@
                             <span class="peserta-course-detail__nav-text">
                                 <span class="peserta-course-detail__nav-title">{{ $module->judul }}</span>
                                 <span class="peserta-course-detail__nav-meta">
-                                    {{ $module->lessons->count() }} {{ __('aktivitas') }} · {{ $module->durasi_menit }} {{ __('menit') }}
+                                    {{ $module->lessons->count() }} {{ __('aktivitas') }} @if($module->durasi_menit > 0) · {{ $module->durasi_menit }} {{ __('menit') }} @endif
                                 </span>
                             </span>
                             <span class="peserta-course-detail__nav-icon">
@@ -167,7 +167,9 @@
                                         <span class="peserta-course-detail__lesson-title">{{ $lesson->judul }}</span>
                                         <span class="peserta-course-detail__lesson-meta">
                                             <span class="peserta-course-detail__type">{{ $lesson->typeLabel() }}</span>
-                                            <span>{{ $lesson->durasi_menit }} {{ __('menit') }}</span>
+                                            @if ($lesson->normalizedType() === 'survey' || $lesson->durasi_menit > 0)
+                                                <span>{{ $lesson->durasi_menit }} {{ __('menit') }}</span>
+                                            @endif
                                             @if ($lesson->is_preview)
                                                 <span class="text-primary">· {{ __('Pratinjau') }}</span>
                                             @endif

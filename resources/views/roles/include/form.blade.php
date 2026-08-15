@@ -2,7 +2,7 @@
     <div class="col-md-6 col-xl-4">
         <label class="form-label" for="name">{{ __('Name') }}</label>
         <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror"
-            placeholder="{{ __('Name') }}" value="{{ isset($role) ? $role->name : old('name') }}" autofocus required>
+            placeholder="{{ __('Name') }}" value="{{ old('name', $role->name ?? '') }}" autofocus required>
         @error('name')
             <div class="invalid-feedback d-block">{{ $message }}</div>
         @enderror
@@ -29,7 +29,7 @@
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="perm-{{ $slug }}"
                                 name="permissions[]" value="{{ $access }}"
-                                @checked(isset($role) && $role->hasPermissionTo($access))>
+                                @checked(is_array(old('permissions')) ? in_array($access, old('permissions')) : (isset($role) && $role->hasPermissionTo($access)))>
                             <label class="form-check-label" for="perm-{{ $slug }}">
                                 {{ ucwords(__($access)) }}
                             </label>

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Certificate;
+use App\Models\CertificateTemplate;
 
 class CertificateVariables
 {
@@ -226,9 +227,9 @@ class CertificateVariables
     /**
      * Resolve real values for a Certificate instance.
      */
-    public static function resolve(Certificate $certificate): array
+    public static function resolve(Certificate $certificate, ?CertificateTemplate $templateOverride = null): array
     {
-        $template = $certificate->template;
+        $template = $templateOverride ?? $certificate->template;
         $course = $certificate->course;
         $user = $certificate->user;
 
@@ -248,7 +249,9 @@ class CertificateVariables
                                       ($course->kode ?? '-'),
             'jam_pelatihan'        => ($course->durasi_jam ?? '0') . ' Jam Pelatihan',
             'tanggal_terbit'       => 'Bogor,    ' . ($course->starts_at?->translatedFormat('d F Y') ?? '') . '    s.d.    ' . ($course->ends_at?->translatedFormat('d F Y') ?? ''),
-            'pasfoto_peserta'      => $user?->avatar ? asset('storage/' . $user->avatar) : asset('backend/assets/images/dummy-pasfoto.png'),
+            'pasfoto_peserta'      => $user?->getRawOriginal('avatar')
+                                        ? asset('storage/avatars/' . $user->getRawOriginal('avatar'))
+                                        : asset('backend/assets/images/dummy-pasfoto.png'),
             'jabatan_penandatangan' => $template?->signer_title ?? 'Kepala Pusat',
             'nama_penandatangan'   => $template?->signer_name ?? 'Raden Murwantara',
             'tanda_tangan'         => $template?->signatureUrl(),

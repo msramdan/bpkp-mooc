@@ -23,6 +23,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     {
         Validator::make(data: $input, rules: [
             'name' => ['required', 'string', 'max:255'],
+            'nip' => ['nullable', 'string', 'max:18', Rule::unique(table: 'users')->ignore(id: $user->id)],
+            'pangkat_golongan' => ['nullable', 'string', 'max:255'],
+            'jabatan' => ['nullable', 'string', 'max:255'],
+            'unit_organisasi' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -30,7 +34,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'max:255',
                 Rule::unique(table: 'users')->ignore(id: $user->id),
             ],
-            'avatar' => ['nullable', 'image', 'max:1024'],
+            'avatar' => ['nullable', 'image', 'max:5120'],
         ])->validateWithBag(errorBag: 'updateProfileInformation');
 
         if (isset($input['avatar']) && $input['avatar']->isValid()) {
@@ -44,6 +48,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         } else {
             $user->forceFill(attributes: [
                 'name' => $input['name'],
+                'nip' => $input['nip'] ?? null,
+                'pangkat_golongan' => $input['pangkat_golongan'] ?? null,
+                'jabatan' => $input['jabatan'] ?? null,
+                'unit_organisasi' => $input['unit_organisasi'] ?? null,
                 'email' => $input['email'],
             ])->save();
         }
@@ -56,6 +64,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     {
         $user->forceFill([
             'name' => $input['name'],
+            'nip' => $input['nip'] ?? null,
+            'pangkat_golongan' => $input['pangkat_golongan'] ?? null,
+            'jabatan' => $input['jabatan'] ?? null,
+            'unit_organisasi' => $input['unit_organisasi'] ?? null,
             'email' => $input['email'],
             'email_verified_at' => null,
         ])->save();

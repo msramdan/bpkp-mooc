@@ -122,7 +122,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("https://php.spruko.com/zynix/zynix/assets/images/media/svg/pattren-3.svg");
+  background-image: url("../images/media/svg/pattren-3.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

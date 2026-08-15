@@ -454,10 +454,12 @@
                             <span>{{ __('Status') }}</span>
                             <strong>{{ $isCompleted ? __('Selesai') : __('Belum selesai') }}</strong>
                         </li>
+                        @if ($lesson->normalizedType() === 'survey' || $lesson->durasi_menit > 0)
                         <li>
                             <span>{{ __('Estimasi Waktu') }}</span>
                             <strong>{{ $lesson->durasi_menit > 0 ? $lesson->durasi_menit : (in_array($type, ['survey', 'pre_test', 'post_test'], true) && $lesson->survey ? max(5, $lesson->survey->questions->count() * 2) : 10) }} {{ __('Menit') }}</strong>
                         </li>
+                        @endif
                         @if ($type === 'penugasan')
                             <li>
                                 <span>{{ __('Pengumpulan') }}</span>

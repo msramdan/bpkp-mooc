@@ -18,20 +18,28 @@ class SurveyQuestionController extends Controller
 
     public function store(Request $request, Survey $survey)
     {
-        $data = $request->validate([
+        $baseRules = [
             'type' => 'required|in:radio,checkbox,text,rating',
             'question_text' => 'required|string',
             'is_required' => 'boolean',
-            'options' => 'required_if:type,radio,checkbox|array|min:2',
-            'options.*' => 'required_if:type,radio,checkbox|string|max:255',
-            'options_score' => 'nullable|array',
-            'options_score.*' => 'nullable|integer|min:0|max:100',
-            'options_correct' => 'nullable|array',
-            'options_correct.*' => 'nullable|boolean',
-        ], [
-            'options.required_if' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
+        ];
+
+        $optionRules = [];
+        if (in_array($request->input('type'), ['radio', 'checkbox'])) {
+            $optionRules = [
+                'options' => 'required|array|min:2',
+                'options.*' => 'required|string|max:255',
+                'options_score' => 'nullable|array',
+                'options_score.*' => 'nullable|integer|min:0|max:100',
+                'options_correct' => 'nullable|array',
+                'options_correct.*' => 'nullable|boolean',
+            ];
+        }
+
+        $data = $request->validate(array_merge($baseRules, $optionRules), [
+            'options.required' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
             'options.min' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
-            'options.*.required_if' => __('Teks pada opsi jawaban tidak boleh kosong.'),
+            'options.*.required' => __('Teks pada opsi jawaban tidak boleh kosong.'),
         ]);
 
         if ($data['type'] === 'radio') {
@@ -76,20 +84,28 @@ class SurveyQuestionController extends Controller
     {
         abort_if($question->survey_id !== $survey->id, 403);
 
-        $data = $request->validate([
+        $baseRules = [
             'type' => 'required|in:radio,checkbox,text,rating',
             'question_text' => 'required|string',
             'is_required' => 'boolean',
-            'options' => 'required_if:type,radio,checkbox|array|min:2',
-            'options.*' => 'required_if:type,radio,checkbox|string|max:255',
-            'options_score' => 'nullable|array',
-            'options_score.*' => 'nullable|integer|min:0|max:100',
-            'options_correct' => 'nullable|array',
-            'options_correct.*' => 'nullable|boolean',
-        ], [
-            'options.required_if' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
+        ];
+
+        $optionRules = [];
+        if (in_array($request->input('type'), ['radio', 'checkbox'])) {
+            $optionRules = [
+                'options' => 'required|array|min:2',
+                'options.*' => 'required|string|max:255',
+                'options_score' => 'nullable|array',
+                'options_score.*' => 'nullable|integer|min:0|max:100',
+                'options_correct' => 'nullable|array',
+                'options_correct.*' => 'nullable|boolean',
+            ];
+        }
+
+        $data = $request->validate(array_merge($baseRules, $optionRules), [
+            'options.required' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
             'options.min' => __('Tipe pertanyaan Pilihan Ganda dan Kotak Centang wajib memiliki minimal 2 opsi jawaban.'),
-            'options.*.required_if' => __('Teks pada opsi jawaban tidak boleh kosong.'),
+            'options.*.required' => __('Teks pada opsi jawaban tidak boleh kosong.'),
         ]);
 
         if ($data['type'] === 'radio') {
