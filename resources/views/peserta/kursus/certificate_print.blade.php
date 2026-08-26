@@ -1,8 +1,8 @@
 @php
     use App\Support\CertificateVariables;
-    $template = $certificate->template;
+    // Use $template from controller (already has fallback to default template)
     $layout = $template ? $template->layout() : CertificateVariables::defaultLayout();
-    $values = CertificateVariables::resolve($certificate);
+    $values = CertificateVariables::resolve($certificate, $template);
     $definitions = CertificateVariables::DEFINITIONS;
     $bgUrl = $template ? $template->backgroundUrl() : asset('backend/assets/images/certificate-default-bg.png');
 @endphp
@@ -91,6 +91,7 @@
             background-repeat: no-repeat;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             overflow: hidden;
+            container-type: inline-size;
         }
 
         .cert-element {
@@ -157,18 +158,22 @@
             @endphp
             @if($val || $isImg)
                 <div class="cert-element var-{{ $key }}" style="
-                    left: {{ $props['x'] ?? 50 }}%;
-                    top: {{ $props['y'] ?? 50 }}%;
+                    left: {{ str_replace(',', '.', $props['x'] ?? 50) }}%;
+                    top: {{ str_replace(',', '.', $props['y'] ?? 50) }}%;
                     transform: translate({{ $anchorX }}, -50%);
-                    font-size: {{ $props['fontSize'] ?? 14 }}pt;
+                    font-size: calc({{ str_replace(',', '.', $props['fontSize'] ?? 14) }} * 0.1188cqi);
                     font-weight: {{ $props['fontWeight'] ?? '400' }};
                     font-style: {{ $props['fontStyle'] ?? 'normal' }};
                     text-align: {{ $props['textAlign'] ?? 'center' }};
                     color: {{ $props['color'] ?? '#000000' }};
-                    @if(isset($props['width']) && $isImg) width: {{ $props['width'] }}%; @endif
+                    @if(isset($props['width']) && $isImg) width: {{ str_replace(',', '.', $props['width']) }}%; @endif
                 ">
                     @if($isImg && $val)
-                        <img src="{{ $val }}" alt="Tanda Tangan" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+                        @if($key === 'pasfoto_peserta')
+                            <img src="{{ $val }}" alt="Pasfoto Peserta" style="max-width: 100%; max-height: 150px; object-fit: contain; display: block; border: 1px solid #ccc; margin: 0 auto;">
+                        @else
+                            <img src="{{ $val }}" alt="Tanda Tangan" style="max-width: 100%; max-height: 75px; object-fit: contain; display: block; margin: 0 auto;">
+                        @endif
                     @elseif(! $isImg)
                         {!! $val !!}
                     @endif

@@ -10,7 +10,7 @@
     <meta name="author" content="{{ config('app.name') }}">
     <meta name="keywords" content="MOOC, BPKP, LMS, pusdiklatwas, kursus">
     <title>@yield('title', config('app.name'))</title>
-    <link rel="icon" href="https://php.spruko.com/zynix/zynix/assets/images/brand-logos/favicon.ico"
+    <link rel="icon" href="{{ asset('backend') }}/assets/images/brand-logos/favicon.ico"
         type="image/x-icon">
     <link id="style" href="{{ asset('backend') }}/assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('backend') }}/assets/css/styles.css" rel="stylesheet">
@@ -49,7 +49,7 @@
 </head>
 <body>
     <div id="loader">
-        <img src="https://php.spruko.com/zynix/zynix/assets/images/media/loader.svg" alt="">
+        <img src="{{ asset('backend') }}/assets/images/media/loader.svg" alt="">
     </div>
     <div class="page">
         @include('layouts.partials.header')

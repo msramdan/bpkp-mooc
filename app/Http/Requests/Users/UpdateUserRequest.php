@@ -29,7 +29,7 @@ class UpdateUserRequest extends FormRequest
             'jabatan' => ['nullable', 'string', 'max:255'],
             'unit_organisasi' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,'.$this->setId()],
-            'avatar' => ['nullable', 'image', 'max:1024'],
+            'avatar' => ['nullable', 'image', 'max:5120'],
             'role' => ['required', 'exists:roles,id'],
             'password' => ['nullable', ...$this->passwordRules()],
         ];

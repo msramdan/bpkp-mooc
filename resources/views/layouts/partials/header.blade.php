@@ -311,11 +311,11 @@
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <div class="d-flex align-items-center">
                                 <div class="me-xl-2 me-0">
-                                    <img src="{{ asset('backend') }}/assets/images/faces/2.jpg" alt=""
-                                        class="avatar avatar-sm avatar-rounded">
+                                    <img src="{{ auth()->user()->avatar }}" alt=""
+                                        class="avatar avatar-sm avatar-rounded" style="object-fit: cover;">
                                 </div>
                                 <div class="d-xl-block d-none lh-1">
-                                    <span class="fw-medium lh-1">{{ str(auth()->user()->name)->limit(24) }}</span>
+                                    <span class="fw-medium lh-1 text-truncate d-inline-block" style="max-width: 150px; vertical-align: middle;">{{ auth()->user()->name }}</span>
                                 </div>
                             </div>
                         </a>

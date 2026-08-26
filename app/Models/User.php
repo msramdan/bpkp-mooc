@@ -96,7 +96,7 @@ class User extends Authenticatable
         $disk = $imageService->setDiskName(disk: 'storage.public');
 
         if (! $value) {
-            return $imageService->getPlaceholderImage();
+            return asset('backend/assets/images/faces/2.jpg');
         }
 
         return match (true) {

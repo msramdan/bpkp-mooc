@@ -7,6 +7,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCertificateLayoutRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->variable_positions)) {
+            $decoded = json_decode($this->variable_positions, true);
+            if (is_array($decoded)) {
+                $this->merge([
+                    'variable_positions' => $decoded,
+                ]);
+            }
+        }
+    }
+
     public function authorize(): bool
     {
         return true; // Authorization handled by route middleware

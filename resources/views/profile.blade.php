@@ -53,6 +53,50 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label" for="nip">{{ __('NIP') }}</label>
+                                <input type="text" name="nip"
+                                    class="form-control @error('nip', 'updateProfileInformation') is-invalid @enderror"
+                                    id="nip" placeholder="{{ __('Nomor Induk Pegawai (18 digit)') }}"
+                                    value="{{ old('nip', auth()->user()->nip) }}" maxlength="18" inputmode="numeric">
+                                @error('nip', 'updateProfileInformation')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="pangkat_golongan">{{ __('Pangkat, Golongan') }}</label>
+                                <input type="text" name="pangkat_golongan"
+                                    class="form-control @error('pangkat_golongan', 'updateProfileInformation') is-invalid @enderror"
+                                    id="pangkat_golongan" placeholder="{{ __('Cth: Penata, III/c') }}"
+                                    value="{{ old('pangkat_golongan', auth()->user()->pangkat_golongan) }}">
+                                @error('pangkat_golongan', 'updateProfileInformation')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="jabatan">{{ __('Jabatan') }}</label>
+                                <input type="text" name="jabatan"
+                                    class="form-control @error('jabatan', 'updateProfileInformation') is-invalid @enderror"
+                                    id="jabatan" placeholder="{{ __('Cth: Auditor Ahli Muda') }}"
+                                    value="{{ old('jabatan', auth()->user()->jabatan) }}">
+                                @error('jabatan', 'updateProfileInformation')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="unit_organisasi">{{ __('Unit Organisasi') }}</label>
+                                <input type="text" name="unit_organisasi"
+                                    class="form-control @error('unit_organisasi', 'updateProfileInformation') is-invalid @enderror"
+                                    id="unit_organisasi" placeholder="{{ __('Cth: Pusat Pendidikan dan Pelatihan Pengawasan') }}"
+                                    value="{{ old('unit_organisasi', auth()->user()->unit_organisasi) }}">
+                                @error('unit_organisasi', 'updateProfileInformation')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="row align-items-start g-3 mb-4">
                                 <div class="col-auto">
                                     <div class="avatar avatar-xl">

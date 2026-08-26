@@ -402,7 +402,8 @@ class LessonController extends Controller implements HasMiddleware
         );
 
         $updateData = [];
-        if (! $certificate->certificate_template_id && $templateId) {
+        // Always ensure template_id points to a valid template (fixes stale integer IDs from pre-UUID migration)
+        if (! $certificate->template && $templateId) {
             $updateData['certificate_template_id'] = $templateId;
         }
         if (isset($certificate->nilai_akhir) && (int) $certificate->nilai_akhir !== min(100, max(0, $userScore))) {
@@ -410,6 +411,7 @@ class LessonController extends Controller implements HasMiddleware
         }
         if (!empty($updateData)) {
             $certificate->update($updateData);
+            $certificate->load('template'); // reload after fix
         }
 
         if (! $completedIds->contains($lesson->id)) {
@@ -431,7 +433,7 @@ class LessonController extends Controller implements HasMiddleware
     {
         $allRequiredCompleted = true;
         if ($lesson->require_all_lessons ?? true) {
-            $requiredLessons = $ordered->filter(fn (CourseLesson $l) => $l->id !== $lesson->id && ($l->is_required || $l->tipe !== 'sertifikat'));
+            $requiredLessons = $ordered->filter(fn (CourseLesson $l) => $l->id !== $lesson->id && $l->is_required && $l->tipe !== 'sertifikat');
             foreach ($requiredLessons as $reqLesson) {
                 if (! $completedIds->contains($reqLesson->id)) {
                     $allRequiredCompleted = false;

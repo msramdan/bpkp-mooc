@@ -113,6 +113,8 @@
                 var penugasanRequirementsField = document.getElementById('activityFieldPenugasanRequirements');
                 var surveyField = document.getElementById('activityFieldSurvey');
                 var sertifikatField = document.getElementById('activityFieldSertifikat');
+                var durasiField = document.getElementById('activityFieldDurasi');
+                var namaCol = document.getElementById('activityFieldNamaCol');
                 var videoInput = form.querySelector('[name="video_file"]');
                 var urlInput = form.querySelector('[name="file_url"]');
                 var berkasInput = form.querySelector('[name="berkas_file"]');
@@ -139,6 +141,20 @@
                 if (surveyInput) {
                     surveyInput.required = false;
                     surveyInput.value = '';
+                }
+
+                if (key === 'survey') {
+                    if (durasiField) durasiField.classList.remove('d-none');
+                    if (namaCol) {
+                        namaCol.classList.remove('col-md-12');
+                        namaCol.classList.add('col-md-8');
+                    }
+                } else {
+                    if (durasiField) durasiField.classList.add('d-none');
+                    if (namaCol) {
+                        namaCol.classList.remove('col-md-8');
+                        namaCol.classList.add('col-md-12');
+                    }
                 }
 
                 if (key === 'video') {
