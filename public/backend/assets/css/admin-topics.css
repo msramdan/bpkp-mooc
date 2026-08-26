@@ -616,6 +616,130 @@
     flex-shrink: 0;
 }
 
+/* Admin activity file preview */
+.activity-file-preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.65rem;
+    margin-top: 0.4rem;
+    min-width: 0;
+}
+
+.activity-file-preview__name {
+    display: inline-flex;
+    align-items: center;
+    max-width: min(100%, 22rem);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--acd-muted, #64748b);
+}
+
+.activity-file-preview__actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.activity-file-preview__actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.22rem 0.55rem;
+}
+
+.activity-file-preview--compact {
+    margin-top: 0;
+}
+
+.activity-file-modal__kicker {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--acd-primary, #2b488b);
+}
+
+.activity-file-modal__body {
+    min-height: 18rem;
+}
+
+.activity-file-modal__frame {
+    width: 100%;
+    border: 0;
+    border-radius: 0.75rem;
+    background: #0f172a0a;
+}
+
+.activity-file-modal__frame.is-pdf,
+.activity-file-modal__frame.is-text {
+    min-height: min(70vh, 40rem);
+    height: 70vh;
+}
+
+.activity-file-modal__frame.is-image {
+    display: grid;
+    place-items: center;
+    min-height: 16rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+}
+
+.activity-file-modal__frame.is-image img {
+    max-width: 100%;
+    max-height: min(70vh, 36rem);
+    object-fit: contain;
+    border-radius: 0.5rem;
+}
+
+.activity-file-modal__frame.is-video {
+    display: grid;
+    place-items: center;
+    background: #0f172a;
+    min-height: 16rem;
+    overflow: hidden;
+}
+
+.activity-file-modal__frame.is-video video {
+    width: 100%;
+    max-height: min(70vh, 38rem);
+}
+
+.activity-file-modal__empty {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    min-height: 14rem;
+    padding: 1.5rem;
+    color: var(--acd-muted, #64748b);
+}
+
+.activity-file-modal__empty > i {
+    font-size: 2rem;
+    opacity: 0.7;
+}
+
+.activity-file-modal__placeholder {
+    display: grid;
+    place-items: center;
+    min-height: 12rem;
+}
+
+[data-theme-mode='dark'] .activity-file-modal__frame.is-image {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+[data-theme-mode='dark'] .activity-file-preview__name {
+    color: #94a3b8;
+}
+
 .topic-empty {
     text-align: center;
     padding: 2.5rem 1.25rem;

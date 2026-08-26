@@ -1,4 +1,4 @@
-@php
+﻿@php
     use App\Support\ActivityTypes;
 @endphp
 
@@ -85,13 +85,42 @@
                                 <div class="topic-activity-item__desc text-muted fs-12 mt-1">{!! \Illuminate\Support\Str::limit(strip_tags($lesson->sanitizedBody()), 120) !!}</div>
                             @endif
                             @if ($lesson->externalUrl())
-                                <div class="fs-12 text-muted text-truncate mt-1">{{ $lesson->externalUrl() }}</div>
+                                @include('courses.partials.activity-file-preview', [
+                                    'url' => $lesson->externalUrl(),
+                                    'title' => $lesson->judul,
+                                    'compact' => false,
+                                ])
                             @endif
                         </div>
                         @can('course edit')
                             <div class="topic-activity-item__actions">
-                                <button type="button" class="btn btn-sm btn-light btn-wave"
-                                    data-bs-toggle="collapse" data-bs-target="#edit-activity-{{ $lesson->id }}">
+                                <button type="button"
+                                    class="btn btn-sm btn-light btn-wave js-activity-edit"
+                                    title="{{ __('Ubah aktivitas') }}"
+                                    data-activity='@json([
+                                        "update_url" => route("courses.modules.lessons.update", [$course, $module, $lesson]),
+                                        "tipe" => $lesson->normalizedType(),
+                                        "type_label" => $lesson->typeLabel(),
+                                        "judul" => $lesson->judul,
+                                        "durasi_menit" => (int) ($lesson->durasi_menit ?? 10),
+                                        "body" => (string) ($lesson->body ?? ""),
+                                        "file_url" => (string) ($lesson->file_url ?? ""),
+                                        "video_url" => (string) ($lesson->video_url ?? ""),
+                                        "external_url" => (string) ($lesson->externalUrl() ?? ""),
+                                        "media_url" => (string) ($lesson->resolveMediaUrlPublic() ?? $lesson->externalUrl() ?? ""),
+                                        "survey_id" => (string) ($lesson->survey_id ?? ""),
+                                        "certificate_template_id" => (string) ($lesson->certificate_template_id ?? ""),
+                                        "prerequisite_survey_id" => (string) ($lesson->prerequisite_survey_id ?? ""),
+                                        "passing_grade" => (int) ($lesson->passing_grade ?? 0),
+                                        "require_all_lessons" => (bool) ($lesson->require_all_lessons ?? true),
+                                        "assignment_allow_text" => (bool) $lesson->assignment_allow_text,
+                                        "assignment_allow_file" => (bool) $lesson->assignment_allow_file,
+                                        "assignment_allow_link" => (bool) $lesson->assignment_allow_link,
+                                        "is_preview" => (bool) $lesson->is_preview,
+                                        "is_required" => (bool) $lesson->is_required,
+                                        "has_file" => filled($lesson->file_url),
+                                        "has_video" => filled($lesson->video_url),
+                                    ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)'>
                                     <i class="ri-edit-line"></i>
                                 </button>
                                 <form action="{{ route('courses.modules.lessons.destroy', [$course, $module, $lesson]) }}"
@@ -105,211 +134,6 @@
                             </div>
                         @endcan
                     </div>
-                    @can('course edit')
-                        <div class="collapse mb-3" id="edit-activity-{{ $lesson->id }}">
-                            <form method="POST" action="{{ route('courses.modules.lessons.update', [$course, $module, $lesson]) }}"
-                                class="border rounded p-3 bg-light" enctype="multipart/form-data">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="tipe" value="{{ $lesson->normalizedType() }}">
-                                <div class="row g-2">
-                                    <div class="{{ $lesson->normalizedType() === 'survey' ? 'col-md-5' : 'col-md-8' }}">
-                                        <label class="form-label fs-12">{{ __('Nama') }}</label>
-                                        <input type="text" name="judul" class="form-control form-control-sm" value="{{ $lesson->judul }}" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fs-12">{{ __('Tipe') }}</label>
-                                        <input type="text" class="form-control form-control-sm" value="{{ $lesson->typeLabel() }}" disabled>
-                                    </div>
-                                    @if ($lesson->normalizedType() === 'survey')
-                                    <div class="col-md-3">
-                                        <label class="form-label fs-12">{{ __('Estimasi (Menit)') }}</label>
-                                        <input type="number" name="durasi_menit" class="form-control form-control-sm" value="{{ $lesson->durasi_menit ?? 10 }}" min="0" max="9999" required>
-                                    </div>
-                                    @endif
-                                    <div class="col-12">
-                                        <label class="form-label fs-12">{{ __('Deskripsi') }}</label>
-                                        <textarea name="body" class="form-control form-control-sm" rows="2">{{ $lesson->body }}</textarea>
-                                    </div>
-                                    @if ($lesson->normalizedType() === 'video')
-                                        @php
-                                            $videoMaxMb = round(((int) config('mooc.video_max_kb', 51200)) / 1024, 1);
-                                        @endphp
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Unggah video') }}</label>
-                                            @if ($lesson->video_url)
-                                                <div class="mb-1 fs-12">
-                                                    <a href="{{ $lesson->resolveMediaUrlPublic() }}" target="_blank" rel="noopener">
-                                                        <i class="ri-play-circle-line me-1"></i>{{ __('Lihat video saat ini') }}
-                                                    </a>
-                                                </div>
-                                            @endif
-                                            <input type="file" name="video_file" class="form-control form-control-sm js-upload-size"
-                                                accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.avi,.mkv,.m4v"
-                                                data-max-kb="{{ (int) config('mooc.video_max_kb', 51200) }}"
-                                                data-label="{{ __('Video') }}"
-                                                @required(! $lesson->video_url)>
-                                            <div class="form-text fs-11">
-                                                {{ __('Kosongkan jika tidak diganti. Maks. :max MB (MP4, WebM, MOV, AVI, MKV).', ['max' => $videoMaxMb]) }}
-                                            </div>
-                                        </div>
-                                    @elseif ($lesson->normalizedType() === 'url')
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Tautan URL') }}</label>
-                                            <input type="url" name="file_url" class="form-control form-control-sm"
-                                                value="{{ $lesson->file_url }}" placeholder="https://contoh.com/halaman"
-                                                inputmode="url" autocomplete="url" required>
-                                            <div class="form-text fs-11">{{ __('Tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
-                                        </div>
-
-                                    @elseif ($lesson->normalizedType() === 'penugasan')
-                                        @php
-                                            $penugasanMaxMb = round(((int) config('mooc.penugasan_max_kb', 10240)) / 1024, 1);
-                                        @endphp
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Berkas instruksi') }}</label>
-                                            @if ($lesson->file_url)
-                                                <div class="mb-1 fs-12">
-                                                    <a href="{{ $lesson->externalUrl() }}" target="_blank" rel="noopener">
-                                                        <i class="ri-attachment-2 me-1"></i>{{ __('Lihat berkas saat ini') }}
-                                                    </a>
-                                                </div>
-                                            @endif
-                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
-                                                accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
-                                                data-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
-                                                data-label="{{ __('Berkas instruksi') }}">
-                                            <div class="form-text fs-11">
-                                                {{ __('Opsional. Word, PPT, PDF, ZIP — maks. :max MB.', ['max' => $penugasanMaxMb]) }}
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fs-12 mb-2">{{ __('Kebutuhan pengumpulan peserta') }}</label>
-                                            <div class="d-flex flex-wrap gap-3">
-                                                <label class="form-check mb-0">
-                                                    <input type="hidden" name="assignment_allow_text" value="0">
-                                                    <input type="checkbox" name="assignment_allow_text" value="1" class="form-check-input" @checked($lesson->assignment_allow_text)>
-                                                    <span class="form-check-label fs-12">{{ __('Uraian jawaban') }}</span>
-                                                </label>
-                                                <label class="form-check mb-0">
-                                                    <input type="hidden" name="assignment_allow_file" value="0">
-                                                    <input type="checkbox" name="assignment_allow_file" value="1" class="form-check-input" @checked($lesson->assignment_allow_file)>
-                                                    <span class="form-check-label fs-12">{{ __('Unggah dokumen') }}</span>
-                                                </label>
-                                                <label class="form-check mb-0">
-                                                    <input type="hidden" name="assignment_allow_link" value="0">
-                                                    <input type="checkbox" name="assignment_allow_link" value="1" class="form-check-input" @checked($lesson->assignment_allow_link)>
-                                                    <span class="form-check-label fs-12">{{ __('Tautan jawaban') }}</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @elseif ($lesson->normalizedType() === 'h5p')
-                                        @php
-                                            $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
-                                        @endphp
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Upload Package (.h5p)') }}</label>
-                                            @if ($lesson->file_url)
-                                                <div class="mb-1 fs-12">
-                                                    <i class="ri-attachment-2 me-1"></i>{{ __('Berkas H5P sudah diunggah') }}
-                                                </div>
-                                            @endif
-                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
-                                                accept=".h5p"
-                                                data-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
-                                                data-label="{{ __('Berkas H5P') }}"
-                                                @required(! $lesson->file_url)>
-                                            <div class="form-text fs-11">
-                                                {{ __('Kosongkan jika tidak diganti. Maks. :max MB.', ['max' => $h5pMaxMb]) }}
-                                            </div>
-                                        </div>
-                                    @elseif ($lesson->normalizedType() === 'survey')
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Pilih Master Survey / Kuesioner') }}</label>
-                                            <select name="survey_id" class="form-select form-select-sm" required>
-                                                <option value="">{{ __('-- Pilih Survey --') }}</option>
-                                                @foreach($surveys ?? [] as $svy)
-                                                    <option value="{{ $svy->id }}" @selected($lesson->survey_id == $svy->id)>
-                                                        {{ $svy->title }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div class="form-text fs-11">
-                                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
-                                            </div>
-                                        </div>
-                                    @elseif ($lesson->normalizedType() === 'sertifikat')
-                                        <div class="col-12 border rounded p-3 bg-light mb-2">
-                                            <h6 class="fw-bold text-warning-dark mb-2"><i class="bi bi-shield-check me-1"></i> {{ __('Konfigurasi Gerbang Sertifikat (Activity Gate)') }}</h6>
-                                            <div class="mb-2">
-                                                <label class="form-label fs-12 fw-semibold">{{ __('Pilih Template Desain Sertifikat') }}</label>
-                                                <select name="certificate_template_id" class="form-select form-select-sm">
-                                                    <option value="">{{ __('Gunakan Template Default Sistem') }}</option>
-                                                    @foreach($certificateTemplates ?? [] as $tpl)
-                                                        <option value="{{ $tpl->id }}" @selected($lesson->certificate_template_id == $tpl->id)>{{ $tpl->title }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label fs-12 fw-semibold">{{ __('Prasyarat Kuesioner Evaluasi (Wajib Diisi Peserta)') }}</label>
-                                                <select name="prerequisite_survey_id" class="form-select form-select-sm">
-                                                    <option value="">{{ __('-- Tanpa Prasyarat Kuesioner --') }}</option>
-                                                    @foreach($surveys ?? [] as $svy)
-                                                        <option value="{{ $svy->id }}" @selected($lesson->prerequisite_survey_id == $svy->id)>{{ $svy->title }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label fs-12 fw-semibold">{{ __('Nilai Minimal Kelulusan (Passing Grade Penugasan / Test)') }}</label>
-                                                <input type="number" name="passing_grade" class="form-control form-control-sm" value="{{ $lesson->passing_grade ?? 0 }}" min="0" max="100">
-                                            </div>
-                                            <div class="form-check mt-2">
-                                                <input type="hidden" name="require_all_lessons" value="0">
-                                                <input type="checkbox" name="require_all_lessons" value="1" class="form-check-input" id="req_all_{{ $lesson->id }}" @checked($lesson->require_all_lessons ?? true)>
-                                                <label class="form-check-label fs-12 fw-medium" for="req_all_{{ $lesson->id }}">{{ __('Wajib selesaikan seluruh materi lain sebelum mengunduh sertifikat') }}</label>
-                                            </div>
-                                        </div>
-                                    @else
-                                        @php
-                                            $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
-                                        @endphp
-                                        <div class="col-12">
-                                            <label class="form-label fs-12">{{ __('Unggah berkas') }}</label>
-                                            @if ($lesson->file_url)
-                                                <div class="mb-1 fs-12">
-                                                    <a href="{{ $lesson->externalUrl() }}" target="_blank" rel="noopener">
-                                                        <i class="ri-attachment-2 me-1"></i>{{ __('Lihat berkas saat ini') }}
-                                                    </a>
-                                                </div>
-                                            @endif
-                                            <input type="file" name="berkas_file" class="form-control form-control-sm js-upload-size"
-                                                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp"
-                                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
-                                                data-label="{{ __('Berkas') }}"
-                                                @required(! $lesson->file_url)>
-                                            <div class="form-text fs-11">
-                                                {{ __('Kosongkan jika tidak diganti. Maks. :max MB.', ['max' => $berkasMaxMb]) }}
-                                            </div>
-                                        </div>
-                                    @endif
-                                    <div class="col-12 d-flex gap-3">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="is_preview" value="1" class="form-check-input" @checked($lesson->is_preview)>
-                                            <label class="form-check-label fs-12">{{ __('Preview') }}</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="hidden" name="is_required" value="0">
-                                            <input type="checkbox" name="is_required" value="1" class="form-check-input" @checked($lesson->is_required)>
-                                            <label class="form-check-label fs-12">{{ __('Wajib') }}</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 text-end">
-                                        <button type="submit" class="btn btn-sm btn-primary btn-wave">{{ __('Simpan aktivitas') }}</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    @endcan
                 @empty
                     <p class="text-muted text-center py-3 mb-0">{{ __('Belum ada aktivitas di topik ini.') }}</p>
                 @endforelse
@@ -402,141 +226,183 @@
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <form method="POST" id="activityCreateForm" enctype="multipart/form-data" class="modal-content">
                 @csrf
-                    <input type="hidden" name="tipe" id="activityFormType">
-                    <input type="hidden" name="is_required" value="1">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            {{ __('Tambah') }}: <span id="activityFormTypeLabel"></span>
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <input type="hidden" name="_method" id="activityFormMethod" value="PUT" disabled>
+                <input type="hidden" name="tipe" id="activityFormType">
+                <input type="hidden" name="is_required" id="activityFormIsRequiredFixed" value="1">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <span id="activityFormModeLabel">{{ __('Tambah') }}</span>:
+                        <span id="activityFormTypeLabel"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-muted text-uppercase fs-11 mb-3">{{ __('Umum') }}</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8" id="activityFieldNamaCol">
+                            <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
+                            <input type="text" name="judul" class="form-control" required maxlength="255" placeholder="{{ __('Judul aktivitas...') }}">
+                        </div>
+                        <div class="col-md-4" id="activityFieldDurasi">
+                            <label class="form-label">{{ __('Estimasi (Menit)') }} <span class="text-danger">*</span></label>
+                            <input type="number" name="durasi_menit" id="activityInputDurasi" class="form-control" value="10" min="0" max="9999">
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <h6 class="text-muted text-uppercase fs-11 mb-3">{{ __('Umum') }}</h6>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-8" id="activityFieldNamaCol">
-                                        <label class="form-label">{{ __('Nama') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="judul" class="form-control" required maxlength="255" placeholder="{{ __('Judul aktivitas...') }}">
-                                    </div>
-                                    <div class="col-md-4" id="activityFieldDurasi">
-                                        <label class="form-label">{{ __('Estimasi (Menit)') }} <span class="text-danger">*</span></label>
-                                        <input type="number" name="durasi_menit" id="activityInputDurasi" class="form-control" value="10" min="0" max="9999">
-                                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ __('Deskripsi') }}</label>
+                        <textarea name="body" class="form-control" rows="4" placeholder="{{ __('Deskripsi aktivitas...') }}"></textarea>
+                    </div>
+                    <div class="mb-3 d-none" id="activityCurrentMediaWrap">
+                        <label class="form-label">{{ __('Lampiran saat ini') }}</label>
+                        <div id="activityCurrentMedia"></div>
+                        <div class="form-text">{{ __('Kosongkan unggahan baru jika tidak ingin mengganti lampiran.') }}</div>
+                    </div>
+                    <div class="mb-3 d-none" id="activityFieldVideo">
+                        @php
+                            $videoMaxMb = round(((int) config('mooc.video_max_kb', 51200)) / 1024, 1);
+                            $videoMimes = implode(', ', (array) config('mooc.video_mimes', ['mp4', 'webm']));
+                        @endphp
+                        <label class="form-label">{{ __('Unggah video') }} <span class="text-danger activity-required-mark">*</span></label>
+                        <input type="file" name="video_file" class="form-control js-upload-size"
+                            accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.avi,.mkv,.m4v"
+                            data-max-kb="{{ (int) config('mooc.video_max_kb', 51200) }}"
+                            data-label="{{ __('Video') }}">
+                        <div class="form-text">
+                            {{ __('Maksimal :max MB. Format: :formats', ['max' => $videoMaxMb, 'formats' => $videoMimes]) }}
+                        </div>
+                    </div>
+                    <div class="mb-3 d-none" id="activityFieldUrl">
+                        <label class="form-label">{{ __('Tautan URL') }} <span class="text-danger">*</span></label>
+                        <input type="url" name="file_url" class="form-control" placeholder="https://contoh.com/halaman"
+                            inputmode="url" autocomplete="url">
+                        <div class="form-text">{{ __('Masukkan tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
+                    </div>
+                    @php
+                        $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
+                        $berkasMimes = implode(', ', (array) config('mooc.berkas_mimes', ['pdf']));
+                        $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
+                    @endphp
+                    <div class="mb-3 d-none" id="activityFieldBerkas"
+                        data-berkas-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
+                        data-penugasan-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
+                        data-h5p-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
+                        data-berkas-help="{{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}"
+                        data-h5p-help="{{ __('Maksimal :max MB. Format: .h5p', ['max' => $h5pMaxMb]) }}">
+                        <label class="form-label">{{ __('Unggah berkas') }} <span class="text-danger activity-required-mark">*</span></label>
+                        <input type="file" name="berkas_file" class="form-control js-upload-size"
+                            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp"
+                            data-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
+                            data-label="{{ __('Berkas') }}">
+                        <div class="form-text">
+                            {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
+                        </div>
+                    </div>
+                    <div class="mb-3 d-none" id="activityFieldPenugasanRequirements">
+                        <label class="form-label">{{ __('Kebutuhan pengumpulan peserta') }} <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <label class="form-check mb-0">
+                                <input type="hidden" name="assignment_allow_text" value="0">
+                                <input type="checkbox" name="assignment_allow_text" value="1" class="form-check-input" id="activityAssignText">
+                                <span class="form-check-label">{{ __('Uraian jawaban') }}</span>
+                            </label>
+                            <label class="form-check mb-0">
+                                <input type="hidden" name="assignment_allow_file" value="0">
+                                <input type="checkbox" name="assignment_allow_file" value="1" class="form-check-input" id="activityAssignFile" checked>
+                                <span class="form-check-label">{{ __('Unggah dokumen') }}</span>
+                            </label>
+                            <label class="form-check mb-0">
+                                <input type="hidden" name="assignment_allow_link" value="0">
+                                <input type="checkbox" name="assignment_allow_link" value="1" class="form-check-input" id="activityAssignLink">
+                                <span class="form-check-label">{{ __('Tautan jawaban') }}</span>
+                            </label>
+                        </div>
+                        <div class="form-text">{{ __('Centang apa saja yang wajib dikirim peserta untuk aktivitas penugasan ini.') }}</div>
+                    </div>
+                    <div class="mb-3 d-none" id="activityFieldSurvey">
+                        <label class="form-label">{{ __('Pilih Master Survey / Kuesioner') }} <span class="text-danger">*</span></label>
+                        <select name="survey_id" class="form-select" id="surveySelectInput">
+                            <option value="">{{ __('-- Pilih Survey --') }}</option>
+                            @foreach($surveys ?? [] as $svy)
+                                <option value="{{ $svy->id }}">{{ $svy->title }}</option>
+                            @endforeach
+                        </select>
+                        <div class="form-text">
+                            {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
+                        </div>
+                    </div>
+                    <div class="mb-3 d-none border rounded p-3 bg-light shadow-sm" id="activityFieldSertifikat">
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ __('Gerbang Kelulusan Sertifikat') }}</h6>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold fs-13">{{ __('Pilih Master Template Sertifikat') }}</label>
+                            <select name="certificate_template_id" class="form-select" id="activityCertTemplate">
+                                <option value="">{{ __('Gunakan Template Default Sistem') }}</option>
+                                @foreach($certificateTemplates ?? [] as $tpl)
+                                    <option value="{{ $tpl->id }}">{{ $tpl->title }}</option>
+                                @endforeach
+                            </select>
+                            <div class="form-text fs-11">{{ __('Template master diatur dari menu Admin Data Utama > Template Sertifikat.') }}</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Deskripsi') }}</label>
-                            <textarea name="body" class="form-control" rows="4" placeholder="{{ __('Deskripsi aktivitas...') }}"></textarea>
-                        </div>
-                        <div class="mb-3 d-none" id="activityFieldVideo">
-                            @php
-                                $videoMaxMb = round(((int) config('mooc.video_max_kb', 51200)) / 1024, 1);
-                                $videoMimes = implode(', ', (array) config('mooc.video_mimes', ['mp4', 'webm']));
-                            @endphp
-                            <label class="form-label">{{ __('Unggah video') }} <span class="text-danger">*</span></label>
-                            <input type="file" name="video_file" class="form-control js-upload-size"
-                                accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.avi,.mkv,.m4v"
-                                data-max-kb="{{ (int) config('mooc.video_max_kb', 51200) }}"
-                                data-label="{{ __('Video') }}">
-                            <div class="form-text">
-                                {{ __('Maksimal :max MB. Format: :formats', ['max' => $videoMaxMb, 'formats' => $videoMimes]) }}
-                            </div>
-                        </div>
-                        <div class="mb-3 d-none" id="activityFieldUrl">
-                            <label class="form-label">{{ __('Tautan URL') }} <span class="text-danger">*</span></label>
-                            <input type="url" name="file_url" class="form-control" placeholder="https://contoh.com/halaman"
-                                inputmode="url" autocomplete="url">
-                            <div class="form-text">{{ __('Masukkan tautan lengkap (http/https) yang akan dibuka peserta.') }}</div>
-                        </div>
-                        @php
-                            $berkasMaxMb = round(((int) config('mooc.berkas_max_kb', 10240)) / 1024, 1);
-                            $berkasMimes = implode(', ', (array) config('mooc.berkas_mimes', ['pdf']));
-                            $h5pMaxMb = round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1);
-                        @endphp
-                        <div class="mb-3 d-none" id="activityFieldBerkas"
-                            data-berkas-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
-                            data-penugasan-max-kb="{{ (int) config('mooc.penugasan_max_kb', 10240) }}"
-                            data-h5p-max-kb="{{ (int) config('mooc.h5p_max_kb', 204800) }}"
-                            data-berkas-help="{{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}"
-                            data-h5p-help="{{ __('Maksimal :max MB. Format: .h5p', ['max' => $h5pMaxMb]) }}">
-                            <label class="form-label">{{ __('Unggah berkas') }} <span class="text-danger">*</span></label>
-                            <input type="file" name="berkas_file" class="form-control js-upload-size"
-                                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.webp"
-                                data-max-kb="{{ (int) config('mooc.berkas_max_kb', 10240) }}"
-                                data-label="{{ __('Berkas') }}">
-                            <div class="form-text">
-                                {{ __('Maksimal :max MB. Format: :formats', ['max' => $berkasMaxMb, 'formats' => $berkasMimes]) }}
-                            </div>
-                        </div>
-                        <div class="mb-3 d-none" id="activityFieldPenugasanRequirements">
-                            <label class="form-label">{{ __('Kebutuhan pengumpulan peserta') }} <span class="text-danger">*</span></label>
-                            <div class="d-flex flex-wrap gap-3">
-                                <label class="form-check mb-0">
-                                    <input type="hidden" name="assignment_allow_text" value="0">
-                                    <input type="checkbox" name="assignment_allow_text" value="1" class="form-check-input">
-                                    <span class="form-check-label">{{ __('Uraian jawaban') }}</span>
-                                </label>
-                                <label class="form-check mb-0">
-                                    <input type="hidden" name="assignment_allow_file" value="0">
-                                    <input type="checkbox" name="assignment_allow_file" value="1" class="form-check-input" checked>
-                                    <span class="form-check-label">{{ __('Unggah dokumen') }}</span>
-                                </label>
-                                <label class="form-check mb-0">
-                                    <input type="hidden" name="assignment_allow_link" value="0">
-                                    <input type="checkbox" name="assignment_allow_link" value="1" class="form-check-input">
-                                    <span class="form-check-label">{{ __('Tautan jawaban') }}</span>
-                                </label>
-                            </div>
-                            <div class="form-text">{{ __('Centang apa saja yang wajib dikirim peserta untuk aktivitas penugasan ini.') }}</div>
-                        </div>
-                        <div class="mb-3 d-none" id="activityFieldSurvey">
-                            <label class="form-label">{{ __('Pilih Master Survey / Kuesioner') }} <span class="text-danger">*</span></label>
-                            <select name="survey_id" class="form-select" id="surveySelectInput">
-                                <option value="">{{ __('-- Pilih Survey --') }}</option>
+                            <label class="form-label fw-semibold fs-13">{{ __('Prasyarat Survey / Kuesioner Evaluasi') }}</label>
+                            <select name="prerequisite_survey_id" class="form-select" id="activityCertSurvey">
+                                <option value="">{{ __('-- Tanpa Prasyarat Kuesioner --') }}</option>
                                 @foreach($surveys ?? [] as $svy)
                                     <option value="{{ $svy->id }}">{{ $svy->title }}</option>
                                 @endforeach
                             </select>
-                            <div class="form-text">
-                                {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
-                            </div>
+                            <div class="form-text fs-11">{{ __('Jika dipilih, tombol cetak sertifikat terkunci sebelum peserta mengisi kuesioner evaluasi ini.') }}</div>
                         </div>
-                        <div class="mb-3 d-none border rounded p-3 bg-light shadow-sm" id="activityFieldSertifikat">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ __('Gerbang Kelulusan Sertifikat') }}</h6>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold fs-13">{{ __('Pilih Master Template Sertifikat') }}</label>
-                                <select name="certificate_template_id" class="form-select">
-                                    <option value="">{{ __('Gunakan Template Default Sistem') }}</option>
-                                    @foreach($certificateTemplates ?? [] as $tpl)
-                                        <option value="{{ $tpl->id }}">{{ $tpl->title }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="form-text fs-11">{{ __('Template master diatur dari menu Admin Data Utama > Template Sertifikat.') }}</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold fs-13">{{ __('Prasyarat Survey / Kuesioner Evaluasi') }}</label>
-                                <select name="prerequisite_survey_id" class="form-select">
-                                    <option value="">{{ __('-- Tanpa Prasyarat Kuesioner --') }}</option>
-                                    @foreach($surveys ?? [] as $svy)
-                                        <option value="{{ $svy->id }}">{{ $svy->title }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="form-text fs-11">{{ __('Jika dipilih, tombol cetak sertifikat terkunci sebelum peserta mengisi kuesioner evaluasi ini.') }}</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold fs-13">{{ __('Passing Grade Minimal (0 - 100)') }}</label>
-                                <input type="number" name="passing_grade" class="form-control" value="70" min="0" max="100">
-                            </div>
-                            <div class="form-check form-switch mt-2">
-                                <input type="hidden" name="require_all_lessons" value="0">
-                                <input type="checkbox" name="require_all_lessons" value="1" class="form-check-input" id="req_all_create" checked>
-                                <label class="form-check-label fw-medium fs-13" for="req_all_create">{{ __('Kunci sertifikat hingga peserta menyelesaikan 100% materi kursus') }}</label>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold fs-13">{{ __('Passing Grade Minimal (0 - 100)') }}</label>
+                            <input type="number" name="passing_grade" id="activityPassingGrade" class="form-control" value="70" min="0" max="100">
+                        </div>
+                        <div class="form-check form-switch mt-2">
+                            <input type="hidden" name="require_all_lessons" value="0">
+                            <input type="checkbox" name="require_all_lessons" value="1" class="form-check-input" id="req_all_create" checked>
+                            <label class="form-check-label fw-medium fs-13" for="req_all_create">{{ __('Kunci sertifikat hingga peserta menyelesaikan 100% materi kursus') }}</label>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Batal') }}</button>
-                        <button type="submit" class="btn btn-primary btn-wave">{{ __('Simpan') }}</button>
+                    <div class="d-flex flex-wrap gap-3 d-none" id="activityFieldFlags">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_preview" value="1" class="form-check-input" id="activityIsPreview">
+                            <label class="form-check-label" for="activityIsPreview">{{ __('Preview') }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="hidden" name="is_required" value="0" id="activityIsRequiredHidden" disabled>
+                            <input type="checkbox" name="is_required" value="1" class="form-check-input" id="activityIsRequired" checked>
+                            <label class="form-check-label" for="activityIsRequired">{{ __('Wajib') }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Batal') }}</button>
+                    <button type="submit" class="btn btn-primary btn-wave" id="activityFormSubmitBtn">{{ __('Simpan') }}</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- Preview berkas/video aktivitas admin --}}
+    <div class="modal fade" id="activityFilePreviewModal" tabindex="-1" aria-labelledby="activityFilePreviewModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content activity-file-modal">
+                <div class="modal-header border-0 pb-0">
+                    <div class="min-w-0">
+                        <span class="activity-file-modal__kicker">{{ __('Preview berkas') }}</span>
+                        <h5 class="modal-title text-truncate" id="activityFilePreviewModalTitle">—</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Tutup') }}"></button>
+                </div>
+                <div class="modal-body activity-file-modal__body" id="activityFilePreviewModalBody">
+                    <div class="activity-file-modal__placeholder text-muted">{{ __('Memuat preview...') }}</div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-wave" id="activityFilePreviewOpenTab">
+                        <i class="ri-external-link-line me-1"></i>{{ __('Buka di tab baru') }}
+                    </a>
+                    <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Tutup') }}</button>
+                </div>
+            </div>
         </div>
     </div>
 @endcan

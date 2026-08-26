@@ -407,6 +407,24 @@
 
 @push('scripts')
     @if (($activeTab ?? '') === 'modules')
+        <script>
+            window.activityFilePreviewI18n = {
+                preview: @json(__('Preview')),
+                openTab: @json(__('Buka di tab baru')),
+                loading: @json(__('Memuat preview...')),
+                unsupported: @json(__('Preview tidak tersedia untuk tipe :ext. Gunakan tombol buka di tab baru.')),
+            };
+            window.activityFormI18n = {
+                add: @json(__('Tambah')),
+                edit: @json(__('Ubah')),
+                save: @json(__('Simpan')),
+                preview: @json(__('Preview')),
+                openTab: @json(__('Tab baru')),
+                uploadFile: @json(__('Unggah berkas')),
+                instructionFile: @json(__('Berkas instruksi')),
+                instructionHelp: @json(__('Opsional. Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.')),
+            };
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
         <script src="{{ asset('backend/assets/js/admin-topics.js') }}?v={{ @filemtime(public_path('backend/assets/js/admin-topics.js')) ?: time() }}"></script>
     @endif

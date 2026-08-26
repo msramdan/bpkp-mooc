@@ -125,7 +125,7 @@ class CourseLesson extends Model
             return $this->resolveMediaUrl($this->video_url);
         }
 
-        if (in_array($type, ['berkas', 'url', 'penugasan'], true)) {
+        if (in_array($type, ['berkas', 'url', 'penugasan', 'h5p'], true)) {
             return $this->resolveMediaUrl($this->file_url) ?: $this->resolveMediaUrl($this->video_url);
         }
 
