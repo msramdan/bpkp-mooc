@@ -93,34 +93,37 @@
                             @endif
                         </div>
                         @can('course edit')
+                            @php
+                                $activityPayload = [
+                                    'update_url' => route('courses.modules.lessons.update', [$course, $module, $lesson]),
+                                    'tipe' => $lesson->normalizedType(),
+                                    'type_label' => $lesson->typeLabel(),
+                                    'judul' => $lesson->judul,
+                                    'durasi_menit' => (int) ($lesson->durasi_menit ?? 10),
+                                    'body' => (string) ($lesson->body ?? ''),
+                                    'file_url' => (string) ($lesson->file_url ?? ''),
+                                    'video_url' => (string) ($lesson->video_url ?? ''),
+                                    'external_url' => (string) ($lesson->externalUrl() ?? ''),
+                                    'media_url' => (string) ($lesson->resolveMediaUrlPublic() ?? $lesson->externalUrl() ?? ''),
+                                    'survey_id' => (string) ($lesson->survey_id ?? ''),
+                                    'certificate_template_id' => (string) ($lesson->certificate_template_id ?? ''),
+                                    'prerequisite_survey_id' => (string) ($lesson->prerequisite_survey_id ?? ''),
+                                    'passing_grade' => (int) ($lesson->passing_grade ?? 0),
+                                    'require_all_lessons' => (bool) ($lesson->require_all_lessons ?? true),
+                                    'assignment_allow_text' => (bool) $lesson->assignment_allow_text,
+                                    'assignment_allow_file' => (bool) $lesson->assignment_allow_file,
+                                    'assignment_allow_link' => (bool) $lesson->assignment_allow_link,
+                                    'is_preview' => (bool) $lesson->is_preview,
+                                    'is_required' => (bool) $lesson->is_required,
+                                    'has_file' => filled($lesson->file_url),
+                                    'has_video' => filled($lesson->video_url),
+                                ];
+                            @endphp
                             <div class="topic-activity-item__actions">
                                 <button type="button"
                                     class="btn btn-sm btn-light btn-wave js-activity-edit"
                                     title="{{ __('Ubah aktivitas') }}"
-                                    data-activity='@json([
-                                        "update_url" => route("courses.modules.lessons.update", [$course, $module, $lesson]),
-                                        "tipe" => $lesson->normalizedType(),
-                                        "type_label" => $lesson->typeLabel(),
-                                        "judul" => $lesson->judul,
-                                        "durasi_menit" => (int) ($lesson->durasi_menit ?? 10),
-                                        "body" => (string) ($lesson->body ?? ""),
-                                        "file_url" => (string) ($lesson->file_url ?? ""),
-                                        "video_url" => (string) ($lesson->video_url ?? ""),
-                                        "external_url" => (string) ($lesson->externalUrl() ?? ""),
-                                        "media_url" => (string) ($lesson->resolveMediaUrlPublic() ?? $lesson->externalUrl() ?? ""),
-                                        "survey_id" => (string) ($lesson->survey_id ?? ""),
-                                        "certificate_template_id" => (string) ($lesson->certificate_template_id ?? ""),
-                                        "prerequisite_survey_id" => (string) ($lesson->prerequisite_survey_id ?? ""),
-                                        "passing_grade" => (int) ($lesson->passing_grade ?? 0),
-                                        "require_all_lessons" => (bool) ($lesson->require_all_lessons ?? true),
-                                        "assignment_allow_text" => (bool) $lesson->assignment_allow_text,
-                                        "assignment_allow_file" => (bool) $lesson->assignment_allow_file,
-                                        "assignment_allow_link" => (bool) $lesson->assignment_allow_link,
-                                        "is_preview" => (bool) $lesson->is_preview,
-                                        "is_required" => (bool) $lesson->is_required,
-                                        "has_file" => filled($lesson->file_url),
-                                        "has_video" => filled($lesson->video_url),
-                                    ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)'>
+                                    data-activity='@json($activityPayload, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)'>
                                     <i class="ri-edit-line"></i>
                                 </button>
                                 <form action="{{ route('courses.modules.lessons.destroy', [$course, $module, $lesson]) }}"

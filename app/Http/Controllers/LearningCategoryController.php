@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CourseEnrollmentExport;
 use App\Http\Requests\LearningCategories\StoreLearningCategoryRequest;
 use App\Http\Requests\LearningCategories\UpdateLearningCategoryRequest;
 use App\Models\LearningCategory;
-use DOMDocument;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class LearningCategoryController extends Controller implements HasMiddleware
@@ -60,7 +62,7 @@ class LearningCategoryController extends Controller implements HasMiddleware
         return to_route('learning-categories.index');
     }
 
-    public function export(): Response
+    public function export(): BinaryFileResponse
     {
         $rows = LearningCategory::query()
             ->orderBy('name')
@@ -68,34 +70,40 @@ class LearningCategoryController extends Controller implements HasMiddleware
             ->map(fn (string $name) => [$name])
             ->all();
 
-        return $this->excelXmlDownload(
-            'learning-categories-export-'.now()->format('Ymd-His').'.xml',
-            ['Nama Kategori'],
-            $rows
+        return Excel::download(
+            new CourseEnrollmentExport($rows, ['Nama Kategori']),
+            'learning-categories-export-'.now()->format('Ymd-His').'.xlsx'
         );
     }
 
-    public function downloadTemplate(): Response
+    public function downloadTemplate(): BinaryFileResponse
     {
-        return $this->excelXmlDownload(
-            'template-import-kategori-kursus.xml',
-            ['Nama Kategori'],
-            [
-                ['Audit Internal'],
-                ['Manajemen Risiko'],
-            ]
+        return Excel::download(
+            new CourseEnrollmentExport(
+                [
+                    ['Audit Internal'],
+                    ['Manajemen Risiko'],
+                ],
+                ['Nama Kategori']
+            ),
+            'template-import-kategori-kursus.xlsx'
         );
     }
 
     public function import(Request $request): RedirectResponse
     {
         $request->validate([
-            'import_file' => ['required', 'file', 'mimes:csv,txt,xls,xml', 'max:5120'],
+            'import_file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt,xml', 'max:5120'],
         ], [], [
             'import_file' => __('File import'),
         ]);
 
-        $rows = $this->parseImportRows($request->file('import_file')->getRealPath(), (string) $request->file('import_file')->getClientOriginalExtension());
+        try {
+            $rows = $this->parseImportRows($request->file('import_file')->getRealPath(), (string) $request->file('import_file')->getClientOriginalExtension());
+        } catch (\Throwable) {
+            return to_route('learning-categories.index')
+                ->with('error', __('File import tidak dapat dibaca. Gunakan template Excel dari halaman ini.'));
+        }
 
         if ($rows->isEmpty()) {
             return to_route('learning-categories.index')
@@ -191,42 +199,28 @@ class LearningCategoryController extends Controller implements HasMiddleware
         $ext = strtolower($extension);
 
         return match ($ext) {
-            'csv', 'txt' => $this->parseCsvRows($path),
-            'xls', 'xml' => $this->parseExcelXmlRows($path),
-            default => collect(),
+            'xml' => $this->parseExcelXmlRows($path),
+            default => $this->parseSpreadsheetRows($path),
         };
     }
 
-    private function parseCsvRows(string $path): Collection
+    private function parseSpreadsheetRows(string $path): Collection
     {
-        $handle = fopen($path, 'rb');
-        if ($handle === false) {
-            return collect();
-        }
-
-        $rows = collect();
+        $sheet = IOFactory::load($path)->getActiveSheet()->toArray(null, true, true, false);
         $headerSkipped = false;
 
-        while (($data = fgetcsv($handle)) !== false) {
-            $name = trim((string) ($data[0] ?? ''));
-            if ($name === '') {
-                continue;
-            }
-
-            if (! $headerSkipped) {
-                $headerSkipped = true;
-                if (Str::lower($name) === 'nama kategori') {
-                    continue;
-                }
-            }
-
-            $rows->push($name);
-        }
-
-        fclose($handle);
-
-        return $rows->map(fn (string $name) => trim($name))
+        return collect($sheet)
+            ->map(fn (array $row) => trim((string) ($row[0] ?? '')))
             ->filter()
+            ->reject(function (string $name) use (&$headerSkipped) {
+                if ($headerSkipped) {
+                    return false;
+                }
+
+                $headerSkipped = true;
+
+                return Str::lower($name) === 'nama kategori';
+            })
             ->unique(fn (string $name) => Str::lower($name))
             ->values();
     }
@@ -249,49 +243,5 @@ class LearningCategoryController extends Controller implements HasMiddleware
             ->filter()
             ->unique(fn (string $name) => Str::lower($name))
             ->values();
-    }
-
-    private function excelXmlDownload(string $filename, array $headers, array $rows): Response
-    {
-        $xml = new DOMDocument('1.0', 'UTF-8');
-        $xml->formatOutput = true;
-
-        $workbook = $xml->createElementNS('urn:schemas-microsoft-com:office:spreadsheet', 'Workbook');
-        $workbook->setAttribute('xmlns:ss', 'urn:schemas-microsoft-com:office:spreadsheet');
-        $xml->appendChild($workbook);
-
-        $worksheet = $xml->createElement('Worksheet');
-        $worksheet->setAttribute('ss:Name', 'Categories');
-        $workbook->appendChild($worksheet);
-
-        $table = $xml->createElement('Table');
-        $worksheet->appendChild($table);
-
-        $headerRow = $xml->createElement('Row');
-        foreach ($headers as $header) {
-            $cell = $xml->createElement('Cell');
-            $data = $xml->createElement('Data', $header);
-            $data->setAttribute('ss:Type', 'String');
-            $cell->appendChild($data);
-            $headerRow->appendChild($cell);
-        }
-        $table->appendChild($headerRow);
-
-        foreach ($rows as $row) {
-            $rowNode = $xml->createElement('Row');
-            foreach ($row as $value) {
-                $cell = $xml->createElement('Cell');
-                $data = $xml->createElement('Data', (string) $value);
-                $data->setAttribute('ss:Type', 'String');
-                $cell->appendChild($data);
-                $rowNode->appendChild($cell);
-            }
-            $table->appendChild($rowNode);
-        }
-
-        return response($xml->saveXML(), 200, [
-            'Content-Type' => 'application/xml; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-        ]);
     }
 }

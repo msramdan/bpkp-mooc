@@ -407,6 +407,9 @@
 
 @push('scripts')
     @if (($activeTab ?? '') === 'modules')
+        @php
+            $activityInstructionHelp = __('Opsional. Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.');
+        @endphp
         <script>
             window.activityFilePreviewI18n = {
                 preview: @json(__('Preview')),
@@ -422,7 +425,7 @@
                 openTab: @json(__('Tab baru')),
                 uploadFile: @json(__('Unggah berkas')),
                 instructionFile: @json(__('Berkas instruksi')),
-                instructionHelp: @json(__('Opsional. Word, PowerPoint, PDF, atau ZIP — materi/instruksi untuk peserta.')),
+                instructionHelp: @json($activityInstructionHelp),
             };
         </script>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>

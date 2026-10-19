@@ -3,6 +3,7 @@
 namespace App\Http\Requests\LearningTags;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateLearningTagRequest extends FormRequest
 {
@@ -20,7 +21,12 @@ class UpdateLearningTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'min:2', 'max:120', 'unique:learning_tags,name,'.$this->learning_tag],
+            'name' => [
+                'required',
+                'min:2',
+                'max:120',
+                Rule::unique('learning_tags', 'name')->ignore($this->route('learning_tag')),
+            ],
         ];
     }
 }

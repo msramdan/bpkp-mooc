@@ -75,9 +75,9 @@
                             <label for="learningCategoryImportFile" class="form-label">{{ __('File import') }}</label>
                             <input type="file" name="import_file" id="learningCategoryImportFile"
                                 class="form-control @error('import_file') is-invalid @enderror"
-                                accept=".xls,.xml,.csv,.txt" required>
+                                accept=".xlsx,.xls,.csv,.txt,.xml" required>
                             <div class="form-text">
-                                {{ __('Gunakan template XML yang diunduh dari halaman ini, atau file CSV. Format yang didukung: XML Spreadsheet 2003, CSV, TXT, dan XLS lama.') }}
+                                {{ __('Gunakan template Excel yang diunduh dari halaman ini. Format yang didukung: XLSX, XLS, CSV, TXT, dan XML Spreadsheet.') }}
                             </div>
                             @error('import_file')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>

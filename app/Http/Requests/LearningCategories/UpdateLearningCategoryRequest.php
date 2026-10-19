@@ -3,6 +3,7 @@
 namespace App\Http\Requests\LearningCategories;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateLearningCategoryRequest extends FormRequest
 {
@@ -20,7 +21,12 @@ class UpdateLearningCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'min:2', 'max:120', 'unique:learning_categories,name,'.$this->learning_category],
+            'name' => [
+                'required',
+                'min:2',
+                'max:120',
+                Rule::unique('learning_categories', 'name')->ignore($this->route('learning_category')),
+            ],
         ];
     }
 }
