@@ -16,6 +16,11 @@
             <a href="{{ route('surveys.index') }}" class="btn btn-light btn-wave me-2">
                 <i class="ri-arrow-left-line align-middle me-1"></i>{{ __('Kembali') }}
             </a>
+            @can('survey edit')
+                <button type="button" class="btn btn-outline-success btn-wave me-2" data-bs-toggle="modal" data-bs-target="#importPgModal">
+                    <i class="ri-file-excel-2-line align-middle me-1"></i>{{ __('Import Soal PG') }}
+                </button>
+            @endcan
             <button class="btn btn-primary btn-wave" data-bs-toggle="modal" data-bs-target="#questionModal" onclick="openCreateModal()">
                 <i class="ri-add-line align-middle me-1"></i>{{ __('Tambah Pertanyaan') }}
             </button>
@@ -25,6 +30,12 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
@@ -158,6 +169,10 @@
             </div>
         </div>
     </div>
+
+    @can('survey edit')
+        @include('surveys.partials.import-pg-modal')
+    @endcan
 
     <!-- Modal Form Pertanyaan -->
     <div class="modal fade" id="questionModal" tabindex="-1" aria-hidden="true">

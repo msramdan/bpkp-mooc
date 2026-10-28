@@ -120,6 +120,12 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::put('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'update'])->name('surveys.questions.update');
         Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\SurveyQuestionController::class, 'destroy'])->name('surveys.questions.destroy');
         Route::post('surveys/{survey}/questions/reorder', [\App\Http\Controllers\SurveyQuestionController::class, 'reorder'])->name('surveys.questions.reorder');
+
+        // Import Soal Pilihan Ganda (Excel)
+        Route::get('surveys-import-pg/template', [\App\Http\Controllers\SurveyQuestionImportController::class, 'template'])->name('surveys.import-pg.template');
+        Route::post('surveys/{survey}/import-pg/preview', [\App\Http\Controllers\SurveyQuestionImportController::class, 'preview'])->name('surveys.import-pg.preview');
+        Route::post('surveys/{survey}/import-pg', [\App\Http\Controllers\SurveyQuestionImportController::class, 'store'])->name('surveys.import-pg.store');
+        Route::post('surveys/{survey}/import-pg/cancel', [\App\Http\Controllers\SurveyQuestionImportController::class, 'cancel'])->name('surveys.import-pg.cancel');
         
         // Survey Recap & Grading Routes
         Route::get('surveys/{survey}/recap', [\App\Http\Controllers\SurveyRecapController::class, 'index'])->name('surveys.recap.index');
