@@ -142,6 +142,11 @@ return [
                             'permission' => 'learning category view',
                         ],
                         [
+                            'title' => 'Tag Kompetensi',
+                            'route' => '/kompetensi-tags',
+                            'permission' => 'learning category view',
+                        ],
+                        [
                             'title' => 'Template Sertifikat',
                             'route' => '/certificate-templates',
                             'permission' => 'learning category view',
