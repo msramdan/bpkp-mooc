@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
                 BankSoalPilihanGandaSeeder::class,
                 BankSoalCampuranSeeder::class,
                 CourseSeeder::class,
+                DummyCourseSeeder::class,
                 CourseContentSeeder::class,
                 CourseEnrollmentSeeder::class,
             ]);
