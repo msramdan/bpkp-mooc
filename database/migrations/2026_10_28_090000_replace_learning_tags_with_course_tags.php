@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 /**
  * Tag kursus tidak lagi dikelola di MOOC (CRUD learning_tags), tetapi mengambil
@@ -21,6 +22,8 @@ return new class extends Migration
 
             $table->unique(['course_id', 'name']);
         });
+
+        $this->copyExistingTags();
 
         Schema::dropIfExists('course_learning_tag');
         Schema::dropIfExists('learning_tags');
@@ -43,6 +46,33 @@ return new class extends Migration
         });
 
         Schema::dropIfExists('course_tags');
+    }
+
+    /**
+     * Pertahankan tag yang sudah terpasang di kursus (nama tag disalin apa adanya).
+     */
+    private function copyExistingTags(): void
+    {
+        if (! Schema::hasTable('course_learning_tag') || ! Schema::hasTable('learning_tags')) {
+            return;
+        }
+
+        $now = now();
+        $rows = DB::table('course_learning_tag')
+            ->join('learning_tags', 'learning_tags.id', '=', 'course_learning_tag.learning_tag_id')
+            ->get(['course_learning_tag.course_id', 'learning_tags.name'])
+            ->map(fn ($row) => [
+                'id' => (string) Str::uuid(),
+                'course_id' => $row->course_id,
+                'name' => $row->name,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])
+            ->all();
+
+        if ($rows !== []) {
+            DB::table('course_tags')->insert($rows);
+        }
     }
 
     private function deleteLearningTagPermissions(): void
