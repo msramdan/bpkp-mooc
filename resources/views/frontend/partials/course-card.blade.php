@@ -1,33 +1,40 @@
 @php
-    $delay = 100 + (($loop->index ?? 0) * 100);
+    $delay = 100 + (($loop->index ?? 0) * 80);
     $levelLabel = __($course->level ?: 'Pemula');
+    $tags = $course->relationLoaded('tags') ? $course->tags : collect();
 @endphp
-<div class="col-xl-4 col-lg-6 d-flex wow fadeInUp" data-wow-delay="{{ $delay }}ms">
-    <div class="course-one__item landing-course-card w-100">
-        <div class="course-one__thumb">
-            <x-course-thumbnail :course="$course" />
-        </div>
-        <div class="course-one__content landing-course-card__body">
-            <div class="landing-course-card__main">
-                <div class="course-one__time">
-                    {{ $course->modul_total }} {{ __('Modul') }}
-                </div>
-                <div class="course-one__ratings">
-                    <span class="badge bg-primary-transparent">{{ $course->kategori }}</span>
-                </div>
-                <h3 class="course-one__title landing-course-card__title">
-                    <a href="#pelatihan">{{ $course->judul }}</a>
-                </h3>
+<div class="col-xl-3 col-lg-4 col-sm-6 d-flex wow fadeInUp" data-wow-delay="{{ $delay }}ms">
+    <article class="landing-course-card w-100">
+        <a href="#pelatihan" class="landing-course-card__media">
+            <x-course-thumbnail :course="$course" class="landing-course-card__img" />
+            <span class="landing-course-card__badge">
+                <i class="icon-book"></i> {{ $course->modul_total }} {{ __('Modul') }}
+            </span>
+        </a>
+        <div class="landing-course-card__body">
+            <div class="landing-course-card__meta">
+                <span class="landing-course-card__category">{{ $course->kategori ?: __('Umum') }}</span>
+                <span class="landing-course-card__level">{{ $levelLabel }}</span>
             </div>
-            <div class="course-one__bottom landing-course-card__footer">
-                <div class="course-one__author">
-                    <span class="course-one__author__name d-block">{{ $course->instruktur }}</span>
-                    <p class="course-one__author__designation mb-0">{{ $levelLabel }}</p>
+            <h3 class="landing-course-card__title">
+                <a href="#pelatihan">{{ $course->judul }}</a>
+            </h3>
+            @if ($tags->isNotEmpty())
+                <div class="landing-course-card__tags">
+                    @foreach ($tags->take(2) as $tag)
+                        <span class="landing-course-card__tag" title="{{ $tag->name }}">{{ $tag->name }}</span>
+                    @endforeach
+                    @if ($tags->count() > 2)
+                        <span class="landing-course-card__tag">+{{ $tags->count() - 2 }}</span>
+                    @endif
                 </div>
-                <div class="course-one__meta">
-                    <p class="course-one__meta__class mb-0">{{ number_format($course->enrollments_count) }} {{ __('Peserta') }}</p>
-                </div>
+            @endif
+            <div class="landing-course-card__footer">
+                <span class="landing-course-card__author" title="{{ $course->instruktur }}">{{ $course->instruktur }}</span>
+                <span class="landing-course-card__participants">
+                    <i class="icon-account-1"></i> {{ number_format($course->enrollments_count) }}
+                </span>
             </div>
         </div>
-    </div>
+    </article>
 </div>

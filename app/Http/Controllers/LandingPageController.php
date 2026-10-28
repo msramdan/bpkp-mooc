@@ -19,9 +19,10 @@ class LandingPageController extends Controller
             ->withCount('enrollments');
 
         $featuredCourses = (clone $publishedQuery)
+            ->with('tags:id,course_id,name')
             ->orderByDesc('enrollments_count')
             ->orderByDesc('updated_at')
-            ->take(6)
+            ->take(8)
             ->get();
 
         $highlightCourse = $featuredCourses->first();

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
@@ -72,10 +71,30 @@ class Course extends Model
         return $this->hasMany(CourseForumThread::class)->orderByDesc('last_activity_at')->orderByDesc('created_at');
     }
 
-    public function tags(): BelongsToMany
+    public function tags(): HasMany
     {
-        return $this->belongsToMany(LearningTag::class, 'course_learning_tag')
-            ->orderBy('name');
+        return $this->hasMany(CourseTag::class)->orderBy('name');
+    }
+
+    /**
+     * Ganti seluruh tag kursus dengan daftar nama kompetensi yang diberikan.
+     *
+     * @param  array<int, string>  $names
+     */
+    public function syncTags(array $names): void
+    {
+        $names = collect($names)
+            ->map(fn ($name) => trim((string) $name))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $this->tags()->whereNotIn('name', $names)->delete();
+
+        $existing = $this->tags()->pluck('name');
+        $names->diff($existing)->each(fn (string $name) => $this->tags()->create(['name' => $name]));
+
+        $this->unsetRelation('tags');
     }
 
     public function topicsCount(): int

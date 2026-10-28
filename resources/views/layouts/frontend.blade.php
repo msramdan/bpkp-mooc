@@ -100,20 +100,123 @@
             width: 120px;
         }
 
-        .course-one__thumb img,
-        .course-one__thumb .course-thumbnail-img {
+        .landing-category-card {
+            position: relative;
+            display: block;
+            height: 260px;
+            margin: 8px 0 24px;
+            border-radius: 14px;
+            overflow: hidden;
+            background-color: var(--eduact-base);
+            box-shadow: 0 12px 28px rgba(33, 75, 154, 0.16);
+            isolation: isolate;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .landing-category-card::after {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            content: '';
+            background: linear-gradient(180deg, rgba(14, 30, 66, 0) 30%, rgba(14, 30, 66, 0.55) 60%, rgba(14, 30, 66, 0.95) 100%);
+            transition: background 0.35s ease;
+        }
+
+        .landing-category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 36px rgba(33, 75, 154, 0.26);
+        }
+
+        .landing-category-card:hover::after {
+            background: linear-gradient(180deg, rgba(33, 75, 154, 0.15) 0%, rgba(33, 75, 154, 0.7) 55%, rgba(14, 30, 66, 0.98) 100%);
+        }
+
+        .landing-category-card__img {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
-            display: block;
-            background-color: #e9ecef;
+            transition: transform 0.6s ease;
         }
 
-        .category-one__thumb img,
-        .category-one__hover__thumb img {
-            object-fit: cover;
-            background-color: #e9ecef;
+        .landing-category-card:hover .landing-category-card__img {
+            transform: scale(1.08);
+        }
+
+        .landing-category-card__icon {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: var(--eduact-secondary);
+            color: #ffffff;
+            font-size: 20px;
+            box-shadow: 0 8px 16px rgba(226, 74, 85, 0.35);
+        }
+
+        .landing-category-card__content {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 16px 18px 18px;
+        }
+
+        .landing-category-card__content::before {
+            width: 28px;
+            height: 3px;
+            border-radius: 3px;
+            content: '';
+            background-color: var(--eduact-secondary);
+            transition: width 0.35s ease;
+        }
+
+        .landing-category-card:hover .landing-category-card__content::before {
+            width: 48px;
+        }
+
+        .landing-category-card__title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .landing-category-card__meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .landing-category-card__meta i {
+            font-size: 12px;
+            transition: transform 0.35s ease;
+        }
+
+        .landing-category-card:hover .landing-category-card__meta i {
+            transform: translateX(4px);
+        }
+
+        .course-one .row {
+            row-gap: 24px;
         }
 
         .course-one .row > [class*="col-"] {
@@ -123,41 +226,186 @@
         .landing-course-card {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            background: #ffffff;
+            border: 1px solid var(--eduact-soft3);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(33, 75, 154, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .landing-course-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(33, 75, 154, 0.35);
+            box-shadow: 0 14px 30px rgba(33, 75, 154, 0.14);
+        }
+
+        .landing-course-card__media {
+            position: relative;
+            display: block;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background-color: #e9ecef;
+        }
+
+        .landing-course-card__img {
+            width: 100%;
             height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .landing-course-card:hover .landing-course-card__img {
+            transform: scale(1.04);
+        }
+
+        .landing-course-card__badge {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 5px;
+            background-color: rgba(33, 75, 154, 0.92);
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 600;
+            line-height: 1.5;
+            backdrop-filter: blur(4px);
         }
 
         .landing-course-card__body {
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 300px;
+            padding: 14px 16px 16px;
         }
 
-        .landing-course-card__main {
-            flex: 1;
+        .landing-course-card__meta {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .landing-course-card__category {
+            overflow: hidden;
+            color: var(--eduact-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            line-height: 1.4;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .landing-course-card__level {
+            flex-shrink: 0;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background-color: var(--eduact-soft);
+            color: var(--eduact-base);
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            line-height: 1.5;
+            text-transform: uppercase;
         }
 
         .landing-course-card__title {
-            min-height: 58px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            margin-bottom: 22px;
+            min-height: 42px;
+            margin: 0 0 10px;
+            font-size: 15.5px;
+            font-weight: 700;
+            line-height: 21px;
         }
 
         .landing-course-card__title a {
-            display: inline;
+            color: inherit;
+        }
+
+        .landing-course-card__title a:hover {
+            color: var(--eduact-base);
+        }
+
+        .landing-course-card__tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .landing-course-card__tag {
+            max-width: 100%;
+            overflow: hidden;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--eduact-soft3);
+            color: #5b6280;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.5;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
         .landing-course-card__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--eduact-soft3);
+            font-size: 12.5px;
+            line-height: 1.4;
         }
 
-        .landing-course-card__footer .course-one__author {
-            padding-left: 0;
+        .landing-course-card__author {
+            overflow: hidden;
+            min-width: 0;
+            color: var(--eduact-black);
+            font-weight: 500;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .landing-course-card__participants {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            color: var(--eduact-secondary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 575px) {
+            .landing-category-card {
+                height: 220px;
+            }
+
+            .course-one .row {
+                row-gap: 16px;
+            }
+
+            .landing-course-card__media {
+                aspect-ratio: 16 / 9;
+            }
+
+            .landing-course-card__title {
+                min-height: 0;
+            }
         }
 
         .landing-stats {

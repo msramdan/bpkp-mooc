@@ -72,7 +72,7 @@ class CourseController extends Controller implements HasMiddleware
     public function store(StoreCourseRequest $request): RedirectResponse
     {
         return DB::transaction(function () use ($request): RedirectResponse {
-            $data = $request->safe()->except(['thumbnail_file', 'tag_ids']);
+            $data = $request->safe()->except(['thumbnail_file', 'tags']);
             $data['kode'] = $this->uniqueCourseCode($data['judul']);
             $data['slug'] = $this->uniqueCourseSlug($data['judul'], $data['kode']);
             $data['is_published'] = $request->boolean('is_published');
@@ -89,7 +89,7 @@ class CourseController extends Controller implements HasMiddleware
             $data['thumbnail'] = $this->storeThumbnail($request) ?? null;
 
             $course = Course::create($data);
-            $course->tags()->sync($request->input('tag_ids', []));
+            $course->syncTags($request->input('tags', []));
 
             return to_route('courses.show', [$course, 'tab' => 'modules'])->with('success', __('Kursus berhasil dibuat. Tambahkan topik untuk mulai menyusun aktivitas.'));
         });
@@ -105,7 +105,7 @@ class CourseController extends Controller implements HasMiddleware
             : (($search !== '' || $request->has('page')) ? 'peserta' : 'info');
 
         $course->loadCount(['modules', 'enrollments', 'forumThreads']);
-        $course->load(['tags:id,name']);
+        $course->load(['tags:id,course_id,name']);
 
         // Heavy module tree only when needed.
         if ($activeTab === 'modules') {
@@ -187,7 +187,7 @@ class CourseController extends Controller implements HasMiddleware
     public function update(UpdateCourseRequest $request, Course $course): RedirectResponse
     {
         return DB::transaction(function () use ($request, $course): RedirectResponse {
-            $data = $request->safe()->except(['thumbnail_file', 'remove_thumbnail', 'tag_ids']);
+            $data = $request->safe()->except(['thumbnail_file', 'remove_thumbnail', 'tags']);
             $data['slug'] = $this->uniqueCourseSlug($data['judul'], $course->kode, $course->id);
             $data['is_published'] = $request->boolean('is_published');
             $data['is_forum_open'] = $request->boolean('is_forum_open');
@@ -207,7 +207,7 @@ class CourseController extends Controller implements HasMiddleware
             }
 
             $course->update($data);
-            $course->tags()->sync($request->input('tag_ids', []));
+            $course->syncTags($request->input('tags', []));
 
             return to_route('courses.show', [$course, 'tab' => 'info'])->with('success', __('Kursus berhasil diperbarui.'));
         });

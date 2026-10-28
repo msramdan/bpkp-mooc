@@ -127,24 +127,19 @@ return [
         ],
         [
             'header' => 'Utama',
-            'permissions' => ['learning category view', 'learning tag view', 'survey view'],
+            'permissions' => ['learning category view', 'survey view'],
             'menus' => [
                 [
                     'title' => 'Data Utama',
                     'icon' => '<i class="bi bi-collection"></i>',
                     'route' => null,
                     'permission' => null,
-                    'permissions' => ['learning category view', 'learning tag view', 'survey view'],
+                    'permissions' => ['learning category view', 'survey view'],
                     'submenus' => [
                         [
                             'title' => 'Learning Categories',
                             'route' => '/learning-categories',
                             'permission' => 'learning category view',
-                        ],
-                        [
-                            'title' => 'Learning Tags',
-                            'route' => '/learning-tags',
-                            'permission' => 'learning tag view',
                         ],
                         [
                             'title' => 'Template Sertifikat',

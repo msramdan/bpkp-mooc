@@ -10,7 +10,6 @@ use App\Http\Controllers\CourseSearchController;
 use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LearningCategoryController;
-use App\Http\Controllers\LearningTagController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Peserta\CatalogEnrollmentController;
 use App\Http\Controllers\Peserta\CourseForumController;
@@ -107,7 +106,6 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('learning-categories-template', [LearningCategoryController::class, 'downloadTemplate'])->name('learning-categories.template');
         Route::post('learning-categories-import', [LearningCategoryController::class, 'import'])->name('learning-categories.import');
         Route::resource('learning-categories', LearningCategoryController::class);
-        Route::resource('learning-tags', LearningTagController::class);
         Route::get('certificate-templates/{certificateTemplate}/layout', [\App\Http\Controllers\CertificateTemplateController::class, 'editLayout'])->name('certificate-templates.layout.edit');
         Route::put('certificate-templates/{certificateTemplate}/layout', [\App\Http\Controllers\CertificateTemplateController::class, 'updateLayout'])->name('certificate-templates.layout.update');
         Route::resource('certificate-templates', \App\Http\Controllers\CertificateTemplateController::class);

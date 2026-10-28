@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'tna' => [
+        'url' => env('TNA_API_URL'),
+        'api_key' => env('TNA_API_KEY'),
+        'cache_minutes' => env('TNA_KOMPETENSI_CACHE_MINUTES', 60),
+    ],
+
 ];

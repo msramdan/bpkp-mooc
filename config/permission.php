@@ -232,15 +232,6 @@ return [
             ],
         ],
         [
-            'group' => 'learning tags',
-            'access' => [
-                'learning tag view',
-                'learning tag create',
-                'learning tag edit',
-                'learning tag delete',
-            ],
-        ],
-        [
             'group' => 'courses',
             'access' => [
                 'course view',

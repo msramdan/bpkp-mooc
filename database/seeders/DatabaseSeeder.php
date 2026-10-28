@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 PesertaSeeder::class,
                 LearningCategorySeeder::class,
-                LearningTagSeeder::class,
                 SurveySeeder::class,
                 BankSoalPilihanGandaSeeder::class,
                 BankSoalCampuranSeeder::class,

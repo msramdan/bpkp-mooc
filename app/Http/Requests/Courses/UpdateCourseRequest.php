@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Courses;
 
+use App\Services\TnaKompetensiService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateCourseRequest extends FormRequest
 {
@@ -32,8 +34,8 @@ class UpdateCourseRequest extends FormRequest
             'judul' => ['required', 'string', 'max:255'],
             'instansi' => ['required', 'in:Internal,Eksternal'],
             'kategori' => ['required', 'string', 'max:120', 'exists:learning_categories,name'],
-            'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['uuid', 'exists:learning_tags,id'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'max:255', Rule::in($this->allowedTags())],
             'id_number' => ['nullable', 'string', 'max:100'],
             'thumbnail_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
             'remove_thumbnail' => ['sometimes', 'boolean'],
@@ -53,8 +55,8 @@ class UpdateCourseRequest extends FormRequest
             'judul' => __('Nama kursus'),
             'instansi' => __('Instansi'),
             'kategori' => __('Kategori'),
-            'tag_ids' => __('Tag'),
-            'tag_ids.*' => __('Tag'),
+            'tags' => __('Tag kompetensi'),
+            'tags.*' => __('Tag kompetensi'),
             'id_number' => __('Nomor ID kursus'),
             'starts_at' => __('Tanggal mulai'),
             'ends_at' => __('Tanggal selesai'),
@@ -62,5 +64,20 @@ class UpdateCourseRequest extends FormRequest
             'deskripsi' => __('Ringkasan kursus'),
             'thumbnail_file' => __('Thumbnail'),
         ];
+    }
+
+    /**
+     * Tag yang boleh dipilih: nama kompetensi dari Aplikasi TNA, ditambah tag yang
+     * sudah tersimpan di kursus ini (jika nama kompetensinya berubah di TNA).
+     *
+     * @return array<int, string>
+     */
+    private function allowedTags(): array
+    {
+        return collect(app(TnaKompetensiService::class)->names())
+            ->merge($this->route('course')?->tags()->pluck('name') ?? [])
+            ->unique()
+            ->values()
+            ->all();
     }
 }

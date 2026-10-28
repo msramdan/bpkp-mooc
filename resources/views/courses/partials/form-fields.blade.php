@@ -4,11 +4,13 @@
     $endsAt = old('ends_at', optional($course?->ends_at)->format('Y-m-d\TH:i'));
     $currentThumb = $course?->thumbnail_url;
     $learningCategories = \App\Models\LearningCategory::query()->orderBy('name')->get(['id', 'name']);
-    $learningTags = \App\Models\LearningTag::query()->orderBy('name')->get(['id', 'name']);
-    $selectedTagIds = collect(old('tag_ids', $course?->relationLoaded('tags')
-        ? $course->tags->pluck('id')->all()
-        : ($course?->tags()->pluck('learning_tags.id')->all() ?? [])
-    ))->map(fn ($id) => (string) $id)->all();
+    $kompetensiTags = app(\App\Services\TnaKompetensiService::class)->names();
+    $selectedTags = collect(old('tags', $course?->relationLoaded('tags')
+        ? $course->tags->pluck('name')->all()
+        : ($course?->tags()->pluck('name')->all() ?? [])
+    ))->map(fn ($name) => (string) $name)->all();
+    // Tag tersimpan tetap tampil walau namanya sudah tidak ada di TNA.
+    $tagOptions = collect($kompetensiTags)->merge($selectedTags)->unique()->values();
     $selectedKategori = old('kategori', $course?->kategori);
     $selectedInstansi = old('instansi', $course?->instansi ?? 'Internal');
     $forumOpen = old('is_forum_open', $course?->is_forum_open ?? false);
@@ -86,23 +88,28 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">{{ __('Tag') }}</label>
+                <label class="form-label">{{ __('Tag Kompetensi') }}</label>
                 <select
-                    name="tag_ids[]"
+                    name="tags[]"
                     id="courseTagSelect-{{ $course?->id ?? 'new' }}"
-                    class="form-select course-form-native-select course-form-native-select--multi @error('tag_ids') is-invalid @enderror"
+                    class="form-select course-form-native-select course-form-native-select--multi @error('tags') is-invalid @enderror"
                     data-searchable-select
-                    data-search-placeholder="{{ __('Cari tag') }}"
-                    data-placeholder="{{ __('Pilih satu atau lebih tag...') }}"
+                    data-search-placeholder="{{ __('Cari kompetensi') }}"
+                    data-placeholder="{{ __('Pilih satu atau lebih kompetensi...') }}"
                     multiple>
-                    @foreach ($learningTags as $tag)
-                        <option value="{{ $tag->id }}" @selected(in_array((string) $tag->id, $selectedTagIds, true))>
-                            {{ $tag->name }}
+                    @foreach ($tagOptions as $tagName)
+                        <option value="{{ $tagName }}" @selected(in_array($tagName, $selectedTags, true))>
+                            {{ $tagName }}
                         </option>
                     @endforeach
                 </select>
-                @error('tag_ids')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                @error('tag_ids.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                @if ($kompetensiTags === [])
+                    <div class="form-text text-warning">{{ __('Data kompetensi dari Aplikasi TNA belum dapat dimuat.') }}</div>
+                @else
+                    <div class="form-text">{{ __('Sumber: Kamus Kompetensi Aplikasi TNA.') }}</div>
+                @endif
+                @error('tags')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                @error('tags.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
 
             <div class="col-md-6">
