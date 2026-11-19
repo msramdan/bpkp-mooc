@@ -17,5 +17,7 @@ final class ProviderResult
         public readonly array $toolCalls = [],
         public readonly int $iterations = 1,
         public readonly ?string $refusalCategory = null,
+        /** Biaya aktual dari provider/gateway bila tersedia (USD). */
+        public readonly ?float $costUsd = null,
     ) {}
 }

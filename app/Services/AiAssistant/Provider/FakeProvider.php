@@ -11,9 +11,11 @@ use Closure;
  */
 class FakeProvider implements AiProvider
 {
+    public function __construct(private readonly string $emulates = 'anthropic') {}
+
     public function name(): string
     {
-        return 'fake';
+        return 'fake-'.$this->emulates;
     }
 
     public function chat(string $systemPrompt, array $messages, array $tools, Closure $toolExecutor, array $options): ProviderResult
@@ -65,7 +67,12 @@ class FakeProvider implements AiProvider
 
     public function testConnection(array $options): array
     {
-        return ['ok' => true, 'message' => 'Mode uji lokal aktif (tanpa koneksi ke Anthropic).', 'models' => [['id' => 'fake-local', 'name' => 'Fake (lokal)']]];
+        return [
+            'ok' => true,
+            'message' => 'Mode uji lokal aktif untuk '.$this->emulates.' (tanpa koneksi ke provider).',
+            'models' => [['id' => 'claude-haiku-5-5', 'name' => 'claude-haiku-5-5 (lokal)'], ['id' => 'claude-sonnet-5-5', 'name' => 'claude-sonnet-5-5 (lokal)']],
+            'balance' => $this->emulates === 'sumopod' ? 0.5 : null,
+        ];
     }
 
     private function courses(array $data): string

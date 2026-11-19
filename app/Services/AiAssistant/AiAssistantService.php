@@ -38,6 +38,12 @@ class AiAssistantService
             return ['allowed' => false, 'reason' => __('Layanan AI sedang dinonaktifkan sementara.')];
         }
 
+        // Provider aktif belum punya API key (mis. baru di-switch) -> tolak dengan aman, bukan error.
+        $fake = config('ai_assistant.fake_provider') && app()->environment(['local', 'testing']);
+        if (! $fake && ! $this->settings->hasApiKey($this->settings->activeProvider())) {
+            return ['allowed' => false, 'reason' => __('Layanan AI belum dikonfigurasi. Hubungi admin.')];
+        }
+
         $roles = $user->getRoleNames();
         if ($roles->isEmpty() || ! $roles->contains(fn ($role) => $this->settings->roleAllowed($role))) {
             return ['allowed' => false, 'reason' => __('Akun Anda tidak memiliki akses ke AI Assistant.')];
@@ -93,7 +99,7 @@ class AiAssistantService
                 'conversation_id' => $conversation->id,
                 'status' => AiAssistantRequestLog::STATUS_PROCESSING,
                 'provider' => $this->provider->name(),
-                'model' => (string) $this->settings->get('model'),
+                'model' => $this->settings->modelFor(),
                 'usage_date' => $date,
                 'quota_used' => $used,
                 'quota_limit' => $limit,
@@ -137,7 +143,7 @@ class AiAssistantService
                     return $this->tools->execute($name, $input, $user);
                 },
                 [
-                    'model' => (string) $this->settings->get('model'),
+                    'model' => $this->settings->modelFor(),
                     'max_tokens' => max(256, $this->settings->int('max_output_tokens')),
                     'timeout' => max(10, $this->settings->int('request_timeout')),
                     'effort' => (string) $this->settings->get('effort'),
@@ -176,7 +182,7 @@ class AiAssistantService
             'input_tokens' => $tracking ? $result->inputTokens : null,
             'output_tokens' => $tracking ? $result->outputTokens : null,
             'cache_read_tokens' => $tracking ? $result->cacheReadTokens : null,
-            'cost_usd' => $tracking ? $this->cost($result->model, $result->inputTokens, $result->outputTokens, $result->cacheReadTokens) : null,
+            'cost_usd' => $tracking ? ($result->costUsd ?? $this->cost($result->model, $result->inputTokens, $result->outputTokens, $result->cacheReadTokens)) : null,
             'data_categories' => array_values(array_unique($dataCategories)) ?: null,
             'category' => $this->firewall->classify($question, $result->toolCalls),
             'responded_at' => now(),
@@ -304,7 +310,7 @@ PROMPT;
             'session_hash' => $request->hasSession() ? hash('sha256', $request->session()->getId()) : null,
             'question' => mb_substr($question, 0, 5000),
             'provider' => $this->provider->name(),
-            'model' => (string) $this->settings->get('model'),
+            'model' => $this->settings->modelFor(),
             'requested_at' => now(),
             'ip_address' => $request->ip(),
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 255),

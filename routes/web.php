@@ -168,6 +168,8 @@ Route::middleware(['auth', 'web'])->group(function () {
             Route::get('/', [AiSettingsController::class, 'edit'])->name('index');
             Route::put('/general', [AiSettingsController::class, 'updateGeneral'])->name('general');
             Route::put('/provider', [AiSettingsController::class, 'updateProvider'])->name('provider');
+            Route::put('/provider/switch', [AiSettingsController::class, 'switchProvider'])->name('provider.switch');
+            Route::put('/provider/model', [AiSettingsController::class, 'updateModel'])->name('provider.model');
             Route::put('/api-key', [AiSettingsController::class, 'updateApiKey'])->name('api-key');
             Route::delete('/api-key', [AiSettingsController::class, 'destroyApiKey'])->name('api-key.destroy');
             Route::post('/test-connection', [AiSettingsController::class, 'testConnection'])->name('test-connection');

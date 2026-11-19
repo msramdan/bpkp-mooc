@@ -232,3 +232,63 @@
 .aiad-role { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border: 1px solid var(--aiad-line); border-radius: 12px; }
 .aiad-empty { text-align: center; padding: 40px 16px; color: var(--aiad-muted); }
 .aiad-empty i { font-size: 34px; display: block; margin-bottom: 8px; opacity: .6; }
+
+/* ---------- Provider deck (Settings B) ---------- */
+.aiad-providers { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.aiad-prov {
+  position: relative; display: flex; flex-direction: column; gap: 12px;
+  padding: 18px; border-radius: 18px; background: var(--aiad-card);
+  border: 1.5px solid var(--aiad-line); transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.aiad-prov:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -24px rgba(27, 47, 94, .7); }
+.aiad-prov.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--aiad-card), var(--aiad-card)) padding-box,
+    linear-gradient(135deg, #2b488b, #e8a91c) border-box;
+  box-shadow: 0 20px 40px -26px rgba(27, 47, 94, .9);
+}
+.aiad-prov__ribbon {
+  position: absolute; top: -11px; right: 16px; display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  background: var(--aiad-gold); color: var(--aiad-navy-deep); box-shadow: 0 6px 14px -8px rgba(232, 169, 28, 1);
+}
+.aiad-prov__head { display: flex; gap: 12px; align-items: center; }
+.aiad-prov__head h4 { font-size: 16px; font-weight: 800; margin: 0; color: var(--aiad-ink); }
+.aiad-prov__head p { font-size: 12px; margin: 2px 0 0; color: var(--aiad-muted); }
+.aiad-prov__mark {
+  width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; flex: 0 0 auto;
+  font-weight: 800; font-size: 19px; color: #fff; transform: rotate(-4deg);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .15);
+}
+.aiad-prov__mark--anthropic { background: linear-gradient(150deg, #2b488b, #1b2f5e); color: var(--aiad-gold); }
+.aiad-prov__mark--sumopod { background: linear-gradient(150deg, #0f9d8a, #0b6b5f); }
+.aiad-prov__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.aiad-chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 600; background: var(--aiad-soft); color: var(--aiad-muted);
+}
+.aiad-chip.is-ok { background: rgba(22, 163, 74, .1); color: #15803d; }
+.aiad-chip.is-bad { background: rgba(220, 38, 38, .1); color: #b91c1c; }
+.aiad-chip.is-gold { background: rgba(232, 169, 28, .16); color: #8a5d00; }
+[data-theme-mode="dark"] .aiad-chip.is-gold { color: #f6c75a; }
+.aiad-prov__model {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 12px; background: var(--aiad-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px;
+}
+.aiad-prov__model strong { color: var(--aiad-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aiad-prov__label { font-family: inherit; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--aiad-muted); }
+.aiad-prov__more { border-top: 1px dashed var(--aiad-line); padding-top: 10px; }
+.aiad-prov__more summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--aiad-navy); list-style: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+[data-theme-mode="dark"] .aiad-prov__more summary { color: #a9bdf0; }
+.aiad-prov__more summary::-webkit-details-marker { display: none; }
+.aiad-prov__more[open] summary i { transform: rotate(90deg); }
+.aiad-prov__more summary i { transition: transform .2s; }
+.aiad-prov__foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px; }
+.aiad-prov__inuse { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; color: #15803d; }
+.aiad-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; color: var(--aiad-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+.aiad-divider::before, .aiad-divider::after { content: ""; flex: 1; height: 1px; background: var(--aiad-line); }

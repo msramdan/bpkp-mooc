@@ -24,6 +24,7 @@ use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -72,6 +73,10 @@ class AiAssistantTest extends TestCase
             'timezone' => 'Asia/Jakarta',
             'role_access' => [],
         ]);
+
+        // Test tidak boleh bergantung pada flag provider tiruan di .env lokal.
+        config(['ai_assistant.fake_provider' => false]);
+        $this->settings()->setApiKey('sk-ant-test-'.Str::random(24), null, 'anthropic');
 
         $this->useProvider(new FakeProvider);
     }
@@ -359,7 +364,7 @@ class AiAssistantTest extends TestCase
         $this->assertSame(45, (int) $this->settings()->get('request_timeout'));
 
         $page = $this->actingAs($this->admin)->get(route('ai-assistant-settings.index'));
-        $page->assertOk()->assertDontSee($secret)->assertSee('API key tersimpan');
+        $page->assertOk()->assertDontSee($secret)->assertSee('Key tersimpan');
 
         $auditDump = AiAssistantAuditLog::query()->get()->toJson();
         $this->assertStringNotContainsString($secret, $auditDump);
@@ -532,7 +537,208 @@ class AiAssistantTest extends TestCase
         $this->assertTrue(AiAssistantAuditLog::query()->where('action', 'settings.logs_pruned')->where('actor_id', $this->admin->id)->exists());
     }
 
+    /* ---------------- Provider SumoPod & switch ---------------- */
+
+    public function test_sumopod_provider_runs_tool_loop_with_openai_format(): void
+    {
+        $this->useRealProviders();
+        $this->settings()->setApiKey('sk-sumopod-test-'.Str::random(24), null, 'sumopod');
+        $this->settings()->set(['provider' => 'sumopod', 'sumopod_model' => 'claude-haiku-5-5']);
+
+        $requests = [];
+        Http::fake(function (\Illuminate\Http\Client\Request $request) use (&$requests) {
+            $requests[] = $request;
+            $body = $request->data();
+
+            if (count($requests) === 1) {
+                return Http::response([
+                    'model' => 'claude-haiku-5-5',
+                    'choices' => [['finish_reason' => 'tool_calls', 'message' => ['role' => 'assistant', 'content' => null, 'tool_calls' => [
+                        ['id' => 'call_1', 'type' => 'function', 'function' => ['name' => 'list_my_courses', 'arguments' => '{"scope":"me"}']],
+                    ]]]],
+                    'usage' => ['prompt_tokens' => 300, 'completion_tokens' => 20],
+                ], 200, ['x-litellm-response-cost' => '0.00004']);
+            }
+
+            $toolMessage = collect($body['messages'])->firstWhere('role', 'tool');
+
+            return Http::response([
+                'model' => 'claude-haiku-5-5',
+                'choices' => [['finish_reason' => 'stop', 'message' => ['role' => 'assistant', 'content' => 'Kursus Anda: '.json_decode($toolMessage['content'], true)['kursus'][0]['judul']]]],
+                'usage' => ['prompt_tokens' => 500, 'completion_tokens' => 30, 'prompt_tokens_details' => ['cached_tokens' => 100]],
+            ], 200, ['x-litellm-response-cost' => '0.00006']);
+        });
+
+        $res = $this->actingAs($this->alice)->postJson(route('ai-assistant.ask'), ['message' => 'Kursus apa yang saya ikuti?']);
+
+        $res->assertOk()->assertJsonPath('type', 'success');
+        $this->assertStringContainsString($this->aliceCourse->judul, $res->json('reply.content'));
+
+        $this->assertCount(2, $requests);
+        $first = $requests[0];
+        $this->assertSame('https://ai.sumopod.com/v1/chat/completions', $first->url());
+        $this->assertStringStartsWith('Bearer sk-sumopod-test-', $first->header('Authorization')[0]);
+        $this->assertSame('claude-haiku-5-5', $first['model']);
+        $this->assertSame('system', $first['messages'][0]['role']);
+        $this->assertSame('function', $first['tools'][0]['type']);
+        $this->assertArrayNotHasKey('temperature', $first->data());
+        $this->assertSame('call_1', collect($requests[1]['messages'])->firstWhere('role', 'tool')['tool_call_id']);
+
+        $log = AiAssistantRequestLog::query()->where('user_id', $this->alice->id)->firstOrFail();
+        $this->assertSame('sumopod', $log->provider);
+        $this->assertSame('claude-haiku-5-5', $log->model);
+        $this->assertSame(700, $log->input_tokens);   // 300 + (500 - 100 cached)
+        $this->assertSame(100, $log->cache_read_tokens);
+        $this->assertEqualsWithDelta(0.0001, (float) $log->cost_usd, 0.0000001); // biaya aktual dari header gateway
+        $this->assertContains('kursus', $log->data_categories);
+    }
+
+    public function test_sumopod_errors_are_mapped_and_do_not_consume_quota(): void
+    {
+        $this->useRealProviders();
+        $this->settings()->setApiKey('sk-sumopod-test-'.Str::random(24), null, 'sumopod');
+        $this->settings()->set(['provider' => 'sumopod']);
+
+        $cases = [
+            [Http::response(['error' => ['message' => 'Authentication Error, Invalid key sk-abcdef123456']], 401), 'auth_error'],
+            [Http::response(['error' => ['message' => 'Budget has been exceeded! Current cost: 1.2']], 400), 'insufficient_balance'],
+            [Http::response(['error' => ['message' => 'Invalid model name passed in model=foo']], 400), 'model_not_found'],
+        ];
+
+        $current = null;
+        Http::fake(function () use (&$current) {
+            return $current;
+        });
+
+        foreach ($cases as $i => [$response, $code]) {
+            $current = $response;
+            $this->actingAs($this->alice)->postJson(route('ai-assistant.ask'), ['message' => "Progres saya {$i}?"])->assertStatus(502);
+            $log = AiAssistantRequestLog::query()->where('user_id', $this->alice->id)->where('question', "Progres saya {$i}?")->firstOrFail();
+            $this->assertSame($code, $log->error_code);
+            $this->assertStringNotContainsString('sk-abcdef', (string) $log->error_message);
+        }
+
+        $this->assertSame(0, (int) AiAssistantUsage::query()->where('user_id', $this->alice->id)->value('used_count'));
+    }
+
+    public function test_sumopod_test_connection_lists_models_and_balance(): void
+    {
+        $this->settings()->setApiKey('sk-sumopod-test-'.Str::random(24), null, 'sumopod');
+        Http::fake([
+            'ai.sumopod.com/v1/models' => Http::response(['data' => [['id' => 'claude-sonnet-5-5'], ['id' => 'claude-haiku-5-5']]]),
+            'ai.sumopod.com/v2/user/info' => Http::response(['spend' => 47.5, 'max_budget' => 99.3]),
+        ]);
+
+        $res = $this->actingAs($this->admin)->postJson(route('ai-assistant-settings.test-connection'), ['target' => 'sumopod']);
+
+        $res->assertOk()->assertJsonPath('ok', true)->assertJsonPath('provider', 'sumopod')->assertJsonCount(2, 'models');
+        $this->assertEqualsWithDelta(51.8, $res->json('balance'), 0.0001);
+        $this->assertSame('claude-haiku-5-5', $this->settings()->availableModels('sumopod')[0]['id']);
+        $this->assertSame([], $this->settings()->availableModels('anthropic')); // tidak menimpa provider lain
+    }
+
+    public function test_switching_provider_is_safe_and_keeps_each_provider_config(): void
+    {
+        $this->settings()->set(['model' => 'claude-opus-5-5', 'sumopod_model' => 'claude-haiku-5-5']);
+
+        // Tanpa API key SumoPod: tidak boleh pindah.
+        $this->actingAs($this->admin)->put(route('ai-assistant-settings.provider.switch'), ['provider' => 'sumopod'])->assertSessionHasErrors('provider');
+        $this->settings()->flush();
+        $this->assertSame('anthropic', $this->settings()->activeProvider());
+
+        // Provider tidak dikenal ditolak.
+        $this->actingAs($this->admin)->putJson(route('ai-assistant-settings.provider.switch'), ['provider' => 'evil'])->assertStatus(422);
+
+        $this->actingAs($this->admin)->put(route('ai-assistant-settings.api-key'), ['target' => 'sumopod', 'api_key' => 'sk-sumopod-'.Str::random(30)])->assertRedirect();
+        $this->actingAs($this->admin)->put(route('ai-assistant-settings.provider.switch'), ['provider' => 'sumopod'])->assertRedirect()->assertSessionHasNoErrors();
+        $this->settings()->flush();
+
+        $this->assertSame('sumopod', $this->settings()->activeProvider());
+        $this->assertSame('claude-haiku-5-5', $this->settings()->modelFor());
+        $this->assertSame('claude-opus-5-5', $this->settings()->modelFor('anthropic'));
+        $this->assertTrue($this->settings()->hasApiKey('anthropic'), 'Key Anthropic tetap tersimpan');
+
+        // Ganti model SumoPod tidak mengubah model Anthropic.
+        $this->actingAs($this->admin)->put(route('ai-assistant-settings.provider.model'), ['target' => 'sumopod', 'model' => 'claude-sonnet-5-5'])->assertRedirect();
+        $this->settings()->flush();
+        $this->assertSame('claude-sonnet-5-5', $this->settings()->modelFor('sumopod'));
+        $this->assertSame('claude-opus-5-5', $this->settings()->modelFor('anthropic'));
+
+        // Key provider aktif tidak boleh dihapus saat fitur ON.
+        $this->actingAs($this->admin)->delete(route('ai-assistant-settings.api-key.destroy'), ['target' => 'sumopod'])->assertSessionHasErrors('api_key');
+        $this->assertTrue($this->settings()->hasApiKey('sumopod'));
+        // Key provider lain (tidak aktif) boleh.
+        $this->actingAs($this->admin)->delete(route('ai-assistant-settings.api-key.destroy'), ['target' => 'anthropic'])->assertSessionHasNoErrors();
+        $this->assertFalse($this->settings()->hasApiKey('anthropic'));
+
+        // Kembali ke Anthropic tanpa key -> ditolak, tetap di SumoPod.
+        $this->actingAs($this->admin)->put(route('ai-assistant-settings.provider.switch'), ['provider' => 'anthropic'])->assertSessionHasErrors('provider');
+        $this->settings()->flush();
+        $this->assertSame('sumopod', $this->settings()->activeProvider());
+
+        $this->assertSame(1, AiAssistantAuditLog::query()->where('action', 'settings.provider_switched')->count());
+    }
+
+    public function test_switch_during_in_flight_request_does_not_break_it(): void
+    {
+        $this->useRealProviders();
+        $this->settings()->setApiKey('sk-sumopod-test-'.Str::random(24), null, 'sumopod');
+        $this->settings()->set(['provider' => 'sumopod', 'sumopod_model' => 'claude-haiku-5-5']);
+
+        Http::fake(function () {
+            // Admin lain mengganti provider & model tepat saat request sedang diproses.
+            (new AiAssistantSettings)->set(['provider' => 'anthropic', 'sumopod_model' => 'claude-sonnet-5-5']);
+
+            return Http::response([
+                'model' => 'claude-haiku-5-5',
+                'choices' => [['finish_reason' => 'stop', 'message' => ['role' => 'assistant', 'content' => 'Halo!']]],
+                'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 2],
+            ]);
+        });
+
+        $this->actingAs($this->alice)->postJson(route('ai-assistant.ask'), ['message' => 'Halo'])->assertOk()->assertJsonPath('type', 'success');
+
+        $log = AiAssistantRequestLog::query()->where('user_id', $this->alice->id)->firstOrFail();
+        $this->assertSame('sumopod', $log->provider);
+        $this->assertSame('claude-haiku-5-5', $log->model);
+        $this->assertSame('success', $log->status);
+
+        // Request berikutnya otomatis memakai provider baru (Anthropic).
+        $this->settings()->flush();
+        $this->assertSame('anthropic', $this->settings()->activeProvider());
+    }
+
+    public function test_access_is_denied_gracefully_when_active_provider_has_no_key(): void
+    {
+        $this->settings()->removeApiKey('anthropic');
+
+        $this->actingAs($this->alice)->postJson(route('ai-assistant.ask'), ['message' => 'Progres?'])
+            ->assertForbidden()->assertJsonPath('message', 'Layanan AI belum dikonfigurasi. Hubungi admin.');
+        $this->assertSame(0, AiAssistantRequestLog::query()->where('user_id', $this->alice->id)->count());
+    }
+
+    public function test_settings_page_shows_both_providers_without_leaking_keys(): void
+    {
+        $sumoKey = 'sk-sumopod-secret-'.Str::random(24);
+        $this->settings()->setApiKey($sumoKey, null, 'sumopod');
+
+        $this->actingAs($this->admin)->get(route('ai-assistant-settings.index'))
+            ->assertOk()
+            ->assertSee('Anthropic Claude')
+            ->assertSee('SumoPod')
+            ->assertSee('Provider aktif')
+            ->assertSee('Gunakan provider ini')
+            ->assertDontSee($sumoKey);
+    }
+
     /* ---------------- Helpers ---------------- */
+
+    /** Pakai provider asli (Anthropic/SumoPod) via factory; HTTP di-fake per test. */
+    private function useRealProviders(): void
+    {
+        $this->app->forgetInstance(AiProvider::class);
+        $this->app->bind(AiProvider::class, fn ($app) => $app->make(\App\Services\AiAssistant\Provider\ProviderFactory::class)->make());
+    }
 
     private function settings(): AiAssistantSettings
     {

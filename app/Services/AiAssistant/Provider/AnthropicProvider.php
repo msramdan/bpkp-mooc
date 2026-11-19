@@ -175,7 +175,7 @@ class AnthropicProvider implements AiProvider
 
     private function client(int $timeout): Client
     {
-        $apiKey = $this->settings->apiKey();
+        $apiKey = $this->settings->apiKey('anthropic');
 
         if ($apiKey === null || $apiKey === '') {
             throw new ProviderException('missing_api_key', __('API key Anthropic belum dikonfigurasi.'));

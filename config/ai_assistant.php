@@ -16,6 +16,7 @@ return [
         'provider' => 'anthropic',
         'provider_enabled' => true,
         'model' => 'claude-opus-5-5',
+        'sumopod_model' => 'claude-opus-5-5',
         'effort' => 'low',
         'max_output_tokens' => 4096,
         'request_timeout' => 60,
@@ -37,8 +38,28 @@ return [
         'max_question_length' => 1000,
     ],
 
+    /*
+    | Provider AI. Base URL tidak bisa diubah dari dashboard agar API key tidak
+    | bisa diarahkan ke host lain.
+    | - anthropic: SDK resmi Anthropic (Messages API).
+    | - sumopod  : gateway SumoPod, format OpenAI-compatible (/v1/chat/completions)
+    |              sesuai dokumentasi https://sumopod.com/dashboard/ai/quickstart.
+    */
     'providers' => [
-        'anthropic' => 'Anthropic Claude',
+        'anthropic' => [
+            'label' => 'Anthropic Claude',
+            'tagline' => 'Langsung ke Anthropic (SDK resmi)',
+            'base_url' => null,
+            'key_hint' => 'sk-ant-…',
+            'console' => 'https://console.anthropic.com',
+        ],
+        'sumopod' => [
+            'label' => 'SumoPod',
+            'tagline' => 'AI gateway (OpenAI-compatible), bayar pakai saldo SumoPod',
+            'base_url' => env('AI_ASSISTANT_SUMOPOD_BASE_URL', 'https://ai.sumopod.com'),
+            'key_hint' => 'sk-…',
+            'console' => 'https://sumopod.com/dashboard/ai/models',
+        ],
     ],
 
     'effort_levels' => ['low', 'medium', 'high'],

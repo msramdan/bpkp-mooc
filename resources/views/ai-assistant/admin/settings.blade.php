@@ -57,87 +57,140 @@
                             </button>
                         </form>
                         @if (! $hasApiKey && ! $on)
-                            <p class="small text-muted mt-2 mb-0"><i class="ri-information-line"></i> {{ __('Simpan API key Anthropic di bagian B sebelum mengaktifkan.') }}</p>
+                            <p class="small text-muted mt-2 mb-0"><i class="ri-information-line"></i> {{ __('Simpan API key provider aktif di bagian B sebelum mengaktifkan.') }}</p>
                         @endif
                     </div>
                 </section>
 
                 {{-- B. Provider --}}
                 <section class="aiad-panel aiad-section" id="provider">
-                    <div class="aiad-panel__head"><div><h3><span class="k">B</span>{{ __('Konfigurasi Provider AI') }}</h3><p>{{ __('Provider utama: Anthropic Claude. API key disimpan terenkripsi dan tidak pernah ditampilkan kembali.') }}</p></div></div>
+                    <div class="aiad-panel__head"><div><h3><span class="k">B</span>{{ __('Konfigurasi Provider AI') }}</h3><p>{{ __('Setiap provider menyimpan API key (terenkripsi) dan modelnya sendiri. Berpindah provider tidak menghapus konfigurasi provider lain.') }}</p></div></div>
                     <div class="aiad-panel__body">
-                        <div class="aiad-keybox mb-3">
-                            <i class="{{ $hasApiKey ? 'ri-key-2-fill text-success' : 'ri-key-2-line text-muted' }}"></i>
-                            <div class="flex-grow-1">
-                                @if ($hasApiKey)
-                                    <strong>{{ __('API key tersimpan (terenkripsi)') }}</strong>
-                                    <div class="small text-muted">{{ __('Diperbarui :at. Nilai key tidak ditampilkan.', ['at' => $apiKeyUpdatedAt?->setTimezone($s['timezone'])->format('d M Y H:i')]) }}</div>
-                                @else
-                                    <strong>{{ __('Belum ada API key') }}</strong>
-                                    <div class="small text-muted">{{ __('Buat API key di console Anthropic, lalu tempel di bawah.') }}</div>
-                                @endif
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="aiTestConn" data-url="{{ route('ai-assistant-settings.test-connection') }}" @disabled(! $hasApiKey && ! $fakeProvider)>
-                                <i class="ri-plug-line me-1"></i>{{ __('Test Connection') }}
-                            </button>
-                        </div>
-                        <div id="aiConnResult" class="aiad-conn mb-3 {{ empty($connection) ? 'd-none' : ($connection['ok'] ? 'is-ok' : 'is-bad') }}">
-                            @if (! empty($connection))
-                                {{ $connection['message'] }} · {{ __('dicek :at', ['at' => $connection['checked_at']]) }}
-                            @endif
+                        <div class="aiad-providers">
+                            @foreach ($providers as $p)
+                                @php
+                                    $conn = $p['connection'];
+                                    $monogram = ['anthropic' => 'A', 'sumopod' => 'S'][$p['key']] ?? strtoupper(substr($p['key'], 0, 1));
+                                    $hasBalance = isset($conn['balance']) && $conn['balance'] !== null;
+                                @endphp
+                                <article class="aiad-prov {{ $p['active'] ? 'is-active' : '' }}" data-provider="{{ $p['key'] }}">
+                                    @if ($p['active'])
+                                        <span class="aiad-prov__ribbon"><i class="ri-flashlight-fill"></i>{{ __('Provider aktif') }}</span>
+                                    @endif
+                                    <header class="aiad-prov__head">
+                                        <span class="aiad-prov__mark aiad-prov__mark--{{ $p['key'] }}">{{ $monogram }}</span>
+                                        <div class="flex-grow-1" style="min-width:0">
+                                            <h4>{{ $p['label'] }}</h4>
+                                            <p>{{ __($p['tagline']) }}</p>
+                                        </div>
+                                    </header>
+
+                                    <div class="aiad-prov__chips">
+                                        <span class="aiad-chip {{ $p['has_key'] ? 'is-ok' : 'is-muted' }}">
+                                            <i class="{{ $p['has_key'] ? 'ri-key-2-fill' : 'ri-key-2-line' }}"></i>{{ $p['has_key'] ? __('Key tersimpan') : __('Belum ada key') }}
+                                        </span>
+                                        <span class="aiad-chip {{ empty($conn) ? 'is-muted' : ($conn['ok'] ? 'is-ok' : 'is-bad') }}" data-conn-chip>
+                                            <i class="ri-pulse-line"></i><span>{{ empty($conn) ? __('Belum dites') : ($conn['ok'] ? __('Terhubung') : __('Gagal')) }}</span>
+                                        </span>
+                                        <span class="aiad-chip is-gold {{ $hasBalance ? '' : 'd-none' }}" data-balance-chip>
+                                            <i class="ri-wallet-3-line"></i><span>{{ $hasBalance ? __('Saldo $:b', ['b' => number_format((float) $conn['balance'], 4)]) : '' }}</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="aiad-prov__model">
+                                        <span class="aiad-prov__label">{{ __('Model') }}</span>
+                                        <strong>{{ $p['model'] }}</strong>
+                                    </div>
+
+                                    <div class="aiad-conn {{ empty($conn) ? 'd-none' : ($conn['ok'] ? 'is-ok' : 'is-bad') }}" data-conn-result>
+                                        @if (! empty($conn))
+                                            {{ $conn['message'] }} · {{ __('dicek :at', ['at' => $conn['checked_at']]) }}
+                                        @endif
+                                    </div>
+
+                                    <details class="aiad-prov__more" @if (! $p['has_key']) open @endif>
+                                        <summary><i class="ri-settings-3-line"></i>{{ __('Kelola API key & model') }}</summary>
+
+                                        <form method="POST" action="{{ route('ai-assistant-settings.api-key') }}" class="mt-3" autocomplete="off">
+                                            @csrf @method('PUT')
+                                            <input type="hidden" name="target" value="{{ $p['key'] }}">
+                                            <label class="form-label small" for="key-{{ $p['key'] }}">{{ $p['has_key'] ? __('Update API key') : __('API key') }}</label>
+                                            <div class="input-group">
+                                                <input type="password" name="api_key" id="key-{{ $p['key'] }}" class="form-control" placeholder="{{ $p['key_hint'] }}" autocomplete="new-password" spellcheck="false" required>
+                                                <button class="btn btn-primary"><i class="ri-lock-line me-1"></i>{{ __('Simpan') }}</button>
+                                            </div>
+                                            <div class="form-text">
+                                                @if ($p['has_key'])
+                                                    {{ __('Diperbarui :at. Nilai key tidak pernah ditampilkan.', ['at' => $p['key_updated_at']?->setTimezone($s['timezone'])->format('d M Y H:i')]) }}
+                                                @else
+                                                    {{ __('Buat API key di dashboard :p, lalu tempel di sini.', ['p' => $p['label']]) }}
+                                                @endif
+                                            </div>
+                                        </form>
+
+                                        <form method="POST" action="{{ route('ai-assistant-settings.provider.model') }}" class="mt-3">
+                                            @csrf @method('PUT')
+                                            <input type="hidden" name="target" value="{{ $p['key'] }}">
+                                            <label class="form-label small" for="model-{{ $p['key'] }}">{{ __('Model') }}</label>
+                                            <div class="input-group">
+                                                <input type="text" name="model" id="model-{{ $p['key'] }}" list="models-{{ $p['key'] }}" value="{{ $p['model'] }}" class="form-control" required>
+                                                <button class="btn btn-outline-primary"><i class="ri-save-3-line me-1"></i>{{ __('Simpan') }}</button>
+                                            </div>
+                                            <datalist id="models-{{ $p['key'] }}" data-models>
+                                                @foreach ($p['models'] as $m)
+                                                    <option value="{{ $m['id'] }}">{{ $m['name'] }}</option>
+                                                @endforeach
+                                            </datalist>
+                                            <div class="form-text">{{ __('Daftar model diambil dari provider saat Test Connection.') }}</div>
+                                        </form>
+
+                                        @if ($p['has_key'])
+                                            <form method="POST" action="{{ route('ai-assistant-settings.api-key.destroy') }}" class="mt-2" onsubmit="return confirm(@js(__('Hapus API key :p?', ['p' => $p['label']])))">
+                                                @csrf @method('DELETE')
+                                                <input type="hidden" name="target" value="{{ $p['key'] }}">
+                                                <button class="btn btn-link btn-sm text-danger p-0"><i class="ri-delete-bin-line me-1"></i>{{ __('Hapus API key') }}</button>
+                                            </form>
+                                        @endif
+                                    </details>
+
+                                    <footer class="aiad-prov__foot">
+                                        <button type="button" class="btn btn-sm btn-light" data-test-url="{{ route('ai-assistant-settings.test-connection') }}" data-target="{{ $p['key'] }}" @disabled(! $p['has_key'] && ! $fakeProvider)>
+                                            <i class="ri-plug-line me-1"></i>{{ __('Test Connection') }}
+                                        </button>
+                                        @if ($p['active'])
+                                            <span class="aiad-prov__inuse"><i class="ri-checkbox-circle-fill"></i>{{ __('Sedang digunakan') }}</span>
+                                        @else
+                                            <form method="POST" action="{{ route('ai-assistant-settings.provider.switch') }}" onsubmit="return confirm(@js(__('Jadikan :p provider aktif? Pertanyaan baru akan dijawab lewat :p.', ['p' => $p['label']])))">
+                                                @csrf @method('PUT')
+                                                <input type="hidden" name="provider" value="{{ $p['key'] }}">
+                                                <button class="btn btn-sm btn-primary" @disabled(! $p['has_key'] && ! $fakeProvider)>
+                                                    <i class="ri-swap-line me-1"></i>{{ __('Gunakan provider ini') }}
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </footer>
+                                </article>
+                            @endforeach
                         </div>
 
-                        <form method="POST" action="{{ route('ai-assistant-settings.api-key') }}" class="row g-2 align-items-end mb-4" autocomplete="off">
-                            @csrf @method('PUT')
-                            <div class="col-md">
-                                <label class="form-label small" for="api_key">{{ $hasApiKey ? __('Update API Key') : __('API Key') }}</label>
-                                <input type="password" name="api_key" id="api_key" class="form-control" placeholder="sk-ant-…" autocomplete="new-password" spellcheck="false">
-                            </div>
-                            <div class="col-md-auto d-flex gap-2">
-                                <button class="btn btn-primary"><i class="ri-lock-line me-1"></i>{{ $hasApiKey ? __('Update API Key') : __('Simpan API Key') }}</button>
-                            </div>
-                        </form>
-                        @if ($hasApiKey)
-                            <form method="POST" action="{{ route('ai-assistant-settings.api-key.destroy') }}" class="mb-4" onsubmit="return confirm('{{ __('Hapus API key? AI Assistant tidak akan bisa menjawab sampai key baru disimpan.') }}')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-link btn-sm text-danger p-0"><i class="ri-delete-bin-line me-1"></i>{{ __('Hapus API key') }}</button>
-                            </form>
-                        @endif
+                        <div class="aiad-divider"><span>{{ __('Berlaku untuk semua provider') }}</span></div>
 
                         <form method="POST" action="{{ route('ai-assistant-settings.provider') }}">
                             @csrf @method('PUT')
                             <div class="aiad-switch-row pt-0">
-                                <div><div class="aiad-switch-row__title">{{ __('Enable Provider') }}</div><div class="aiad-switch-row__desc">{{ __('Matikan sementara pemanggilan ke Anthropic tanpa mematikan menu.') }}</div></div>
+                                <div><div class="aiad-switch-row__title">{{ __('Enable Provider') }}</div><div class="aiad-switch-row__desc">{{ __('Matikan sementara pemanggilan ke provider AI tanpa mematikan menu.') }}</div></div>
                                 {!! $switch('provider_enabled', (bool) $s['provider_enabled']) !!}
                             </div>
                             <div class="row g-3 mt-1">
                                 <div class="col-md-4">
-                                    <label class="form-label small" for="provider">{{ __('Provider') }}</label>
-                                    <select name="provider" id="provider" class="form-select">
-                                        @foreach ($providers as $key => $label)
-                                            <option value="{{ $key }}" @selected($s['provider'] === $key)>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-8">
-                                    <label class="form-label small" for="model">{{ __('Model Claude') }}</label>
-                                    <input type="text" name="model" id="model" list="aiModels" value="{{ old('model', $s['model']) }}" class="form-control" required>
-                                    <datalist id="aiModels">
-                                        @foreach ($models as $m)
-                                            <option value="{{ $m['id'] }}">{{ $m['name'] }}</option>
-                                        @endforeach
-                                    </datalist>
-                                    <div class="form-text">{{ __('Daftar model aktif diambil dari Anthropic saat Test Connection (model deprecated tidak ditampilkan).') }}</div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label small" for="effort">{{ __('Effort (kedalaman berpikir)') }}</label>
+                                    <label class="form-label small" for="effort">{{ __('Effort (khusus Anthropic)') }}</label>
                                     <select name="effort" id="effort" class="form-select">
                                         <option value="" @selected($s['effort'] === '')>{{ __('Bawaan model') }}</option>
                                         @foreach ($efforts as $e)
                                             <option value="{{ $e }}" @selected($s['effort'] === $e)>{{ ucfirst($e) }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="form-text">{{ __('Low = cepat & hemat, cocok untuk chat.') }}</div>
+                                    <div class="form-text">{{ __('Low = cepat & hemat. Tidak dipakai di SumoPod.') }}</div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small" for="max_output_tokens">{{ __('Max output tokens') }}</label>
@@ -149,8 +202,8 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small" for="temperature">{{ __('Temperature') }}</label>
-                                    <input type="text" id="temperature" class="form-control" value="{{ __('Tidak didukung') }}" disabled>
-                                    <div class="form-text">{{ __('API Anthropic versi terbaru tidak lagi menerima parameter temperature untuk model Claude saat ini; gaya jawaban diatur lewat Effort dan instruksi.') }}</div>
+                                    <input type="text" id="temperature" class="form-control" value="{{ __('Tidak dipakai') }}" disabled>
+                                    <div class="form-text">{{ __('API Anthropic versi terbaru tidak lagi menerima temperature untuk model Claude saat ini; gaya jawaban diatur lewat Effort dan instruksi.') }}</div>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small" for="custom_instructions">{{ __('System prompt tambahan') }}</label>
@@ -329,33 +382,50 @@
                 });
             });
 
-            var test = document.getElementById('aiTestConn');
-            var out = document.getElementById('aiConnResult');
-            if (!test) return;
-            test.addEventListener('click', function () {
-                var label = test.innerHTML;
-                test.disabled = true;
-                test.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menguji…';
-                fetch(test.dataset.url, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                    credentials: 'same-origin',
-                }).then(function (r) { return r.json(); }).then(function (d) {
-                    out.className = 'aiad-conn mb-3 ' + (d.ok ? 'is-ok' : 'is-bad');
-                    out.textContent = d.message + ' · dicek ' + (d.checked_at || '');
-                    var list = document.getElementById('aiModels');
-                    if (d.ok && d.models && list) {
-                        list.innerHTML = '';
-                        d.models.forEach(function (m) {
-                            var o = document.createElement('option');
-                            o.value = m.id; o.textContent = m.name;
-                            list.appendChild(o);
-                        });
-                    }
-                }).catch(function () {
-                    out.className = 'aiad-conn mb-3 is-bad';
-                    out.textContent = 'Gagal menghubungi server.';
-                }).finally(function () { test.disabled = false; test.innerHTML = label; });
+            // Test Connection per kartu provider (tidak saling menimpa hasil).
+            document.querySelectorAll('[data-test-url]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var card = btn.closest('[data-provider]');
+                    var out = card.querySelector('[data-conn-result]');
+                    var chip = card.querySelector('[data-conn-chip]');
+                    var balance = card.querySelector('[data-balance-chip]');
+                    var list = card.querySelector('[data-models]');
+                    var label = btn.innerHTML;
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menguji…';
+
+                    var body = new FormData();
+                    body.append('target', btn.dataset.target);
+
+                    fetch(btn.dataset.testUrl, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        credentials: 'same-origin',
+                        body: body,
+                    }).then(function (r) { return r.json(); }).then(function (d) {
+                        out.className = 'aiad-conn ' + (d.ok ? 'is-ok' : 'is-bad');
+                        out.textContent = (d.message || 'Gagal') + (d.checked_at ? ' · dicek ' + d.checked_at : '');
+                        chip.className = 'aiad-chip ' + (d.ok ? 'is-ok' : 'is-bad');
+                        chip.querySelector('span').textContent = d.ok ? 'Terhubung' : 'Gagal';
+                        if (balance) {
+                            var hasBalance = d.balance !== null && d.balance !== undefined;
+                            balance.classList.toggle('d-none', !hasBalance);
+                            if (hasBalance) balance.querySelector('span').textContent = 'Saldo $' + Number(d.balance).toFixed(4);
+                        }
+                        if (d.ok && d.models && d.models.length && list) {
+                            list.innerHTML = '';
+                            d.models.forEach(function (m) {
+                                var o = document.createElement('option');
+                                o.value = m.id; o.textContent = m.name;
+                                list.appendChild(o);
+                            });
+                        }
+                    }).catch(function () {
+                        out.className = 'aiad-conn is-bad';
+                        out.textContent = 'Gagal menghubungi server.';
+                    }).finally(function () { btn.disabled = false; btn.innerHTML = label; });
+                });
             });
         })();
     </script>

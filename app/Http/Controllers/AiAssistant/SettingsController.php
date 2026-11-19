@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AiAssistant\AiAssistantSettings;
 use App\Services\AiAssistant\AuditLogger;
 use App\Services\AiAssistant\LogPruner;
-use App\Services\AiAssistant\Provider\AiProvider;
+use App\Services\AiAssistant\Provider\ProviderFactory;
 use App\Services\AiAssistant\QuotaManager;
 use App\Support\Roles;
 use Illuminate\Http\JsonResponse;
@@ -42,20 +42,31 @@ class SettingsController extends Controller implements HasMiddleware
 
         $this->audit->log($request, 'settings.viewed', 'Membuka AI Assistant Settings');
 
-        $models = (array) $this->settings->get('available_models', []);
-        $current = (string) $this->settings->get('model');
-        if ($current !== '' && ! collect($models)->contains('id', $current)) {
-            array_unshift($models, ['id' => $current, 'name' => $current]);
+        $providers = [];
+        foreach ($this->settings->providers() as $key => $meta) {
+            $models = $this->settings->availableModels($key);
+            $current = $this->settings->modelFor($key);
+            if ($current !== '' && ! collect($models)->contains('id', $current)) {
+                array_unshift($models, ['id' => $current, 'name' => $current]);
+            }
+
+            $providers[$key] = $meta + [
+                'key' => $key,
+                'active' => $this->settings->activeProvider() === $key,
+                'has_key' => $this->settings->hasApiKey($key),
+                'key_updated_at' => $this->settings->apiKeyUpdatedAt($key),
+                'model' => $current,
+                'models' => $models,
+                'connection' => $this->settings->connectionStatus($key),
+            ];
         }
 
         return view('ai-assistant.admin.settings', [
             's' => $this->settings->all(),
-            'hasApiKey' => $this->settings->hasApiKey(),
-            'apiKeyUpdatedAt' => $this->settings->apiKeyUpdatedAt(),
-            'models' => $models,
-            'connection' => (array) $this->settings->get('connection_status', []),
+            'activeProvider' => $this->settings->activeProvider(),
+            'hasApiKey' => $this->settings->hasApiKey($this->settings->activeProvider()),
+            'providers' => $providers,
             'roles' => Role::query()->orderBy('name')->pluck('name'),
-            'providers' => config('ai_assistant.providers'),
             'efforts' => config('ai_assistant.effort_levels'),
             'timezones' => config('ai_assistant.timezones'),
             'overrideAllowed' => $this->settings->securityOverrideAllowed(),
@@ -69,8 +80,9 @@ class SettingsController extends Controller implements HasMiddleware
     {
         $data = $request->validate(['enabled' => ['required', 'boolean']]);
 
-        if ($data['enabled'] && ! $this->settings->hasApiKey() && ! $this->fakeProvider()) {
-            return back()->withErrors(['enabled' => __('Simpan API key Anthropic terlebih dahulu sebelum mengaktifkan AI Assistant.')]);
+        $active = $this->settings->activeProvider();
+        if ($data['enabled'] && ! $this->settings->hasApiKey($active) && ! $this->fakeProvider()) {
+            return back()->withErrors(['enabled' => __('Simpan API key :p terlebih dahulu sebelum mengaktifkan AI Assistant.', ['p' => $this->label($active)])]);
         }
 
         $this->save($request, ['enabled' => (bool) $data['enabled']], 'settings.general_updated');
@@ -80,16 +92,13 @@ class SettingsController extends Controller implements HasMiddleware
 
     public function updateProvider(Request $request): RedirectResponse
     {
+        // Pengaturan umum yang berlaku untuk semua provider.
         $data = $request->validate([
-            'provider' => ['required', Rule::in(array_keys(config('ai_assistant.providers')))],
             'provider_enabled' => ['required', 'boolean'],
-            'model' => ['required', 'string', 'max:120', 'regex:/^[a-z0-9][a-z0-9.\-@:]*$/i'],
             'effort' => ['nullable', Rule::in(config('ai_assistant.effort_levels'))],
             'max_output_tokens' => ['required', 'integer', 'min:256', 'max:32000'],
             'request_timeout' => ['required', 'integer', 'min:10', 'max:300'],
             'custom_instructions' => ['nullable', 'string', 'max:3000'],
-        ], [
-            'model.regex' => __('Nama model tidak valid.'),
         ]);
 
         $data['provider_enabled'] = (bool) $data['provider_enabled'];
@@ -101,51 +110,107 @@ class SettingsController extends Controller implements HasMiddleware
         return $this->back(__('Konfigurasi provider disimpan.'), 'provider');
     }
 
+    /** Ganti provider aktif. Provider tujuan wajib punya API key; provider + model disimpan atomik. */
+    public function switchProvider(Request $request): RedirectResponse
+    {
+        $target = $this->target($request, 'provider');
+        $current = $this->settings->activeProvider();
+
+        if ($target === $current) {
+            return $this->back(__(':p sudah menjadi provider aktif.', ['p' => $this->label($target)]), 'provider');
+        }
+
+        if (! $this->settings->hasApiKey($target) && ! $this->fakeProvider()) {
+            return back()->withErrors(['provider' => __('Simpan API key :p terlebih dahulu sebelum menjadikannya provider aktif.', ['p' => $this->label($target)])])->withFragment('provider');
+        }
+
+        $this->save($request, ['provider' => $target], 'settings.provider_switched');
+
+        return $this->back(__('Provider aktif sekarang :p (model :m). Request yang sedang berjalan tetap diselesaikan oleh provider sebelumnya.', [
+            'p' => $this->label($target),
+            'm' => $this->settings->modelFor($target),
+        ]), 'provider');
+    }
+
+    public function updateModel(Request $request): RedirectResponse
+    {
+        $target = $this->target($request);
+        $data = $request->validate([
+            'model' => ['required', 'string', 'max:120', 'regex:/^[a-z0-9][a-z0-9._\-\/@:]*$/i'],
+        ], ['model.regex' => __('Nama model tidak valid.')]);
+
+        $this->save($request, [$this->settings->modelKey($target) => trim($data['model'])], 'settings.model_updated');
+
+        return $this->back(__('Model :p disimpan: :m', ['p' => $this->label($target), 'm' => trim($data['model'])]), 'provider');
+    }
+
     public function updateApiKey(Request $request): RedirectResponse
     {
+        $target = $this->target($request);
         $data = $request->validate([
             'api_key' => ['required', 'string', 'min:20', 'max:300', 'regex:/^\S+$/'],
         ], [
             'api_key.regex' => __('API key tidak boleh mengandung spasi.'),
         ]);
 
-        $this->settings->setApiKey($data['api_key'], $request->user()->id);
-        $this->settings->set(['connection_status' => []], $request->user()->id);
+        $this->settings->setApiKey($data['api_key'], $request->user()->id, $target);
+        $this->settings->set(["connection_status_{$target}" => []], $request->user()->id);
 
         // Nilai key tidak pernah dicatat.
-        $this->audit->log($request, 'settings.api_key_updated', 'API key Anthropic diperbarui');
+        $this->audit->log($request, 'settings.api_key_updated', 'API key '.$this->label($target).' diperbarui', metadata: ['provider' => $target]);
 
-        return $this->back(__('API key tersimpan terenkripsi. Klik "Test Connection" untuk memastikan.'), 'provider');
+        return $this->back(__('API key :p tersimpan terenkripsi. Klik "Test Connection" untuk memastikan.', ['p' => $this->label($target)]), 'provider');
     }
 
     public function destroyApiKey(Request $request): RedirectResponse
     {
-        $this->settings->removeApiKey();
-        $this->settings->set(['connection_status' => []], $request->user()->id);
-        $this->audit->log($request, 'settings.api_key_removed', 'API key Anthropic dihapus');
+        $target = $this->target($request);
 
-        return $this->back(__('API key dihapus.'), 'provider');
+        if ($target === $this->settings->activeProvider() && $this->settings->bool('enabled')) {
+            return back()->withErrors(['api_key' => __('API key provider aktif tidak bisa dihapus saat AI Assistant ON. Matikan fitur atau pindah provider terlebih dahulu.')])->withFragment('provider');
+        }
+
+        $this->settings->removeApiKey($target);
+        $this->settings->set(["connection_status_{$target}" => []], $request->user()->id);
+        $this->audit->log($request, 'settings.api_key_removed', 'API key '.$this->label($target).' dihapus', metadata: ['provider' => $target]);
+
+        return $this->back(__('API key :p dihapus.', ['p' => $this->label($target)]), 'provider');
     }
 
-    public function testConnection(Request $request, AiProvider $provider): JsonResponse
+    public function testConnection(Request $request, ProviderFactory $factory): JsonResponse
     {
-        $result = $provider->testConnection(['timeout' => $this->settings->int('request_timeout')]);
+        $target = $this->target($request);
+        $result = $factory->make($target)->testConnection(['timeout' => $this->settings->int('request_timeout')]);
 
         $status = [
             'ok' => $result['ok'],
             'message' => $result['message'],
+            'balance' => $result['balance'] ?? null,
             'checked_at' => now()->setTimezone($this->settings->timezone())->format('d M Y H:i'),
         ];
 
-        $values = ['connection_status' => $status];
+        $values = ["connection_status_{$target}" => $status];
         if ($result['ok'] && $result['models'] !== []) {
-            $values['available_models'] = $result['models'];
+            $values["available_models_{$target}"] = $result['models'];
         }
         $this->settings->set($values, $request->user()->id);
 
-        $this->audit->log($request, 'settings.connection_tested', $result['ok'] ? 'Test koneksi berhasil' : 'Test koneksi gagal', metadata: ['ok' => $result['ok'], 'message' => $result['message']]);
+        $this->audit->log($request, 'settings.connection_tested', ($result['ok'] ? 'Test koneksi berhasil: ' : 'Test koneksi gagal: ').$this->label($target), metadata: ['provider' => $target, 'ok' => $result['ok'], 'message' => $result['message']]);
 
-        return response()->json($status + ['models' => $result['models']], $result['ok'] ? 200 : 422);
+        return response()->json($status + ['provider' => $target, 'models' => $result['models']], $result['ok'] ? 200 : 422);
+    }
+
+    private function target(Request $request, string $field = 'target'): string
+    {
+        $value = (string) $request->input($field, $this->settings->activeProvider());
+        abort_unless(array_key_exists($value, $this->settings->providers()), 422, __('Provider tidak dikenal.'));
+
+        return $value;
+    }
+
+    private function label(string $provider): string
+    {
+        return (string) ($this->settings->providers()[$provider]['label'] ?? $provider);
     }
 
     public function updateLimits(Request $request): RedirectResponse

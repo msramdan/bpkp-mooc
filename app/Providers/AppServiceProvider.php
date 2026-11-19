@@ -5,8 +5,7 @@ namespace App\Providers;
 use App\Services\AiAssistant\AiAssistantService;
 use App\Services\AiAssistant\AiAssistantSettings;
 use App\Services\AiAssistant\Provider\AiProvider;
-use App\Services\AiAssistant\Provider\AnthropicProvider;
-use App\Services\AiAssistant\Provider\FakeProvider;
+use App\Services\AiAssistant\Provider\ProviderFactory;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -29,14 +28,8 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->scoped(AiAssistantSettings::class);
 
-        $this->app->bind(AiProvider::class, function ($app): AiProvider {
-            // Provider tiruan hanya untuk uji lokal; production selalu Anthropic.
-            if (config('ai_assistant.fake_provider') && $app->environment(['local', 'testing'])) {
-                return new FakeProvider;
-            }
-
-            return new AnthropicProvider($app->make(AiAssistantSettings::class));
-        });
+        // Provider aktif (Anthropic / SumoPod) dipilih dari pengaturan dashboard.
+        $this->app->bind(AiProvider::class, fn ($app): AiProvider => $app->make(ProviderFactory::class)->make());
     }
 
     /**
