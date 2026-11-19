@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AiAssistant;
 use App\Http\Controllers\Controller;
 use App\Services\AiAssistant\AiAssistantSettings;
 use App\Services\AiAssistant\AuditLogger;
+use App\Services\AiAssistant\LogPruner;
 use App\Services\AiAssistant\Provider\AiProvider;
 use App\Services\AiAssistant\QuotaManager;
 use App\Support\Roles;
@@ -35,8 +36,10 @@ class SettingsController extends Controller implements HasMiddleware
         ];
     }
 
-    public function edit(Request $request, QuotaManager $quota): View
+    public function edit(Request $request, QuotaManager $quota, LogPruner $pruner): View
     {
+        $cleanup = $pruner->preview();
+
         $this->audit->log($request, 'settings.viewed', 'Membuka AI Assistant Settings');
 
         $models = (array) $this->settings->get('available_models', []);
@@ -58,6 +61,7 @@ class SettingsController extends Controller implements HasMiddleware
             'overrideAllowed' => $this->settings->securityOverrideAllowed(),
             'nextReset' => $quota->status($request->user())['reset_label'],
             'fakeProvider' => $this->fakeProvider(),
+            'cleanup' => $cleanup,
         ]);
     }
 
@@ -207,6 +211,21 @@ class SettingsController extends Controller implements HasMiddleware
         $this->save($request, ['role_access' => $map], 'settings.access_updated');
 
         return $this->back(__('Akses per role disimpan.'), 'access');
+    }
+
+    /** Pembersihan data lama secara manual oleh Super Admin (tanpa cron). */
+    public function prune(Request $request, LogPruner $pruner): RedirectResponse
+    {
+        $request->validate(['confirm' => ['accepted']], ['confirm.accepted' => __('Centang konfirmasi untuk menghapus data lama.')]);
+
+        $result = $pruner->prune();
+        $total = $result['request_logs'] + $result['conversations'] + $result['audit_logs'] + $result['usages'];
+
+        $this->audit->log($request, 'settings.logs_pruned', "Membersihkan data AI sebelum {$result['cutoff']}", metadata: $result);
+
+        return $this->back($total > 0
+            ? __(':n data lama (sebelum :date) berhasil dihapus.', ['n' => number_format($total, 0, ',', '.'), 'date' => $result['cutoff']])
+            : __('Tidak ada data yang melewati masa retensi.'), 'cleanup');
     }
 
     private function save(Request $request, array $values, string $action): void

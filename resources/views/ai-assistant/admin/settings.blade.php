@@ -33,6 +33,7 @@
                 <a href="#limits"><i class="ri-ticket-2-line"></i>{{ __('Limit & kuota') }}<span class="k">C</span></a>
                 <a href="#security"><i class="ri-shield-keyhole-line"></i>{{ __('Keamanan') }}<span class="k">D</span></a>
                 <a href="#access"><i class="ri-team-line"></i>{{ __('Akses role') }}<span class="k">E</span></a>
+                <a href="#cleanup"><i class="ri-delete-bin-6-line"></i>{{ __('Bersihkan data') }}<span class="k">F</span></a>
             </nav>
 
             <div>
@@ -278,6 +279,38 @@
                             </div>
                             <div class="mt-3"><button class="btn btn-primary"><i class="ri-save-3-line me-1"></i>{{ __('Simpan Akses') }}</button></div>
                         </form>
+                    </div>
+                </section>
+
+                {{-- F. Pembersihan data lama (manual, tanpa cron) --}}
+                @php $cleanupTotal = $cleanup['request_logs'] + $cleanup['conversations'] + $cleanup['audit_logs'] + $cleanup['usages']; @endphp
+                <section class="aiad-panel aiad-section" id="cleanup">
+                    <div class="aiad-panel__head"><div><h3><span class="k">F</span>{{ __('Pembersihan Data Lama') }}</h3><p>{{ __('Hapus manual data AI yang lebih tua dari masa retensi (:days hari, diatur di bagian C). Tidak ada penghapusan otomatis.', ['days' => $cleanup['days']]) }}</p></div></div>
+                    <div class="aiad-panel__body">
+                        <div class="row g-2 mb-3">
+                            @foreach (['request_logs' => 'Log pertanyaan', 'conversations' => 'Percakapan', 'audit_logs' => 'Audit admin', 'usages' => 'Data kuota harian'] as $key => $label)
+                                <div class="col-6 col-md-3">
+                                    <div class="aiad-stat" style="min-height:auto">
+                                        <span class="aiad-stat__label">{{ __($label) }}</span>
+                                        <span class="aiad-stat__value" style="font-size:20px">{{ number_format($cleanup[$key], 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="small text-muted">{{ __('Data sebelum :date yang akan dihapus permanen. Data terbaru tidak tersentuh.', ['date' => \Carbon\Carbon::parse($cleanup['cutoff'])->translatedFormat('d M Y')]) }}</p>
+
+                        @if ($cleanupTotal > 0)
+                            <form method="POST" action="{{ route('ai-assistant-settings.prune') }}" onsubmit="return confirm('{{ __('Hapus permanen :n data lama? Tindakan ini tidak bisa dibatalkan.', ['n' => $cleanupTotal]) }}')">
+                                @csrf
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="confirm" value="1" id="confirm_cleanup" required>
+                                    <label class="form-check-label small" for="confirm_cleanup">{{ __('Saya paham data yang dihapus tidak bisa dikembalikan.') }}</label>
+                                </div>
+                                <button class="btn btn-outline-danger"><i class="ri-delete-bin-6-line me-1"></i>{{ __('Bersihkan :n data lama', ['n' => number_format($cleanupTotal, 0, ',', '.')]) }}</button>
+                            </form>
+                        @else
+                            <div class="aiad-conn is-ok"><i class="ri-checkbox-circle-line me-1"></i>{{ __('Tidak ada data yang melewati masa retensi.') }}</div>
+                        @endif
                     </div>
                 </section>
             </div>

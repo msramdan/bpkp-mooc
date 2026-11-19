@@ -174,6 +174,7 @@ Route::middleware(['auth', 'web'])->group(function () {
             Route::put('/limits', [AiSettingsController::class, 'updateLimits'])->name('limits');
             Route::put('/security', [AiSettingsController::class, 'updateSecurity'])->name('security');
             Route::put('/access', [AiSettingsController::class, 'updateAccess'])->name('access');
+            Route::post('/prune', [AiSettingsController::class, 'prune'])->name('prune');
         });
 
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');

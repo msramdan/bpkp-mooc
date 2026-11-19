@@ -508,6 +508,30 @@ class AiAssistantTest extends TestCase
         $this->assertSame('kursus_saya', $log->category);
     }
 
+    public function test_super_admin_can_manually_prune_only_expired_data(): void
+    {
+        $this->settings()->set(['log_retention_days' => 90]);
+        $old = $this->processingLog($this->alice, now()->subDays(120)->toDateString());
+        $old->forceFill(['status' => 'success', 'requested_at' => now()->subDays(120)])->save();
+        $recent = $this->processingLog($this->alice, now()->toDateString());
+        $recent->forceFill(['status' => 'success'])->save();
+
+        // Peserta tidak boleh menjalankan.
+        $this->actingAs($this->alice)->postJson(route('ai-assistant-settings.prune'), ['confirm' => 1])->assertForbidden();
+        $this->assertTrue(AiAssistantRequestLog::query()->whereKey($old->id)->exists());
+
+        // Tanpa konfirmasi ditolak.
+        $this->actingAs($this->admin)->post(route('ai-assistant-settings.prune'))->assertSessionHasErrors('confirm');
+        $this->assertTrue(AiAssistantRequestLog::query()->whereKey($old->id)->exists());
+
+        $this->actingAs($this->admin)->get(route('ai-assistant-settings.index'))->assertOk()->assertSee('Pembersihan Data Lama');
+        $this->actingAs($this->admin)->post(route('ai-assistant-settings.prune'), ['confirm' => 1])->assertRedirect();
+
+        $this->assertFalse(AiAssistantRequestLog::query()->whereKey($old->id)->exists());
+        $this->assertTrue(AiAssistantRequestLog::query()->whereKey($recent->id)->exists());
+        $this->assertTrue(AiAssistantAuditLog::query()->where('action', 'settings.logs_pruned')->where('actor_id', $this->admin->id)->exists());
+    }
+
     /* ---------------- Helpers ---------------- */
 
     private function settings(): AiAssistantSettings
