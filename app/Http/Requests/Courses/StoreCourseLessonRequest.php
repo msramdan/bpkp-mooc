@@ -131,10 +131,12 @@ class StoreCourseLessonRequest extends FormRequest
             'berkas_file.max' => __('Ukuran berkas maksimal :max MB.', [
                 'max' => match(ActivityTypes::normalize((string) $this->input('tipe'))) {
                     'penugasan' => $penugasanMaxMb,
-                    'h5p' => 50,
+                    'h5p' => round(((int) config('mooc.h5p_max_kb', 204800)) / 1024, 1),
                     default => $berkasMaxMb,
                 },
             ]),
+            'berkas_file.uploaded' => __('Berkas gagal diunggah. Ukurannya kemungkinan melebihi batas upload server (:max). Hubungi admin server untuk menaikkan upload_max_filesize.', ['max' => ini_get('upload_max_filesize')]),
+            'video_file.uploaded' => __('Video gagal diunggah. Ukurannya kemungkinan melebihi batas upload server (:max). Hubungi admin server untuk menaikkan upload_max_filesize.', ['max' => ini_get('upload_max_filesize')]),
             'berkas_file.mimes' => __('Format berkas tidak didukung.'),
             'video_file.required' => __('Silakan unggah video.'),
             'video_file.max' => __('Ukuran video maksimal :max MB.', ['max' => $videoMaxMb]),

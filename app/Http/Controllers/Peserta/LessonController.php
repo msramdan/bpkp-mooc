@@ -249,6 +249,17 @@ class LessonController extends Controller implements HasMiddleware
                 ->with('error', __('Materi ini masih terkunci. Selesaikan materi sebelumnya terlebih dahulu.'));
         }
 
+        // Jawaban hanya bisa dikirim sekali (tidak ada fitur "Perbarui Jawaban").
+        $alreadySubmitted = SurveyResponse::query()
+            ->where('survey_id', $lesson->survey_id)
+            ->where('user_id', $user->id)
+            ->where('course_lesson_id', $lesson->id)
+            ->exists();
+        if ($alreadySubmitted) {
+            return to_route('peserta.kursus.lessons.show', [$course, $lesson])
+                ->with('error', __('Anda sudah mengirim jawaban untuk aktivitas ini.'));
+        }
+
         $lesson->load('survey.questions');
 
         // Validation for required questions
@@ -279,9 +290,6 @@ class LessonController extends Controller implements HasMiddleware
             // Clear old answers if updating
             $response->answers()->delete();
 
-            $totalScore = 0;
-            $maxPossibleScore = 0;
-            $hasPendingEssay = false;
 
             foreach ($lesson->survey->questions as $q) {
                 $answerVal = $answers[$q->id] ?? null;
@@ -290,9 +298,7 @@ class LessonController extends Controller implements HasMiddleware
                 }
 
                 if ($q->type === 'rating') {
-                    $maxPossibleScore += 5;
                     $score = (int) $answerVal;
-                    $totalScore += $score;
                     $response->answers()->create([
                         'survey_question_id' => $q->id,
                         'answer_text' => $answerVal,
@@ -300,7 +306,6 @@ class LessonController extends Controller implements HasMiddleware
                         'is_graded' => true,
                     ]);
                 } elseif ($q->type === 'radio') {
-                    $maxPossibleScore += 100;
                     $score = 0;
                     if ($answerVal) {
                         $option = $q->options()->where('id', $answerVal)->first();
@@ -308,7 +313,6 @@ class LessonController extends Controller implements HasMiddleware
                             $score = 100;
                         }
                     }
-                    $totalScore += $score;
                     $response->answers()->create([
                         'survey_question_id' => $q->id,
                         'survey_option_id' => $answerVal ?: null,
@@ -316,7 +320,6 @@ class LessonController extends Controller implements HasMiddleware
                         'is_graded' => true,
                     ]);
                 } elseif ($q->type === 'checkbox') {
-                    $maxPossibleScore += 100;
                     $selectedIds = is_array($answerVal) ? $answerVal : [];
                     $correctIds = $q->options()->where('is_correct', true)->pluck('id')->toArray();
                     
@@ -329,11 +332,8 @@ class LessonController extends Controller implements HasMiddleware
                         } else {
                             $score = 0;
                         }
-                    } else {
-                        $score = count($selectedIds) > 0 ? 100 : 0;
                     }
 
-                    $totalScore += $score;
 
                     if (is_array($answerVal)) {
                         foreach ($answerVal as $idx => $optId) {
@@ -346,8 +346,6 @@ class LessonController extends Controller implements HasMiddleware
                         }
                     }
                 } elseif ($q->type === 'text') {
-                    $maxPossibleScore += 100;
-                    $hasPendingEssay = true;
                     $response->answers()->create([
                         'survey_question_id' => $q->id,
                         'answer_text' => is_array($answerVal) ? null : $answerVal,
@@ -357,11 +355,8 @@ class LessonController extends Controller implements HasMiddleware
                 }
             }
 
-            $response->update([
-                'total_score' => $totalScore,
-                'max_possible_score' => $maxPossibleScore,
-                'grading_status' => $hasPendingEssay ? 'pending_essay' : 'completed',
-            ]);
+            // Skor resmi: hanya PG & checklist berkunci yang dihitung (lihat SurveyScoring).
+            app(\App\Services\SurveyScoring::class)->recalculate($response->fresh());
         });
 
         $progress->completeLesson($user, $course, $lesson);

@@ -60,20 +60,11 @@ class SurveyRecapController extends Controller
                 }
             }
 
-            $newTotal = $response->answers()->sum('score');
-            
-            $stillPending = $response->answers()
-                ->whereHas('question', fn($q) => $q->where('type', 'text'))
-                ->where('is_graded', false)
-                ->exists();
-
-            $response->update([
-                'total_score' => $newTotal,
-                'grading_status' => $stillPending ? 'pending_essay' : 'completed',
-            ]);
+            // Nilai esai disimpan sebagai catatan, tidak ikut skor otomatis (lihat SurveyScoring).
+            app(\App\Services\SurveyScoring::class)->recalculate($response);
         });
 
-        return back()->with('success', __('Nilai esai berhasil disimpan & total skor peserta telah diperbarui.'));
+        return back()->with('success', __('Nilai esai berhasil disimpan. Esai tidak ikut dihitung dalam skor otomatis.'));
     }
 
     public function exportParticipants(Survey $survey)

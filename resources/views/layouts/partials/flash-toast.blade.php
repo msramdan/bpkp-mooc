@@ -13,6 +13,10 @@
         $toastMessage = __('Password updated successfully.');
     } elseif (session('status') && is_string(session('status'))) {
         $toastMessage = session('status');
+    } elseif (isset($errors) && $errors->has('berkas_file')) {
+        // Error unggah berkas/H5P dari modal aktivitas (modal tertutup setelah redirect).
+        $toastMessage = $errors->first('berkas_file');
+        $toastVariant = 'danger';
     }
 @endphp
 

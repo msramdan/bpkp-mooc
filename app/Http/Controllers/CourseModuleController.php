@@ -94,11 +94,16 @@ class CourseModuleController extends Controller implements HasMiddleware
         $ids = $validated['order'];
         $ownedIds = $course->modules()->whereIn('id', $ids)->pluck('id')->all();
 
-        if (count($ownedIds) !== count($ids)) {
+        if (count($ownedIds) !== count($ids) || count(array_unique($ids)) !== $course->modules()->count()) {
             abort(422, __('Urutan topik tidak valid.'));
         }
 
         DB::transaction(function () use ($course, $ids): void {
+            // Unique index (course_id, urutan): geser dulu ke nilai sementara agar tidak bentrok saat ditukar.
+            CourseModule::query()
+                ->where('course_id', $course->id)
+                ->update(['urutan' => DB::raw('urutan + 30000')]);
+
             foreach ($ids as $index => $id) {
                 CourseModule::query()
                     ->where('course_id', $course->id)

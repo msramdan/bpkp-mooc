@@ -43,7 +43,12 @@
                         'X-Requested-With': 'XMLHttpRequest',
                     },
                     body: JSON.stringify({ order: order }),
+                }).then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
                 }).catch(function () {
+                    window.alert('Urutan topik gagal disimpan. Halaman akan dimuat ulang.');
                     window.location.reload();
                 });
             },

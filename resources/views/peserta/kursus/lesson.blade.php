@@ -63,7 +63,8 @@
                 @if ($type === 'video' && $lesson->isStreamableVideo())
                     <article class="peserta-lesson__card peserta-lesson__card--media">
                         <div class="peserta-lesson__media">
-                            <video class="peserta-lesson__player" controls preload="metadata"
+                            <video class="peserta-lesson__player js-no-download" controls preload="metadata"
+                                controlsList="nodownload noplaybackrate" disablePictureInPicture
                                 src="{{ $lesson->resolveMediaUrlPublic() }}" title="{{ $lesson->judul }}">
                                 {{ __('Browser Anda tidak mendukung pemutar video.') }}
                             </video>
@@ -77,19 +78,34 @@
                         </div>
                     </article>
                 @elseif ($type === 'berkas' && $lesson->externalUrl())
+                    @php
+                        // Materi hanya untuk dilihat (view only): PDF & gambar ditampilkan langsung tanpa tombol unduh.
+                        $berkasUrl = $lesson->externalUrl();
+                        $berkasExt = strtolower(pathinfo(parse_url($berkasUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+                        $berkasIsImage = in_array($berkasExt, ['png', 'jpg', 'jpeg', 'webp', 'gif'], true);
+                        $berkasIsPdf = $berkasExt === 'pdf';
+                    @endphp
                     <article class="peserta-lesson__card peserta-lesson__card--media">
-                        <div class="peserta-lesson__file-hero">
-                            <div class="peserta-lesson__file-glow" aria-hidden="true"></div>
-                            <i class="bi bi-file-earmark-richtext peserta-lesson__file-icon"></i>
-                            <h3 class="peserta-lesson__file-title">{{ __('Berkas materi siap dibuka') }}</h3>
-                            <p class="peserta-lesson__file-text">{{ __('Unduh atau buka berkas di tab baru untuk mempelajari materi.') }}</p>
-                            <a href="{{ $lesson->externalUrl() }}" class="btn btn-primary btn-wave" target="_blank" rel="noopener">
-                                <i class="bi bi-download me-1"></i>{{ __('Buka / unduh berkas') }}
-                            </a>
-                        </div>
-                        <div class="peserta-lesson__preview mt-3">
-                            <iframe src="{{ $lesson->externalUrl() }}" title="{{ $lesson->judul }}" loading="lazy"></iframe>
-                        </div>
+                        @if ($berkasIsPdf)
+                            <div class="peserta-lesson__preview js-no-download">
+                                <iframe src="{{ $berkasUrl }}#toolbar=0&navpanes=0" title="{{ $lesson->judul }}" loading="lazy"></iframe>
+                            </div>
+                        @elseif ($berkasIsImage)
+                            <div class="peserta-lesson__preview text-center js-no-download">
+                                <img src="{{ $berkasUrl }}" alt="{{ $lesson->judul }}" class="img-fluid" draggable="false">
+                            </div>
+                        @else
+                            {{-- Format Office/arsip tidak bisa ditampilkan di browser tanpa diunduh. --}}
+                            <div class="peserta-lesson__file-hero">
+                                <div class="peserta-lesson__file-glow" aria-hidden="true"></div>
+                                <i class="bi bi-file-earmark-richtext peserta-lesson__file-icon"></i>
+                                <h3 class="peserta-lesson__file-title">{{ __('Berkas materi') }}</h3>
+                                <p class="peserta-lesson__file-text">{{ __('Berkas ini dibuka di tab baru untuk mempelajari materi.') }}</p>
+                                <a href="{{ $berkasUrl }}" class="btn btn-primary btn-wave" target="_blank" rel="noopener">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>{{ __('Buka berkas') }}
+                                </a>
+                            </div>
+                        @endif
                     </article>
                 @elseif ($type === 'url' && $lesson->externalUrl())
                     <article class="peserta-lesson__card">
@@ -241,34 +257,35 @@
                                         <i class="bi bi-check-circle-fill me-2 fs-5"></i>
                                         <div>
                                             <strong>{{ __('Selesai!') }}</strong><br>
-                                            {{ __('Anda telah mengisi kuesioner ini pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
+                                            {{ __('Jawaban Anda telah terkirim pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
                                         </div>
                                     </div>
                                     <div class="bg-white px-3 py-2 rounded shadow-sm text-end border">
-                                        @php
-                                            $userNilai = $surveyResponse->max_possible_score > 0 ? ($surveyResponse->total_score / $surveyResponse->max_possible_score) * 100 : 0;
-                                        @endphp
-                                        <div class="text-muted fs-11 text-uppercase fw-semibold">{{ __('Nilai Evaluasi') }}</div>
-                                        <div class="fs-20 fw-bold text-primary mb-1">
-                                            {{ number_format($userNilai, 1) }} <span class="fs-13 text-muted fw-normal">/ 100</span>
-                                        </div>
-                                        <div class="text-muted fs-11 border-top pt-1">
-                                            {{ __('Poin Diperoleh:') }} <strong>{{ number_format($surveyResponse->total_score, 0) }} / {{ number_format($surveyResponse->max_possible_score, 0) }}</strong>
-                                        </div>
-                                        @if($surveyResponse->grading_status === 'pending_essay')
-                                            <div class="badge bg-warning-transparent text-warning mt-1" style="font-size: 0.75rem;">
-                                                <i class="bi bi-clock me-1"></i>{{ __('Menunggu Esai') }}
+                                        @if ($surveyResponse->max_possible_score > 0)
+                                            <div class="text-muted fs-11 text-uppercase fw-semibold">{{ __('Skor Anda') }}</div>
+                                            <div class="fs-20 fw-bold text-primary mb-1">
+                                                {{ number_format(\App\Services\SurveyScoring::percentage($surveyResponse), 1) }} <span class="fs-13 text-muted fw-normal">/ 100</span>
+                                            </div>
+                                            <div class="text-muted fs-11 border-top pt-1">
+                                                {{ __('Jawaban benar:') }} <strong>{{ number_format($surveyResponse->total_score / 100, 0) }} / {{ number_format($surveyResponse->max_possible_score / 100, 0) }}</strong> {{ __('soal') }}
                                             </div>
                                         @else
-                                            <div class="badge bg-success-transparent text-success mt-1" style="font-size: 0.75rem;">
-                                                <i class="bi bi-check-all me-1"></i>{{ __('Selesai') }}
+                                            {{-- Survei / essay saja: tidak ada skor otomatis --}}
+                                            <div class="badge bg-success-transparent text-success" style="font-size: 0.8rem;">
+                                                <i class="bi bi-check-all me-1"></i>{{ __('Terkirim') }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @endif
 
-                            <form id="surveySubmitForm" action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST" novalidate>
+                            {{-- Setelah dikirim hanya skor yang ditampilkan; soal & jawaban tidak diperlihatkan lagi. --}}
+                            @unless ($surveyResponse)
+                            <form id="surveySubmitForm" action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST" novalidate
+                                data-confirm-title="{{ __('Apakah Anda yakin mengirim jawaban?') }}"
+                                data-confirm-text="{{ __('Jawaban yang sudah dikirim tidak dapat diubah.') }}"
+                                data-confirm-yes="{{ __('Ya, kirim') }}"
+                                data-confirm-no="{{ __('Batal') }}">
                                 @csrf
                                 <div class="survey-questions">
                                     @foreach($lesson->survey->questions as $index => $q)
@@ -349,10 +366,11 @@
                                 </div>
                                 <div class="text-end mt-4">
                                     <button type="submit" class="btn btn-primary btn-wave px-4">
-                                        <i class="bi bi-send-check me-2"></i>{{ $surveyResponse ? __('Perbarui Jawaban') : __('Kirim Kuesioner') }}
+                                        <i class="bi bi-send-check me-2"></i>{{ __('Kirim Jawaban') }}
                                     </button>
                                 </div>
                             </form>
+                            @endunless
                         @else
                             <div class="peserta-lesson__soon">
                                 <i class="bi bi-clipboard2-data"></i>
@@ -531,6 +549,40 @@
 
 @push('scripts')
     <script>
+        // Konten view only: matikan klik kanan & drag pada media materi.
+        document.addEventListener('contextmenu', function (e) {
+            if (e.target.closest && e.target.closest('.js-no-download')) e.preventDefault();
+        });
+        document.addEventListener('dragstart', function (e) {
+            if (e.target.closest && e.target.closest('.js-no-download')) e.preventDefault();
+        });
+
+        // Konfirmasi sebelum kirim jawaban kuis/survei.
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('surveySubmitForm');
+            if (!form) return;
+            var confirmed = false;
+            form.addEventListener('submit', function (e) {
+                if (confirmed) return;
+                e.preventDefault();
+                var d = form.dataset;
+                var send = function () { confirmed = true; form.submit(); };
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: d.confirmTitle,
+                        text: d.confirmText,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: d.confirmYes,
+                        cancelButtonText: d.confirmNo,
+                        reverseButtons: true,
+                    }).then(function (r) { if (r.isConfirmed) send(); });
+                } else if (window.confirm(d.confirmTitle + '\n' + d.confirmText)) {
+                    send();
+                }
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             var input = document.getElementById('submission_file');
             var nameEl = document.querySelector('[data-file-name]');

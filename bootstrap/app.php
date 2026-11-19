@@ -32,6 +32,17 @@ return Application::configure(basePath: dirname(path: __DIR__))
         ]);
     })
     ->withExceptions(using: function (Exceptions $e): void {
+        // Upload melebihi post_max_size: PHP membuang seluruh body, tampilkan pesan yang jelas.
+        $e->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $exception, $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            return back()->with('error', __('Ukuran file melebihi batas upload server (:max). Hubungi admin server untuk menaikkan post_max_size dan upload_max_filesize.', [
+                'max' => ini_get('post_max_size'),
+            ]));
+        });
+
         $e->render(function (\Illuminate\Auth\Access\AuthorizationException $exception, $request) {
             if ($request->expectsJson()) {
                 return null;

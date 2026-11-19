@@ -6,6 +6,7 @@ use App\Http\Requests\Courses\StoreCourseLessonRequest;
 use App\Models\Course;
 use App\Models\CourseLesson;
 use App\Models\CourseModule;
+use App\Services\H5P\H5PPackageException;
 use App\Services\H5P\H5PService;
 use App\Support\ActivityTypes;
 use App\Support\Roles;
@@ -31,6 +32,19 @@ class CourseLessonController extends Controller implements HasMiddleware
         $this->authorize('update', $course);
         $this->assertModuleBelongsToCourse($module, $course);
 
+        try {
+            $this->createLesson($request, $module);
+        } catch (H5PPackageException $e) {
+            return back()->withInput()->withErrors(['berkas_file' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('courses.show', [$course, 'tab' => 'modules'])
+            ->with('success', __('Aktivitas berhasil ditambahkan.'));
+    }
+
+    private function createLesson(StoreCourseLessonRequest $request, CourseModule $module): void
+    {
         DB::transaction(function () use ($request, $module): void {
             $nextUrutan = (int) $module->lessons()->max('urutan') + 1;
             $data = $request->safe()->except(['berkas_file', 'video_file', 'deskripsi']);
@@ -71,16 +85,24 @@ class CourseLessonController extends Controller implements HasMiddleware
             ]);
 
             if ($tipe === 'h5p' && $request->hasFile('berkas_file')) {
-                $h5pService = app(H5PService::class);
                 $lesson->update([
-                    'file_url' => $h5pService->processPackage($request->file('berkas_file'), $lesson)
+                    'file_url' => $this->processH5P($request, $lesson),
                 ]);
             }
         });
+    }
 
-        return redirect()
-            ->route('courses.show', [$course, 'tab' => 'modules'])
-            ->with('success', __('Aktivitas berhasil ditambahkan.'));
+    /**
+     * @throws H5PPackageException
+     */
+    private function processH5P(StoreCourseLessonRequest $request, CourseLesson $lesson): string
+    {
+        try {
+            return app(H5PService::class)->processPackage($request->file('berkas_file'), $lesson);
+        } catch (\Exception $e) {
+            report($e);
+            throw new H5PPackageException($e->getMessage(), 0, $e);
+        }
     }
 
     public function update(StoreCourseLessonRequest $request, Course $course, CourseModule $module, CourseLesson $lesson): RedirectResponse
@@ -136,9 +158,11 @@ class CourseLessonController extends Controller implements HasMiddleware
             $payload['video_url'] = null;
         } elseif ($tipe === 'h5p') {
             if ($request->hasFile('berkas_file')) {
-                $h5pService = app(H5PService::class);
-                $h5pService->deletePackage($lesson);
-                $payload['file_url'] = $h5pService->processPackage($request->file('berkas_file'), $lesson);
+                try {
+                    $payload['file_url'] = $this->processH5P($request, $lesson);
+                } catch (H5PPackageException $e) {
+                    return back()->withInput()->withErrors(['berkas_file' => $e->getMessage()]);
+                }
             }
             if ($lesson->video_url) {
                 $this->deleteStoredPath($lesson->video_url, 'courses/videos/');
