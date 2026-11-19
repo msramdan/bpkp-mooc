@@ -258,6 +258,14 @@ return [
             ],
         ],
         [
+            'group' => 'ai assistant',
+            'access' => [
+                'ai assistant monitor view',
+                'ai assistant monitor export',
+                'ai assistant setting manage',
+            ],
+        ],
+        [
             'group' => 'tests',
             'access' => [
                 'test view',
@@ -274,6 +282,7 @@ return [
                 'peserta progres view',
                 'peserta sertifikat view',
                 'peserta jadwal view',
+                'peserta ai assistant view',
             ],
         ],
     ],

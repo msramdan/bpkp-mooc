@@ -1,6 +1,9 @@
 <?php
 
 use App\Support\Roles;
+use App\Http\Controllers\AiAssistant\ChatController as AiChatController;
+use App\Http\Controllers\AiAssistant\MonitoringController as AiMonitoringController;
+use App\Http\Controllers\AiAssistant\SettingsController as AiSettingsController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CourseEnrollmentController;
 use App\Http\Controllers\CourseForumController as AdminCourseForumController;
@@ -40,6 +43,19 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/h5p-assets/{lesson}/{path?}', [\App\Http\Controllers\Peserta\H5PAssetController::class, 'serve'])
         ->where('path', '.*')
         ->name('h5p.assets');
+
+    // AI Assistant (semua role; akses final ditentukan pengaturan global & per-role di backend).
+    Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
+        Route::get('/', [AiChatController::class, 'index'])->name('chat');
+        Route::get('/quota', [AiChatController::class, 'quota'])->name('quota');
+        Route::get('/conversations', [AiChatController::class, 'conversations'])->name('conversations');
+        Route::get('/conversations/{conversation}', [AiChatController::class, 'messages'])
+            ->whereUuid('conversation')
+            ->name('conversations.show');
+        Route::post('/ask', [AiChatController::class, 'ask'])
+            ->middleware('throttle:ai-assistant')
+            ->name('ask');
+    });
 
     Route::middleware('role:peserta')->prefix('peserta')->name('peserta.')->group(function () {
         Route::get('/dashboard', [PortalController::class, 'dashboard'])
@@ -132,6 +148,33 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::post('surveys/responses/{response}/grade-essay', [\App\Http\Controllers\SurveyRecapController::class, 'gradeEssay'])->name('surveys.recap.grade-essay');
         Route::get('surveys/{survey}/recap/export-participants', [\App\Http\Controllers\SurveyRecapController::class, 'exportParticipants'])->name('surveys.recap.export-participants');
         Route::get('surveys/{survey}/recap/export-courses', [\App\Http\Controllers\SurveyRecapController::class, 'exportCourses'])->name('surveys.recap.export-courses');
+
+        // AI Assistant — monitoring & audit (Super Admin saja)
+        Route::middleware('permission:ai assistant monitor view')->group(function () {
+            Route::get('ai-assistant-logs', [AiMonitoringController::class, 'dashboard'])->name('ai-assistant-logs.index');
+            Route::get('ai-assistant-logs/users', [AiMonitoringController::class, 'users'])->name('ai-assistant-logs.users');
+            Route::get('ai-assistant-logs/users/{user}', [AiMonitoringController::class, 'userDetail'])->name('ai-assistant-logs.users.show');
+            Route::get('ai-assistant-logs/requests', [AiMonitoringController::class, 'requests'])->name('ai-assistant-logs.requests');
+            Route::get('ai-assistant-logs/requests/{log}', [AiMonitoringController::class, 'showRequest'])->whereUuid('log')->name('ai-assistant-logs.requests.show');
+            Route::get('ai-assistant-logs/audit', [AiMonitoringController::class, 'audit'])->name('ai-assistant-logs.audit');
+        });
+        Route::middleware('permission:ai assistant monitor export')->group(function () {
+            Route::get('ai-assistant-logs/users-export', [AiMonitoringController::class, 'exportUsers'])->name('ai-assistant-logs.users.export');
+            Route::get('ai-assistant-logs/requests-export', [AiMonitoringController::class, 'exportRequests'])->name('ai-assistant-logs.requests.export');
+        });
+
+        // AI Assistant — pengaturan (Super Admin saja)
+        Route::middleware('permission:ai assistant setting manage')->prefix('ai-assistant-settings')->name('ai-assistant-settings.')->group(function () {
+            Route::get('/', [AiSettingsController::class, 'edit'])->name('index');
+            Route::put('/general', [AiSettingsController::class, 'updateGeneral'])->name('general');
+            Route::put('/provider', [AiSettingsController::class, 'updateProvider'])->name('provider');
+            Route::put('/api-key', [AiSettingsController::class, 'updateApiKey'])->name('api-key');
+            Route::delete('/api-key', [AiSettingsController::class, 'destroyApiKey'])->name('api-key.destroy');
+            Route::post('/test-connection', [AiSettingsController::class, 'testConnection'])->name('test-connection');
+            Route::put('/limits', [AiSettingsController::class, 'updateLimits'])->name('limits');
+            Route::put('/security', [AiSettingsController::class, 'updateSecurity'])->name('security');
+            Route::put('/access', [AiSettingsController::class, 'updateAccess'])->name('access');
+        });
 
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');
         Route::post('database-backups/download', [DatabaseBackupController::class, 'download'])->name('database-backups.download');

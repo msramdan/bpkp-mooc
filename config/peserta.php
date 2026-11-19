@@ -11,6 +11,7 @@ return [
                 'peserta katalog view',
                 'peserta progres view',
                 'peserta sertifikat view',
+                'peserta ai assistant view',
             ],
             'menus' => [
                 [
@@ -54,6 +55,14 @@ return [
                     'route' => 'peserta.sertifikat.index',
                     'permission' => 'peserta sertifikat view',
                     'permissions' => ['peserta sertifikat view'],
+                    'submenus' => [],
+                ],
+                [
+                    'title' => 'AI Assistant',
+                    'icon' => '<i class="bi bi-stars"></i>',
+                    'route' => 'ai-assistant.chat',
+                    'permission' => 'peserta ai assistant view',
+                    'permissions' => ['peserta ai assistant view'],
                     'submenus' => [],
                 ],
             ],

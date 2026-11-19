@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AiAssistantUsage extends Model
+{
+    protected $fillable = ['user_id', 'usage_date', 'used_count', 'last_used_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'usage_date' => 'date',
+            'used_count' => 'integer',
+            'last_used_at' => 'datetime',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}

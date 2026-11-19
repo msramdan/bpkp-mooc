@@ -43,6 +43,9 @@
     <link href="{{ asset('backend') }}/assets/css/header-notifications.css?v={{ @filemtime(public_path('backend/assets/css/header-notifications.css')) ?: time() }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="{{ asset('backend') }}/assets/libs/sweetalert2/sweetalert2.min.css">
+    @if ($aiAssistantAvailable ?? false)
+        <link href="{{ asset('backend') }}/assets/css/ai-assistant.css?v={{ @filemtime(public_path('backend/assets/css/ai-assistant.css')) ?: time() }}" rel="stylesheet">
+    @endif
     @stack('css')
     <script src="{{ asset('backend') }}/assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ asset('backend') }}/assets/js/main.js"></script>
@@ -61,6 +64,12 @@
         </div>
         @include('layouts.partials.footer')
     </div>
+    @if (($aiAssistantAvailable ?? false) && ! request()->routeIs('ai-assistant.*'))
+        <a href="{{ route('ai-assistant.chat') }}" class="ai-launcher" aria-label="{{ __('Buka AI Assistant') }}">
+            <span class="ai-launcher__icon"><i class="ri-sparkling-2-fill"></i></span>
+            <span class="ai-launcher__label">{{ __('Tanya Asisten') }}</span>
+        </a>
+    @endif
     <div class="scrollToTop">
         <span class="arrow lh-1"><i class="ti ti-arrow-big-up fs-16"></i></span>
     </div>

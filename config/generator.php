@@ -164,6 +164,31 @@ return [
             ],
         ],
         [
+            'header' => 'AI Assistant',
+            'permissions' => ['ai assistant monitor view', 'ai assistant setting manage'],
+            'menus' => [
+                [
+                    'title' => 'AI Assistant',
+                    'icon' => '<i class="bi bi-stars"></i>',
+                    'route' => null,
+                    'permission' => null,
+                    'permissions' => ['ai assistant monitor view', 'ai assistant setting manage'],
+                    'submenus' => [
+                        [
+                            'title' => 'Monitoring AI',
+                            'route' => '/ai-assistant-logs',
+                            'permission' => 'ai assistant monitor view',
+                        ],
+                        [
+                            'title' => 'AI Assistant Settings',
+                            'route' => '/ai-assistant-settings',
+                            'permission' => 'ai assistant setting manage',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        [
             'header' => 'Utilities',
             'permissions' => ['user view', 'role & permission view', 'database backup view'],
             'menus' => [
