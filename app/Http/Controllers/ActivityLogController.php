@@ -35,20 +35,26 @@ class ActivityLogController extends Controller implements HasMiddleware
 
     public function index(Request $request): View
     {
+        // simplePaginate: tanpa COUNT(*) atas jutaan baris; urut id memakai primary key/index.
         $logs = $this->filtered($request)
             ->orderByDesc('id')
-            ->paginate(50)
+            ->simplePaginate(50)
             ->withQueryString();
 
-        $todayStart = CarbonImmutable::now(self::TZ)->startOfDay()->utc();
-        $stats = ActivityLog::query()
-            ->where('created_at', '>=', $todayStart)
-            ->selectRaw('COUNT(*) as total')
-            ->selectRaw('COUNT(DISTINCT CASE WHEN causer_id IS NOT NULL THEN causer_id END) as users')
-            ->selectRaw("SUM(log_name = 'data') as data_changes")
-            ->selectRaw("SUM(log_name = 'auth' AND event = 'failed') as failed_logins")
-            ->selectRaw('SUM(status_code >= 500) as server_errors')
-            ->first();
+        // Statistik hari ini di-cache 60 detik (tidak dihitung ulang tiap admin membuka halaman).
+        $stats = \Illuminate\Support\Facades\Cache::remember('activity-log:stats:'.now(self::TZ)->toDateString(), 60, function () {
+            $todayStart = CarbonImmutable::now(self::TZ)->startOfDay()->utc();
+
+            return (object) ActivityLog::query()
+                ->createdBetween($todayStart, null)
+                ->selectRaw('COUNT(*) as total')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN causer_id IS NOT NULL THEN causer_id END) as users')
+                ->selectRaw("SUM(log_name = 'data') as data_changes")
+                ->selectRaw("SUM(log_name = 'auth' AND event = 'failed') as failed_logins")
+                ->selectRaw('SUM(status_code >= 500) as server_errors')
+                ->first()
+                ?->getAttributes();
+        });
 
         $subjectUser = $request->filled('user_id') ? User::query()->find((int) $request->query('user_id')) : null;
 
@@ -118,13 +124,18 @@ class ActivityLogController extends Controller implements HasMiddleware
     {
         $request->validate(['confirm' => ['accepted']], ['confirm.accepted' => __('Centang konfirmasi untuk menghapus log lama.')]);
 
-        $days = max(30, (int) config('activitylog.clean_after_days', 365));
+        $days = max(30, (int) config('activitylog.clean_after_days', 90));
         $cutoff = now()->subDays($days);
         $deleted = 0;
 
-        ActivityLog::query()->where('created_at', '<', $cutoff)->chunkById(2000, function ($rows) use (&$deleted): void {
-            $deleted += ActivityLog::query()->whereKey($rows->modelKeys())->delete();
-        });
+        // Hapus per batch 5.000 baris lewat rentang primary key: cepat & tidak mengunci tabel lama.
+        $ceil = ActivityLog::query()->where('created_at', '<', $cutoff)->orderByDesc('created_at')->orderByDesc('id')->value('id');
+        if ($ceil !== null) {
+            do {
+                $n = ActivityLog::query()->where('id', '<=', $ceil)->where('created_at', '<', $cutoff)->orderBy('id')->limit(5000)->delete();
+                $deleted += $n;
+            } while ($n > 0);
+        }
 
         activity('data')->event('deleted')->withProperties(['retensi_hari' => $days, 'sebelum' => $cutoff->toDateString(), 'jumlah' => $deleted])
             ->log("Membersihkan {$deleted} log aktivitas lebih lama dari {$days} hari");
@@ -185,13 +196,10 @@ class ActivityLogController extends Controller implements HasMiddleware
             $q->where('request_id', $request->query('request_id'));
         }
 
-        if ($this->validDate($request->query('from'))) {
-            $q->where('created_at', '>=', CarbonImmutable::parse($request->query('from'), self::TZ)->startOfDay()->utc());
-        }
-
-        if ($this->validDate($request->query('to'))) {
-            $q->where('created_at', '<=', CarbonImmutable::parse($request->query('to'), self::TZ)->endOfDay()->utc());
-        }
+        $q->createdBetween(
+            $this->validDate($request->query('from')) ? CarbonImmutable::parse($request->query('from'), self::TZ)->startOfDay()->utc() : null,
+            $this->validDate($request->query('to')) ? CarbonImmutable::parse($request->query('to'), self::TZ)->endOfDay()->utc() : null,
+        );
 
         return $q;
     }

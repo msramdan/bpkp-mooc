@@ -12,7 +12,7 @@ return [
      * Dipakai oleh "php artisan activitylog:clean" dan tombol pembersihan manual
      * di halaman Log Aktivitas (Super Admin). Tidak ada penghapusan otomatis.
      */
-    'clean_after_days' => (int) env('ACTIVITYLOG_RETENTION_DAYS', 365),
+    'clean_after_days' => (int) env('ACTIVITYLOG_RETENTION_DAYS', 90), // 3 bulan
 
     'default_log_name' => 'data',
 

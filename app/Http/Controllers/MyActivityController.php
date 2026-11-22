@@ -29,14 +29,17 @@ class MyActivityController extends Controller
             $query->where('description', 'like', $term);
         }
 
-        foreach (['from' => 'startOfDay', 'to' => 'endOfDay'] as $key => $edge) {
+        $date = function (string $key, string $edge) use ($request): ?CarbonImmutable {
             $v = $request->query($key);
-            if (is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v) && strtotime($v) !== false) {
-                $query->where('created_at', $key === 'from' ? '>=' : '<=', CarbonImmutable::parse($v, ActivityLogController::TZ)->{$edge}()->utc());
-            }
-        }
 
-        $logs = $query->orderByDesc('id')->paginate(30)->withQueryString();
+            return is_string($v) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v) && strtotime($v) !== false
+                ? CarbonImmutable::parse($v, ActivityLogController::TZ)->{$edge}()->utc()
+                : null;
+        };
+        $query->createdBetween($date('from', 'startOfDay'), $date('to', 'endOfDay'));
+
+        // simplePaginate (tanpa COUNT) + urut id: memakai index (causer_type, causer_id[, id]).
+        $logs = $query->orderByDesc('id')->simplePaginate(30)->withQueryString();
 
         $lastLogin = ActivityLog::query()->ownedBy($user)->where('log_name', 'auth')->where('event', 'login')->orderByDesc('id')->skip(1)->first();
         $failedLogins = ActivityLog::query()->ownedBy($user)->where('log_name', 'auth')->where('event', 'failed')

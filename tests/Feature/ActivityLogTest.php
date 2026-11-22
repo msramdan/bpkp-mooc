@@ -269,7 +269,8 @@ class ActivityLogTest extends TestCase
 
     public function test_admin_manual_prune_removes_only_old_logs(): void
     {
-        $old = ActivityLog::query()->create(['log_name' => 'request', 'description' => 'LOG LAMA', 'created_at' => now()->subDays(400), 'updated_at' => now()->subDays(400)]);
+        $old = ActivityLog::query()->create(['log_name' => 'request', 'description' => 'LOG LAMA', 'created_at' => now()->subDays(100), 'updated_at' => now()->subDays(100)]);
+        $twoMonths = ActivityLog::query()->create(['log_name' => 'request', 'description' => 'LOG 60 HARI', 'created_at' => now()->subDays(60), 'updated_at' => now()->subDays(60)]);
         $recent = ActivityLog::query()->create(['log_name' => 'request', 'description' => 'LOG BARU']);
 
         $this->actingAs($this->admin)->post(route('activity-logs.prune'))->assertSessionHasErrors('confirm');
@@ -278,6 +279,8 @@ class ActivityLogTest extends TestCase
         $this->actingAs($this->admin)->post(route('activity-logs.prune'), ['confirm' => 1])->assertRedirect();
         $this->assertFalse(ActivityLog::query()->whereKey($old->id)->exists());
         $this->assertTrue(ActivityLog::query()->whereKey($recent->id)->exists());
+        $this->assertTrue(ActivityLog::query()->whereKey($twoMonths->id)->exists(), 'Log < 3 bulan tetap disimpan');
+        $this->assertSame(90, (int) config('activitylog.clean_after_days'));
         $this->assertTrue(ActivityLog::query()->where('description', 'like', 'Membersihkan % log aktivitas%')->exists());
     }
 

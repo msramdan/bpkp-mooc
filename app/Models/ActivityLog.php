@@ -35,6 +35,28 @@ class ActivityLog extends Activity
         return $query->where('causer_type', $user->getMorphClass())->where('causer_id', $user->getKey());
     }
 
+    /**
+     * Filter rentang waktu yang tetap cepat di tabel besar.
+     * ID bertambah seiring waktu (auto increment saat aktivitas dicatat), jadi rentang
+     * waktu diterjemahkan ke rentang ID lewat SATU lookup index created_at, lalu query
+     * utama cukup memindai primary key yang sudah urut (tanpa filesort/COUNT besar).
+     * Kondisi created_at tetap dipertahankan agar hasil tepat di batas rentang.
+     */
+    public function scopeCreatedBetween(Builder $query, ?\DateTimeInterface $from, ?\DateTimeInterface $to): Builder
+    {
+        if ($from) {
+            $floor = static::query()->where('created_at', '>=', $from)->orderBy('created_at')->orderBy('id')->value('id');
+            $floor === null ? $query->whereRaw('1 = 0') : $query->where('id', '>=', $floor)->where('created_at', '>=', $from);
+        }
+
+        if ($to) {
+            $ceil = static::query()->where('created_at', '<=', $to)->orderByDesc('created_at')->orderByDesc('id')->value('id');
+            $ceil === null ? $query->whereRaw('1 = 0') : $query->where('id', '<=', $ceil)->where('created_at', '<=', $to);
+        }
+
+        return $query;
+    }
+
     public function before(): array
     {
         return (array) ($this->attribute_changes?->get('old') ?? []);
