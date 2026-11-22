@@ -6,6 +6,25 @@
         return meta ? meta.getAttribute('content') : '';
     }
 
+    // Pre test selalu 1 kali: kunci input maksimal percobaan & kebijakan nilai.
+    function syncAttemptFields() {
+        var mode = document.getElementById('activitySurveyMode');
+        var attempts = document.getElementById('activityMaxAttempts');
+        var policy = document.getElementById('activityScorePolicy');
+        if (!mode || !attempts) return;
+        var isPre = mode.value === 'pre_test';
+        if (isPre) attempts.value = 1;
+        attempts.readOnly = isPre;
+        if (policy) policy.disabled = isPre || parseInt(attempts.value, 10) <= 1;
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target && (e.target.id === 'activitySurveyMode' || e.target.id === 'activityMaxAttempts')) syncAttemptFields();
+    });
+    document.addEventListener('input', function (e) {
+        if (e.target && e.target.id === 'activityMaxAttempts') syncAttemptFields();
+    });
+
     function initTopicSortable() {
         var list = document.getElementById('topics-sortable');
         if (!list || !list.dataset.reorderUrl || typeof Sortable === 'undefined') {
@@ -354,6 +373,14 @@
             if (surveyInput && data.survey_id) {
                 surveyInput.value = String(data.survey_id);
             }
+
+            var modeInput = document.getElementById('activitySurveyMode');
+            var attemptsInput = document.getElementById('activityMaxAttempts');
+            var policyInput = document.getElementById('activityScorePolicy');
+            if (modeInput) modeInput.value = data.survey_mode || 'kuesioner';
+            if (attemptsInput) attemptsInput.value = data.max_attempts || 1;
+            if (policyInput) policyInput.value = data.attempt_score_policy || 'highest';
+            syncAttemptFields();
 
             var certTpl = document.getElementById('activityCertTemplate');
             var certSurvey = document.getElementById('activityCertSurvey');

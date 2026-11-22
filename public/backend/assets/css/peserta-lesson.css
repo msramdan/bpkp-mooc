@@ -471,3 +471,70 @@
         transform: none;
     }
 }
+
+/* ---------- Penyelesaian otomatis video / dokumen ---------- */
+.lesson-track {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding: 14px 18px;
+  border-radius: 16px; border: 1px solid rgba(43, 72, 139, .16);
+  background: linear-gradient(120deg, rgba(43, 72, 139, .06), rgba(232, 169, 28, .06));
+}
+.lesson-track__icon {
+  width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: 0 0 auto;
+  background: linear-gradient(150deg, #2b488b, #1b2f5e); color: #e8a91c; font-size: 20px;
+}
+.lesson-track__body { flex: 1; min-width: 0; }
+.lesson-track__title { font-weight: 700; font-size: 14px; color: var(--default-text-color, #1e293b); }
+.lesson-track__meter { height: 7px; border-radius: 99px; background: rgba(43, 72, 139, .12); margin: 7px 0 6px; overflow: hidden; }
+.lesson-track__meter span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #2b488b, #e8a91c); transition: width .5s ease; }
+.lesson-track__hint { font-size: 12px; color: var(--text-muted, #64748b); }
+.lesson-track__pct { font-size: 20px; font-weight: 800; color: #2b488b; min-width: 56px; text-align: right; }
+[data-theme-mode="dark"] .lesson-track__pct { color: #e8a91c; }
+.lesson-track__next { font-weight: 700; margin-left: 4px; }
+.lesson-track.is-done { border-color: rgba(22, 163, 74, .35); background: rgba(22, 163, 74, .06); }
+.lesson-track.is-done .lesson-track__icon { background: #16a34a; color: #fff; }
+.lesson-track.is-done .lesson-track__meter span { background: #16a34a; }
+.lesson-track.is-done .lesson-track__pct { color: #16a34a; }
+
+.lesson-pdf {
+  max-height: 78vh; overflow-y: auto; padding: 12px; border-radius: 14px;
+  background: #eef1f6; display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+[data-theme-mode="dark"] .lesson-pdf { background: rgba(148, 163, 184, .08); }
+.lesson-pdf__page {
+  position: relative; flex: 0 0 auto; width: 100%; max-width: 100%; background: #fff; border-radius: 6px;
+  box-shadow: 0 6px 18px -12px rgba(15, 23, 42, .5); display: flex; justify-content: center; overflow: hidden;
+}
+.lesson-pdf__page canvas { display: block; max-width: 100%; height: auto !important; }
+.lesson-pdf__ph { display: grid; place-items: center; min-height: 420px; width: 100%; color: #94a3b8; font-size: 13px; }
+.lesson-pdf__num {
+  position: absolute; right: 10px; bottom: 10px; padding: 2px 9px; border-radius: 99px;
+  font-size: 11px; font-weight: 700; background: rgba(15, 23, 42, .65); color: #fff;
+}
+.lesson-pdf__page.is-seen .lesson-pdf__num { background: #16a34a; }
+.lesson-pdf__loading, .lesson-pdf__error { padding: 40px 16px; text-align: center; color: #64748b; font-size: 14px; }
+.lesson-pdf__error { color: #b91c1c; }
+
+/* ---------- Percobaan kuis / pre test / post test ---------- */
+.peserta-attempt { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
+.peserta-attempt__mode {
+  padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .02em;
+  background: rgba(8, 145, 178, .12); color: #0e7490;
+}
+.peserta-attempt__mode--pre_test { background: rgba(22, 163, 74, .12); color: #15803d; }
+.peserta-attempt__mode--post_test { background: rgba(234, 88, 12, .12); color: #c2410c; }
+.peserta-attempt__tickets { display: inline-flex; gap: 4px; }
+.peserta-attempt__tickets span { width: 12px; height: 18px; border-radius: 4px; background: #e8a91c; }
+.peserta-attempt__tickets span.is-used { background: transparent; border: 1.5px dashed rgba(100, 116, 139, .55); }
+.peserta-attempt__text { font-size: 13px; color: var(--text-muted, #64748b); }
+.peserta-attempt__history { display: flex; flex-wrap: wrap; gap: 8px; }
+.peserta-attempt__history > div {
+  display: flex; align-items: baseline; gap: 8px; padding: 8px 12px; border-radius: 12px;
+  border: 1px solid rgba(100, 116, 139, .2); font-size: 13px;
+}
+.peserta-attempt__history > div.is-official { border-color: #2b488b; background: rgba(43, 72, 139, .06); }
+.peserta-attempt__history strong { font-size: 15px; }
+.peserta-attempt__history em { font-style: normal; font-size: 11px; font-weight: 700; color: #2b488b; text-transform: uppercase; }
+@media (max-width: 575.98px) {
+  .lesson-track { padding: 12px; gap: 10px; }
+  .lesson-track__pct { font-size: 16px; min-width: 44px; }
+}

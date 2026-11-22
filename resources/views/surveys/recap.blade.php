@@ -128,7 +128,7 @@
                                     @php
                                         $nilaiAkhir = $res->max_possible_score > 0 ? ($res->total_score / $res->max_possible_score) * 100 : 0;
                                     @endphp
-                                    <tr>
+                                    <tr class="{{ $res->reset_at ? 'opacity-50' : '' }}">
                                         <td>{{ $responses->firstItem() + $index }}</td>
                                         <td>
                                             <div class="fw-medium">{{ $res->user?->name ?? __('User terhapus') }}</div>
@@ -137,6 +137,12 @@
                                         <td>
                                             <div class="fw-medium text-truncate" style="max-width: 250px;">{{ $res->lesson?->module?->course?->judul ?? ($res->lesson?->course?->judul ?? __('N/A')) }}</div>
                                             <span class="fs-12 text-muted">{{ $res->lesson?->judul ?? $res->lesson?->title }}</span>
+                                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                                <span class="badge bg-light text-dark border">{{ __('Percobaan ke-:n', ['n' => $res->attempt_number ?? 1]) }}</span>
+                                                @if ($res->reset_at)
+                                                    <span class="badge bg-secondary-transparent text-secondary" title="{{ $res->reset_reason }}">{{ __('Di-reset :date oleh :name', ['date' => $res->reset_at->translatedFormat('d M Y H:i'), 'name' => $res->resetter?->name ?? '-']) }}</span>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             <span class="fs-15 fw-bold text-dark">{{ number_format($res->total_score, 0) }}</span>
@@ -158,11 +164,20 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td>{{ $res->updated_at?->translatedFormat('d M Y, H:i') }}</td>
+                                        <td>{{ $res->created_at?->translatedFormat('d M Y, H:i') }}</td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-primary-light btn-wave" data-bs-toggle="modal" data-bs-target="#modal-grade-{{ $res->id }}">
                                                 <i class="ri-file-list-3-line me-1"></i>{{ __('Periksa / Nilai Esai') }}
                                             </button>
+                                            @if (! $res->reset_at && $res->lesson)
+                                                <form action="{{ route('surveys.recap.reset-attempts', $res) }}" method="POST" class="d-inline js-reset-attempt" data-peserta="{{ $res->user?->name }}" data-lesson="{{ $res->lesson?->judul }}">
+                                                    @csrf
+                                                    <input type="hidden" name="reason" value="">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-wave mt-1" title="{{ __('Reset percobaan peserta ini agar bisa mengerjakan ulang') }}">
+                                                        <i class="ri-restart-line me-1"></i>{{ __('Reset') }}
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -323,3 +338,37 @@
         </div>
     @endforeach
 @endsection
+
+@push('scripts')
+    <script>
+        // Konfirmasi reset percobaan + alasan (opsional), dicatat di data jawaban.
+        document.querySelectorAll('.js-reset-attempt').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (form.dataset.confirmed === '1') return;
+                e.preventDefault();
+                var text = 'Reset semua percobaan aktif ' + (form.dataset.peserta || 'peserta') + ' pada "' + (form.dataset.lesson || '') + '"? Jawaban lama tetap tersimpan sebagai riwayat, dan peserta bisa mengerjakan ulang.';
+                var submit = function (reason) {
+                    form.querySelector('[name="reason"]').value = reason || '';
+                    form.dataset.confirmed = '1';
+                    form.submit();
+                };
+                if (window.Swal) {
+                    Swal.fire({
+                        title: 'Reset percobaan?',
+                        text: text,
+                        input: 'text',
+                        inputPlaceholder: 'Alasan reset (opsional)',
+                        inputAttributes: { maxlength: 255 },
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, reset',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#dc2626',
+                    }).then(function (r) { if (r.isConfirmed) submit(r.value); });
+                } else if (window.confirm(text)) {
+                    submit(window.prompt('Alasan reset (opsional)') || '');
+                }
+            });
+        });
+    </script>
+@endpush

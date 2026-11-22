@@ -13,11 +13,13 @@ class SurveyRecapController extends Controller
     public function index(Survey $survey)
     {
         $responses = $survey->responses()
-            ->with(['user', 'lesson.module.course', 'answers.question', 'answers.option'])
+            ->with(['user', 'resetter:id,name', 'lesson.module.course', 'answers.question', 'answers.option'])
             ->latest()
             ->paginate(20);
 
+        // Statistik hanya dari percobaan aktif (yang di-reset tidak dihitung).
         $courseRecap = $survey->responses()
+            ->whereNull('reset_at')
             ->with('lesson.module.course')
             ->get()
             ->groupBy(function($item) {
@@ -34,9 +36,9 @@ class SurveyRecapController extends Controller
             });
 
         $overallStats = [
-            'total_responses' => $survey->responses()->count(),
-            'average_score' => $survey->responses()->avg('total_score') ?? 0,
-            'pending_essays' => $survey->responses()->where('grading_status', 'pending_essay')->count(),
+            'total_responses' => $survey->responses()->whereNull('reset_at')->count(),
+            'average_score' => $survey->responses()->whereNull('reset_at')->avg('total_score') ?? 0,
+            'pending_essays' => $survey->responses()->whereNull('reset_at')->where('grading_status', 'pending_essay')->count(),
         ];
 
         return view('surveys.recap', compact('survey', 'responses', 'courseRecap', 'overallStats'));
@@ -67,6 +69,28 @@ class SurveyRecapController extends Controller
         return back()->with('success', __('Nilai esai berhasil disimpan. Esai tidak ikut dihitung dalam skor otomatis.'));
     }
 
+    /** Reset semua percobaan aktif peserta pada materi dari response ini (ditandai, tidak dihapus). */
+    public function resetAttempts(Request $request, SurveyResponse $response, \App\Services\SurveyAttemptService $attempts)
+    {
+        $data = $request->validate(['reason' => ['nullable', 'string', 'max:255']]);
+
+        if (! $response->lesson || ! $response->user) {
+            return back()->with('error', __('Materi atau peserta untuk jawaban ini sudah tidak ada.'));
+        }
+
+        $count = $attempts->reset($response->user, $response->lesson, $request->user(), $data['reason'] ?? null);
+
+        if ($count === 0) {
+            return back()->with('error', __('Tidak ada percobaan aktif yang bisa di-reset (mungkin sudah di-reset admin lain).'));
+        }
+
+        return back()->with('success', __(':n percobaan :name pada ":lesson" di-reset. Peserta dapat mengerjakan ulang.', [
+            'n' => $count,
+            'name' => $response->user->name,
+            'lesson' => $response->lesson->judul,
+        ]));
+    }
+
     public function exportParticipants(Survey $survey)
     {
         $fileName = 'rekap_nilai_peserta_' . str($survey->title)->slug() . '_' . date('Y-m-d_H-i') . '.csv';
@@ -86,6 +110,7 @@ class SurveyRecapController extends Controller
                 'Nama Peserta',
                 'Email Peserta',
                 'Kursus / Materi',
+                'Percobaan Ke',
                 'Skor Diperoleh',
                 'Skor Maksimal',
                 'Status Penilaian',
@@ -98,10 +123,11 @@ class SurveyRecapController extends Controller
                     $res->user?->name ?? '-',
                     $res->user?->email ?? '-',
                     ($res->lesson?->module?->course?->judul ?? '-') . ' (' . ($res->lesson?->judul ?? '-') . ')',
+                    $res->attempt_number ?? 1,
                     number_format($res->total_score, 0),
                     number_format($res->max_possible_score, 0),
-                    $res->grading_status === 'pending_essay' ? 'Menunggu Penilaian Esai' : 'Selesai',
-                    $res->updated_at?->format('Y-m-d H:i:s'),
+                    $res->reset_at ? 'Di-reset admin' : ($res->grading_status === 'pending_essay' ? 'Menunggu Penilaian Esai' : 'Selesai'),
+                    $res->created_at?->format('Y-m-d H:i:s'),
                 ], ';');
             }
 

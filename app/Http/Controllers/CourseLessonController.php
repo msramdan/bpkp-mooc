@@ -71,9 +71,10 @@ class CourseLessonController extends Controller implements HasMiddleware
                 'video_url' => $videoUrl,
                 'file_url' => $fileUrl,
                 'survey_id' => $tipe === 'survey' ? ($data['survey_id'] ?? null) : null,
-                'certificate_template_id' => $tipe === 'sertifikat' && !empty($request->input('certificate_template_id')) ? (int) $request->input('certificate_template_id') : null,
+                ...$this->attemptSettings($request, $tipe),
+                'certificate_template_id' => $tipe === 'sertifikat' && !empty($request->input('certificate_template_id')) ? (string) $request->input('certificate_template_id') : null,
                 'require_all_lessons' => $tipe === 'sertifikat' ? $request->boolean('require_all_lessons', true) : true,
-                'prerequisite_survey_id' => $tipe === 'sertifikat' && !empty($request->input('prerequisite_survey_id')) ? (int) $request->input('prerequisite_survey_id') : null,
+                'prerequisite_survey_id' => $tipe === 'sertifikat' && !empty($request->input('prerequisite_survey_id')) ? (string) $request->input('prerequisite_survey_id') : null,
                 'passing_grade' => $tipe === 'sertifikat' ? (int) $request->input('passing_grade', 0) : 0,
                 'assignment_allow_text' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_text') : false,
                 'assignment_allow_file' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_file', true) : false,
@@ -120,9 +121,10 @@ class CourseLessonController extends Controller implements HasMiddleware
             'tipe' => $tipe,
             'durasi_menit' => $data['durasi_menit'] ?? 0,
             'survey_id' => $tipe === 'survey' ? ($data['survey_id'] ?? null) : null,
-            'certificate_template_id' => $tipe === 'sertifikat' && !empty($request->input('certificate_template_id')) ? (int) $request->input('certificate_template_id') : null,
+            ...$this->attemptSettings($request, $tipe),
+            'certificate_template_id' => $tipe === 'sertifikat' && !empty($request->input('certificate_template_id')) ? (string) $request->input('certificate_template_id') : null,
             'require_all_lessons' => $tipe === 'sertifikat' ? $request->boolean('require_all_lessons', true) : true,
-            'prerequisite_survey_id' => $tipe === 'sertifikat' && !empty($request->input('prerequisite_survey_id')) ? (int) $request->input('prerequisite_survey_id') : null,
+            'prerequisite_survey_id' => $tipe === 'sertifikat' && !empty($request->input('prerequisite_survey_id')) ? (string) $request->input('prerequisite_survey_id') : null,
             'passing_grade' => $tipe === 'sertifikat' ? (int) $request->input('passing_grade', 0) : 0,
             'assignment_allow_text' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_text') : false,
             'assignment_allow_file' => $tipe === 'penugasan' ? $request->boolean('assignment_allow_file', true) : false,
@@ -245,5 +247,21 @@ class CourseLessonController extends Controller implements HasMiddleware
         if ($lesson->course_module_id !== $module->id) {
             abort(404);
         }
+    }
+
+    /** Jenis, maks percobaan, dan kebijakan nilai untuk materi survey. Pre test selalu 1 kali. */
+    private function attemptSettings(\Illuminate\Http\Request $request, string $tipe): array
+    {
+        if ($tipe !== 'survey') {
+            return ['survey_mode' => 'kuesioner', 'max_attempts' => 1, 'attempt_score_policy' => 'highest'];
+        }
+
+        $mode = array_key_exists((string) $request->input('survey_mode'), \App\Services\SurveyAttemptService::MODES)
+            ? (string) $request->input('survey_mode') : 'kuesioner';
+        $max = $mode === 'pre_test' ? 1 : max(1, min(\App\Services\SurveyAttemptService::MAX_ATTEMPTS_LIMIT, (int) $request->input('max_attempts', 1)));
+        $policy = array_key_exists((string) $request->input('attempt_score_policy'), \App\Services\SurveyAttemptService::POLICIES)
+            ? (string) $request->input('attempt_score_policy') : 'highest';
+
+        return ['survey_mode' => $mode, 'max_attempts' => $max, 'attempt_score_policy' => $policy];
     }
 }

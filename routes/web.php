@@ -73,7 +73,8 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::get('/kursus/{course}/materi/{lesson}/cetak-sertifikat', [PesertaLessonController::class, 'printCertificate'])->middleware('permission:peserta kursus view')->name('kursus.lessons.certificate.print');
         Route::post('/kursus/{course}/materi/{lesson}/selesai', [PesertaLessonController::class, 'complete'])->middleware('permission:peserta kursus view')->name('kursus.lessons.complete');
         Route::post('/kursus/{course}/materi/{lesson}/kumpulkan', [PesertaLessonController::class, 'submit'])->middleware('permission:peserta kursus view')->name('kursus.lessons.submit');
-        Route::post('/kursus/{course}/materi/{lesson}/survey', [PesertaLessonController::class, 'submitSurvey'])->middleware('permission:peserta kursus view')->name('kursus.lessons.survey.submit');
+        Route::post('/kursus/{course}/materi/{lesson}/survey', [PesertaLessonController::class, 'submitSurvey'])->middleware(['permission:peserta kursus view', 'throttle:20,1'])->name('kursus.lessons.survey.submit');
+        Route::post('/kursus/{course}/materi/{lesson}/progres', [PesertaLessonController::class, 'trackProgress'])->middleware(['permission:peserta kursus view', 'throttle:90,1'])->name('kursus.lessons.progress');
         Route::get('/katalog', [PortalController::class, 'katalog'])->middleware('permission:peserta katalog view')->name('katalog.index');
         Route::post('/katalog/{course}/daftar', [CatalogEnrollmentController::class, 'store'])->middleware('permission:peserta katalog view')->name('katalog.enroll');
         Route::get('/progres', [PortalController::class, 'progres'])->middleware('permission:peserta progres view')->name('progres.index');
@@ -146,6 +147,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         // Survey Recap & Grading Routes
         Route::get('surveys/{survey}/recap', [\App\Http\Controllers\SurveyRecapController::class, 'index'])->name('surveys.recap.index');
         Route::post('surveys/responses/{response}/grade-essay', [\App\Http\Controllers\SurveyRecapController::class, 'gradeEssay'])->name('surveys.recap.grade-essay');
+        Route::post('surveys/responses/{response}/reset', [\App\Http\Controllers\SurveyRecapController::class, 'resetAttempts'])->name('surveys.recap.reset-attempts');
         Route::get('surveys/{survey}/recap/export-participants', [\App\Http\Controllers\SurveyRecapController::class, 'exportParticipants'])->name('surveys.recap.export-participants');
         Route::get('surveys/{survey}/recap/export-courses', [\App\Http\Controllers\SurveyRecapController::class, 'exportCourses'])->name('surveys.recap.export-courses');
 

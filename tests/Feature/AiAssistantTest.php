@@ -623,6 +623,7 @@ class AiAssistantTest extends TestCase
 
     public function test_sumopod_test_connection_lists_models_and_balance(): void
     {
+        $this->settings()->set(['available_models_anthropic' => []]);
         $this->settings()->setApiKey('sk-sumopod-test-'.Str::random(24), null, 'sumopod');
         Http::fake([
             'ai.sumopod.com/v1/models' => Http::response(['data' => [['id' => 'claude-sonnet-5-5'], ['id' => 'claude-haiku-5-5']]]),
@@ -639,6 +640,7 @@ class AiAssistantTest extends TestCase
 
     public function test_switching_provider_is_safe_and_keeps_each_provider_config(): void
     {
+        $switchesBefore = AiAssistantAuditLog::query()->where('action', 'settings.provider_switched')->count();
         $this->settings()->set(['model' => 'claude-opus-5-5', 'sumopod_model' => 'claude-haiku-5-5']);
 
         // Tanpa API key SumoPod: tidak boleh pindah.
@@ -676,7 +678,7 @@ class AiAssistantTest extends TestCase
         $this->settings()->flush();
         $this->assertSame('sumopod', $this->settings()->activeProvider());
 
-        $this->assertSame(1, AiAssistantAuditLog::query()->where('action', 'settings.provider_switched')->count());
+        $this->assertSame($switchesBefore + 1, AiAssistantAuditLog::query()->where('action', 'settings.provider_switched')->count());
     }
 
     public function test_switch_during_in_flight_request_does_not_break_it(): void

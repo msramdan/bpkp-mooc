@@ -60,21 +60,31 @@
                     </article>
                 @endif
 
+                @if ($viewTracking)
+                    @include('peserta.kursus.partials.view-tracker-bar', ['tracking' => $viewTracking])
+                @endif
+
                 @if ($type === 'video' && $lesson->isStreamableVideo())
                     <article class="peserta-lesson__card peserta-lesson__card--media">
                         <div class="peserta-lesson__media">
-                            <video class="peserta-lesson__player js-no-download" controls preload="metadata"
-                                controlsList="nodownload noplaybackrate" disablePictureInPicture
+                            <video class="peserta-lesson__player js-no-download" id="lessonVideo" controls preload="metadata"
+                                controlsList="nodownload noplaybackrate" disablePictureInPicture playsinline
                                 src="{{ $lesson->resolveMediaUrlPublic() }}" title="{{ $lesson->judul }}">
                                 {{ __('Browser Anda tidak mendukung pemutar video.') }}
                             </video>
                         </div>
                     </article>
                 @elseif ($type === 'video' && $lesson->embedVideoUrl())
+                    @php
+                        $embedSrc = $lesson->embedVideoUrl();
+                        if (($viewTracking['player'] ?? null) === 'youtube') {
+                            $embedSrc .= '?enablejsapi=1&rel=0&modestbranding=1&origin='.urlencode(request()->getSchemeAndHttpHost());
+                        }
+                    @endphp
                     <article class="peserta-lesson__card peserta-lesson__card--media">
                         <div class="peserta-lesson__media ratio ratio-16x9">
-                            <iframe class="peserta-lesson__player" src="{{ $lesson->embedVideoUrl() }}"
-                                title="{{ $lesson->judul }}" allowfullscreen loading="lazy"></iframe>
+                            <iframe class="peserta-lesson__player" id="lessonEmbed" src="{{ $embedSrc }}"
+                                title="{{ $lesson->judul }}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
                         </div>
                     </article>
                 @elseif ($type === 'berkas' && $lesson->externalUrl())
@@ -86,13 +96,18 @@
                         $berkasIsPdf = $berkasExt === 'pdf';
                     @endphp
                     <article class="peserta-lesson__card peserta-lesson__card--media">
-                        @if ($berkasIsPdf)
+                        @if ($berkasIsPdf && ($viewTracking['player'] ?? null) === 'pdf')
+                            {{-- Dirender per halaman agar bisa diketahui sampai halaman mana sudah dibaca. --}}
+                            <div class="lesson-pdf js-no-download" id="lessonPdf" data-src="{{ $berkasUrl }}">
+                                <div class="lesson-pdf__loading"><span class="spinner-border spinner-border-sm me-2"></span>{{ __('Memuat dokumen…') }}</div>
+                            </div>
+                        @elseif ($berkasIsPdf)
                             <div class="peserta-lesson__preview js-no-download">
                                 <iframe src="{{ $berkasUrl }}#toolbar=0&navpanes=0" title="{{ $lesson->judul }}" loading="lazy"></iframe>
                             </div>
                         @elseif ($berkasIsImage)
                             <div class="peserta-lesson__preview text-center js-no-download">
-                                <img src="{{ $berkasUrl }}" alt="{{ $lesson->judul }}" class="img-fluid" draggable="false">
+                                <img src="{{ $berkasUrl }}" alt="{{ $lesson->judul }}" class="img-fluid" draggable="false" id="lessonImage">
                             </div>
                         @else
                             {{-- Format Office/arsip tidak bisa ditampilkan di browser tanpa diunduh. --}}
@@ -251,13 +266,39 @@
                                 </div>
                             </div>
 
+                            @if ($attemptInfo)
+                                <div class="peserta-attempt mb-3">
+                                    <span class="peserta-attempt__mode peserta-attempt__mode--{{ $attemptInfo['mode'] }}">{{ __($attemptInfo['mode_label']) }}</span>
+                                    <div class="peserta-attempt__tickets" aria-label="{{ __('Percobaan') }}">
+                                        @for ($i = 1; $i <= $attemptInfo['max']; $i++)
+                                            <span class="{{ $i <= $attemptInfo['used'] ? 'is-used' : '' }}"></span>
+                                        @endfor
+                                    </div>
+                                    <span class="peserta-attempt__text">
+                                        {{ __('Percobaan :used dari :max', ['used' => $attemptInfo['used'], 'max' => $attemptInfo['max']]) }}
+                                        @if ($attemptInfo['max'] > 1)
+                                            · {{ __(':p yang dipakai', ['p' => __($attemptInfo['policy_label'])]) }}
+                                        @endif
+                                    </span>
+                                </div>
+                                @if ($attemptInfo['was_reset'])
+                                    <div class="alert alert-info py-2 fs-13">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>{{ __('Percobaan Anda sebelumnya telah di-reset oleh admin. Silakan kerjakan ulang.') }}
+                                    </div>
+                                @endif
+                            @endif
+
                             @if($surveyResponse)
                                 <div class="alert alert-success d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
                                     <div class="d-flex align-items-center">
                                         <i class="bi bi-check-circle-fill me-2 fs-5"></i>
                                         <div>
                                             <strong>{{ __('Selesai!') }}</strong><br>
-                                            {{ __('Jawaban Anda telah terkirim pada :date.', ['date' => $surveyResponse->updated_at?->translatedFormat('d F Y H:i')]) }}
+                                            @if (($attemptInfo['max'] ?? 1) > 1)
+                                                {{ __('Nilai yang dipakai dari percobaan ke-:n (:date).', ['n' => $surveyResponse->attempt_number, 'date' => $surveyResponse->created_at?->translatedFormat('d F Y H:i')]) }}
+                                            @else
+                                                {{ __('Jawaban Anda telah terkirim pada :date.', ['date' => $surveyResponse->created_at?->translatedFormat('d F Y H:i')]) }}
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="bg-white px-3 py-2 rounded shadow-sm text-end border">
@@ -279,9 +320,30 @@
                                 </div>
                             @endif
 
-                            {{-- Setelah dikirim hanya skor yang ditampilkan; soal & jawaban tidak diperlihatkan lagi. --}}
-                            @unless ($surveyResponse)
+                            @if ($surveyResponse && $attemptInfo && $attemptInfo['attempts']->count() > 1)
+                                <div class="peserta-attempt__history mb-3">
+                                    @foreach ($attemptInfo['attempts'] as $att)
+                                        <div class="{{ $att->id === $surveyResponse->id ? 'is-official' : '' }}">
+                                            <span>{{ __('Percobaan ke-:n', ['n' => $att->attempt_number]) }}</span>
+                                            <strong>{{ $att->max_possible_score > 0 ? number_format(\App\Services\SurveyScoring::percentage($att), 1) : __('Terkirim') }}</strong>
+                                            @if ($att->id === $surveyResponse->id)
+                                                <em>{{ __('dipakai') }}</em>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if ($surveyResponse && $attemptInfo && $attemptInfo['remaining'] > 0)
+                                <button type="button" class="btn btn-outline-primary btn-wave mb-3" id="surveyRetakeBtn">
+                                    <i class="bi bi-arrow-repeat me-1"></i>{{ __('Kerjakan lagi (sisa :n percobaan)', ['n' => $attemptInfo['remaining']]) }}
+                                </button>
+                            @endif
+
+                            {{-- Setelah dikirim hanya skor yang ditampilkan; form muncul lagi hanya jika masih ada sisa percobaan. --}}
+                            @if (! $surveyResponse || ($attemptInfo && $attemptInfo['remaining'] > 0))
                             <form id="surveySubmitForm" action="{{ route('peserta.kursus.lessons.survey.submit', [$course, $lesson]) }}" method="POST" novalidate
+                                class="{{ $surveyResponse ? 'd-none' : '' }}"
                                 data-confirm-title="{{ __('Apakah Anda yakin mengirim jawaban?') }}"
                                 data-confirm-text="{{ __('Jawaban yang sudah dikirim tidak dapat diubah.') }}"
                                 data-confirm-yes="{{ __('Ya, kirim') }}"
@@ -305,7 +367,7 @@
                                             <div class="ms-3">
                                                 @php
                                                     $oldVal = old('answers.'.$q->id);
-                                                    if (is_null($oldVal) && $surveyResponse) {
+                                                    if (false) { // percobaan ulang tidak diisi otomatis dari jawaban sebelumnya
                                                         $answered = clone $surveyResponse->answers;
                                                         $ans = $answered->where('survey_question_id', $q->id);
                                                         
@@ -370,7 +432,7 @@
                                     </button>
                                 </div>
                             </form>
-                            @endunless
+                            @endif
                         @else
                             <div class="peserta-lesson__soon">
                                 <i class="bi bi-clipboard2-data"></i>
@@ -488,7 +550,7 @@
                                 <span>{{ __('Pengisian') }}</span>
                                 <strong>{{ $surveyResponse ? __('Sudah mengerjakan') : __('Belum mengerjakan') }}</strong>
                             </li>
-                            @if ($surveyResponse)
+                            @if ($surveyResponse && $surveyResponse->max_possible_score > 0)
                                 <li>
                                     <span>{{ __('Nilai Akhir') }}</span>
                                     <strong class="text-primary">{{ number_format(($surveyResponse->max_possible_score > 0 ? ($surveyResponse->total_score / $surveyResponse->max_possible_score) * 100 : 0), 1) }} / 100</strong>
@@ -505,7 +567,7 @@
                             </a>
                         @endif
 
-                        @if (! $isCompleted && ! in_array($type, ['penugasan', 'survey', 'pre_test', 'post_test', 'sertifikat'], true) && ! $lesson->survey_id)
+                        @if (! $isCompleted && ! $viewTracking && ! in_array($type, ['penugasan', 'survey', 'pre_test', 'post_test', 'sertifikat'], true) && ! $lesson->survey_id)
                             <form action="{{ route('peserta.kursus.lessons.complete', [$course, $lesson]) }}" method="post" class="flex-grow-1">
                                 @csrf
                                 <button type="submit" class="btn btn-primary btn-wave w-100">
@@ -535,7 +597,7 @@
     </div>
 @endsection
 
-@push('styles')
+@push('css')
     @if ($type === 'h5p')
         <link rel="stylesheet" href="{{ asset('vendor/h5p-standalone/styles/h5p.css') }}">
         <style>
@@ -555,6 +617,18 @@
         });
         document.addEventListener('dragstart', function (e) {
             if (e.target.closest && e.target.closest('.js-no-download')) e.preventDefault();
+        });
+
+        // Tombol "Kerjakan lagi": tampilkan form percobaan berikutnya.
+        document.addEventListener('DOMContentLoaded', function () {
+            var retake = document.getElementById('surveyRetakeBtn');
+            var form = document.getElementById('surveySubmitForm');
+            if (!retake || !form) return;
+            retake.addEventListener('click', function () {
+                form.classList.remove('d-none');
+                retake.classList.add('d-none');
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         });
 
         // Konfirmasi sebelum kirim jawaban kuis/survei.
@@ -670,3 +744,14 @@
         </script>
     @endif
 @endpush
+
+@if ($viewTracking)
+    @push('scripts')
+        @if (($viewTracking['player'] ?? null) === 'pdf')
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        @elseif (($viewTracking['player'] ?? null) === 'vimeo')
+            <script src="https://player.vimeo.com/api/player.js"></script>
+        @endif
+        <script src="{{ asset('backend/assets/js/lesson-tracker.js') }}?v={{ @filemtime(public_path('backend/assets/js/lesson-tracker.js')) ?: time() }}"></script>
+    @endpush
+@endif

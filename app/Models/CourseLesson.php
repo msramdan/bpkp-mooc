@@ -24,6 +24,9 @@ class CourseLesson extends Model
         'video_url',
         'file_url',
         'survey_id',
+        'survey_mode',
+        'max_attempts',
+        'attempt_score_policy',
         'certificate_template_id',
         'require_all_lessons',
         'prerequisite_survey_id',
@@ -50,6 +53,7 @@ class CourseLesson extends Model
             'show_description' => 'boolean',
             'is_preview' => 'boolean',
             'is_required' => 'boolean',
+            'max_attempts' => 'integer',
         ];
     }
 

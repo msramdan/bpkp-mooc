@@ -21,6 +21,12 @@ use App\Models\SurveyResponse;
 use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use App\Services\CertificateService;
+use App\Services\Exceptions\SurveyAttemptException;
+use App\Services\LessonViewTracker;
+use App\Services\SurveyAttemptService;
+use App\Services\SurveyScoring;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller implements HasMiddleware
 {
@@ -31,7 +37,7 @@ class LessonController extends Controller implements HasMiddleware
         ];
     }
 
-    public function show(Course $course, CourseLesson $lesson, LearningProgressService $progress): View|RedirectResponse
+    public function show(Course $course, CourseLesson $lesson, LearningProgressService $progress, SurveyAttemptService $attempts, LessonViewTracker $tracker): View|RedirectResponse
     {
         $this->authorize('view', $course);
 
@@ -63,6 +69,8 @@ class LessonController extends Controller implements HasMiddleware
 
         $submission = null;
         $surveyResponse = null;
+        $attemptInfo = null;
+        $viewTracking = null;
 
         if ($lesson->normalizedType() === 'penugasan') {
             $submission = AssignmentSubmission::query()
@@ -71,14 +79,29 @@ class LessonController extends Controller implements HasMiddleware
                 ->first();
         } elseif ($lesson->normalizedType() === 'survey' || $lesson->survey_id) {
             $lesson->load('survey.questions.options');
-            $surveyResponse = SurveyResponse::with('answers')->where('survey_id', $lesson->survey_id)
-                ->where('user_id', $user->id)
-                ->where('course_lesson_id', $lesson->id)
-                ->first();
+            $active = $attempts->activeAttempts($user, $lesson)->load('answers');
+            $surveyResponse = $attempts->officialResponse($user, $lesson, $active);
+
+            $attemptInfo = [
+                'mode' => $attempts->mode($lesson),
+                'mode_label' => SurveyAttemptService::MODES[$attempts->mode($lesson)],
+                'policy' => $attempts->policy($lesson),
+                'policy_label' => SurveyAttemptService::POLICIES[$attempts->policy($lesson)],
+                'max' => $attempts->maxAttempts($lesson),
+                'used' => $active->count(),
+                'remaining' => $attempts->remaining($user, $lesson, $active),
+                'attempts' => $active,
+                'was_reset' => $active->isEmpty() && SurveyResponse::query()
+                    ->where('user_id', $user->id)->where('course_lesson_id', $lesson->id)->whereNotNull('reset_at')->exists(),
+            ];
 
             if (! $surveyResponse) {
                 $isCompleted = false;
             }
+        }
+
+        if ($tracker->trackingKind($lesson) !== null) {
+            $viewTracking = $tracker->state($user, $lesson);
         }
 
         $certGate = null;
@@ -106,11 +129,43 @@ class LessonController extends Controller implements HasMiddleware
             ),
             'submission' => $submission,
             'surveyResponse' => $surveyResponse,
+            'attemptInfo' => $attemptInfo,
+            'viewTracking' => $viewTracking,
             'typeMeta' => ActivityTypes::find($lesson->normalizedType()),
         ]);
     }
 
-    public function complete(Course $course, CourseLesson $lesson, LearningProgressService $progress): RedirectResponse
+    /**
+     * Heartbeat progres video/dokumen dari player. Semua angka divalidasi ulang di server.
+     */
+    public function trackProgress(Request $request, Course $course, CourseLesson $lesson, LearningProgressService $progress, LessonViewTracker $tracker): JsonResponse
+    {
+        $this->authorize('view', $course);
+
+        if (! $progress->belongsToCourse($lesson, $course) || $tracker->trackingKind($lesson) === null) {
+            abort(404);
+        }
+
+        $user = PesertaAccess::user();
+        PesertaAccess::enrollmentForCourse($course);
+
+        if (! $progress->isLessonAccessible($user, $course, $lesson)) {
+            return response()->json(['ok' => false, 'message' => __('Materi ini masih terkunci.')], 403);
+        }
+
+        $data = $request->validate([
+            'position' => ['nullable', 'numeric'],
+            'duration' => ['nullable', 'numeric'],
+            'ended' => ['nullable', 'boolean'],
+            'total_pages' => ['nullable', 'integer'],
+            'pages' => ['nullable', 'array', 'max:200'],
+            'pages.*' => ['integer'],
+        ]);
+
+        return response()->json(['ok' => true] + $tracker->heartbeat($user, $course, $lesson, $data));
+    }
+
+    public function complete(Course $course, CourseLesson $lesson, LearningProgressService $progress, LessonViewTracker $tracker): RedirectResponse
     {
         $this->authorize('view', $course);
 
@@ -133,11 +188,19 @@ class LessonController extends Controller implements HasMiddleware
             $hasSurveyResponse = \App\Models\SurveyResponse::query()
                 ->where('user_id', PesertaAccess::user()->id)
                 ->where('course_lesson_id', $lesson->id)
+                ->active()
                 ->exists();
 
             if (! $hasSurveyResponse) {
                 return back()->with('error', __('Silakan isi dan kirim kuesioner/soal terlebih dahulu sebelum menyelesaikan materi ini.'));
             }
+        }
+
+        // Video & dokumen yang dilacak: selesai otomatis, tidak bisa ditandai manual.
+        if ($tracker->trackingKind($lesson) !== null && ! $tracker->isCompleted(PesertaAccess::user(), $lesson)) {
+            return back()->with('error', $tracker->trackingKind($lesson) === 'video'
+                ? __('Tonton video sampai selesai untuk menyelesaikan materi ini.')
+                : __('Baca dokumen sampai halaman terakhir untuk menyelesaikan materi ini.'));
         }
 
         $enrollment = $progress->completeLesson(PesertaAccess::user(), $course, $lesson);
@@ -233,15 +296,18 @@ class LessonController extends Controller implements HasMiddleware
         Request $request,
         Course $course,
         CourseLesson $lesson,
-        LearningProgressService $progress
+        LearningProgressService $progress,
+        SurveyAttemptService $attempts,
+        SurveyScoring $scoring
     ): RedirectResponse {
         $this->authorize('view', $course);
 
-        if (! $progress->belongsToCourse($lesson, $course) || $lesson->normalizedType() !== 'survey') {
+        if (! $progress->belongsToCourse($lesson, $course) || $lesson->normalizedType() !== 'survey' || ! $lesson->survey_id) {
             abort(404);
         }
 
         $user = PesertaAccess::user();
+        PesertaAccess::enrollmentForCourse($course);
         $completedIds = $progress->completedLessonIds($user, $course);
 
         if (! $progress->isLessonAccessible($user, $course, $lesson, $completedIds)) {
@@ -249,120 +315,139 @@ class LessonController extends Controller implements HasMiddleware
                 ->with('error', __('Materi ini masih terkunci. Selesaikan materi sebelumnya terlebih dahulu.'));
         }
 
-        // Jawaban hanya bisa dikirim sekali (tidak ada fitur "Perbarui Jawaban").
-        $alreadySubmitted = SurveyResponse::query()
-            ->where('survey_id', $lesson->survey_id)
-            ->where('user_id', $user->id)
-            ->where('course_lesson_id', $lesson->id)
-            ->exists();
-        if ($alreadySubmitted) {
+        // Cek cepat sebelum validasi (pengecekan final tetap di dalam lock).
+        if ($attempts->remaining($user, $lesson) <= 0) {
             return to_route('peserta.kursus.lessons.show', [$course, $lesson])
-                ->with('error', __('Anda sudah mengirim jawaban untuk aktivitas ini.'));
+                ->with('error', $attempts->maxAttempts($lesson) === 1
+                    ? __('Anda sudah mengirim jawaban untuk aktivitas ini.')
+                    : __('Batas percobaan (:n kali) sudah habis.', ['n' => $attempts->maxAttempts($lesson)]));
         }
 
-        $lesson->load('survey.questions');
+        $lesson->load('survey.questions.options');
+        $answers = $this->validatedAnswers($request, $lesson);
 
-        // Validation for required questions
-        $rules = [];
-        $messages = [];
-        foreach ($lesson->survey->questions as $question) {
-            if ($question->is_required) {
-                if ($question->type === 'checkbox') {
-                    $rules['answers.' . $question->id] = ['required', 'array'];
-                    $messages['answers.' . $question->id . '.required'] = __('Pertanyaan ":text" wajib diisi.', ['text' => $question->question_text]);
-                } else {
-                    $rules['answers.' . $question->id] = ['required'];
-                    $messages['answers.' . $question->id . '.required'] = __('Pertanyaan ":text" wajib diisi.', ['text' => $question->question_text]);
-                }
-            }
-        }
-
-        $validated = $request->validate($rules, $messages);
-        $answers = $request->input('answers', []);
-
-        DB::transaction(function () use ($lesson, $user, $answers) {
-            $response = SurveyResponse::firstOrCreate([
-                'survey_id' => $lesson->survey_id,
-                'user_id' => $user->id,
-                'course_lesson_id' => $lesson->id,
-            ]);
-
-            // Clear old answers if updating
-            $response->answers()->delete();
-
-
-            foreach ($lesson->survey->questions as $q) {
-                $answerVal = $answers[$q->id] ?? null;
-                if ($answerVal === null && !$q->is_required) {
-                    continue;
-                }
-
-                if ($q->type === 'rating') {
-                    $score = (int) $answerVal;
-                    $response->answers()->create([
-                        'survey_question_id' => $q->id,
-                        'answer_text' => $answerVal,
-                        'score' => $score,
-                        'is_graded' => true,
-                    ]);
-                } elseif ($q->type === 'radio') {
-                    $score = 0;
-                    if ($answerVal) {
-                        $option = $q->options()->where('id', $answerVal)->first();
-                        if ($option && ($option->is_correct || $option->score_value >= 100)) {
-                            $score = 100;
-                        }
-                    }
-                    $response->answers()->create([
-                        'survey_question_id' => $q->id,
-                        'survey_option_id' => $answerVal ?: null,
-                        'score' => $score,
-                        'is_graded' => true,
-                    ]);
-                } elseif ($q->type === 'checkbox') {
-                    $selectedIds = is_array($answerVal) ? $answerVal : [];
-                    $correctIds = $q->options()->where('is_correct', true)->pluck('id')->toArray();
-                    
-                    $score = 0;
-                    if (count($correctIds) > 0) {
-                        sort($selectedIds);
-                        sort($correctIds);
-                        if (count($selectedIds) === count($correctIds) && empty(array_diff($selectedIds, $correctIds))) {
-                            $score = 100;
-                        } else {
-                            $score = 0;
-                        }
+        try {
+            $attempts->submit($user, $course, $lesson, function ($response) use ($lesson, $answers, $scoring): void {
+                foreach ($lesson->survey->questions as $q) {
+                    $answerVal = $answers[$q->id] ?? null;
+                    if ($answerVal === null || $answerVal === '' || $answerVal === []) {
+                        continue;
                     }
 
-
-                    if (is_array($answerVal)) {
-                        foreach ($answerVal as $idx => $optId) {
+                    if ($q->type === 'rating') {
+                        $response->answers()->create([
+                            'survey_question_id' => $q->id,
+                            'answer_text' => (string) $answerVal,
+                            'score' => (int) $answerVal,
+                            'is_graded' => true,
+                        ]);
+                    } elseif ($q->type === 'radio') {
+                        $option = $q->options->firstWhere('id', $answerVal);
+                        $response->answers()->create([
+                            'survey_question_id' => $q->id,
+                            'survey_option_id' => $option->id,
+                            'score' => ($option->is_correct || $option->score_value >= 100) ? 100 : 0,
+                            'is_graded' => true,
+                        ]);
+                    } elseif ($q->type === 'checkbox') {
+                        foreach (array_values(array_unique($answerVal)) as $optId) {
                             $response->answers()->create([
                                 'survey_question_id' => $q->id,
                                 'survey_option_id' => $optId,
-                                'score' => $idx === 0 ? $score : 0,
+                                'score' => 0,
                                 'is_graded' => true,
                             ]);
                         }
+                    } elseif ($q->type === 'text') {
+                        $response->answers()->create([
+                            'survey_question_id' => $q->id,
+                            'answer_text' => (string) $answerVal,
+                            'score' => 0,
+                            'is_graded' => false,
+                        ]);
                     }
-                } elseif ($q->type === 'text') {
-                    $response->answers()->create([
-                        'survey_question_id' => $q->id,
-                        'answer_text' => is_array($answerVal) ? null : $answerVal,
-                        'score' => 0,
-                        'is_graded' => false,
-                    ]);
                 }
-            }
 
-            // Skor resmi: hanya PG & checklist berkunci yang dihitung (lihat SurveyScoring).
-            app(\App\Services\SurveyScoring::class)->recalculate($response->fresh());
-        });
+                // Skor resmi: hanya PG & checklist berkunci yang dihitung (lihat SurveyScoring).
+                $scoring->recalculate($response->fresh());
+            });
+        } catch (SurveyAttemptException $e) {
+            return to_route('peserta.kursus.lessons.show', [$course, $lesson])->with('error', $e->getMessage());
+        }
 
         $progress->completeLesson($user, $course, $lesson);
 
         return to_route('peserta.kursus.lessons.show', [$course, $lesson])
-            ->with('success', __('Terima kasih! Kuesioner berhasil dikirim.'));
+            ->with('success', __('Terima kasih! Jawaban berhasil dikirim.'));
+    }
+
+    /**
+     * Validasi jawaban: wajib diisi, opsi harus milik soal tersebut, nilai rating dalam rentang,
+     * teks dibatasi panjangnya. Jawaban untuk soal yang tidak ada di survey diabaikan.
+     *
+     * @return array<string, mixed>
+     */
+    private function validatedAnswers(Request $request, CourseLesson $lesson): array
+    {
+        $raw = $request->input('answers', []);
+        $raw = is_array($raw) ? $raw : [];
+        $errors = [];
+        $clean = [];
+
+        foreach ($lesson->survey->questions as $q) {
+            $key = 'answers.'.$q->id;
+            $val = $raw[$q->id] ?? null;
+            $optionIds = $q->options->pluck('id')->map(fn ($id) => (string) $id)->all();
+            $empty = $val === null || $val === '' || $val === [];
+
+            if ($empty) {
+                if ($q->is_required) {
+                    $errors[$key] = __('Pertanyaan ":text" wajib diisi.', ['text' => $q->question_text]);
+                }
+
+                continue;
+            }
+
+            $invalid = __('Jawaban untuk pertanyaan ":text" tidak valid.', ['text' => $q->question_text]);
+
+            switch ($q->type) {
+                case 'radio':
+                    if (! is_scalar($val) || ! in_array((string) $val, $optionIds, true)) {
+                        $errors[$key] = $invalid;
+                    } else {
+                        $clean[$q->id] = (string) $val;
+                    }
+                    break;
+                case 'checkbox':
+                    $vals = is_array($val) ? array_map('strval', array_filter($val, 'is_scalar')) : [];
+                    if ($vals === [] || array_diff($vals, $optionIds) !== [] || count($vals) !== count(is_array($val) ? $val : [])) {
+                        $errors[$key] = $invalid;
+                    } else {
+                        $clean[$q->id] = $vals;
+                    }
+                    break;
+                case 'rating':
+                    if (! is_scalar($val) || filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]) === false) {
+                        $errors[$key] = $invalid;
+                    } else {
+                        $clean[$q->id] = (int) $val;
+                    }
+                    break;
+                case 'text':
+                    if (! is_scalar($val) || mb_strlen((string) $val) > 10000) {
+                        $errors[$key] = __('Jawaban untuk pertanyaan ":text" terlalu panjang (maks 10.000 karakter).', ['text' => $q->question_text]);
+                    } else {
+                        $clean[$q->id] = trim((string) $val);
+                    }
+                    break;
+            }
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        return $clean;
     }
 
     public function printCertificate(Course $course, CourseLesson $lesson, LearningProgressService $progress, CertificateService $certService): View|RedirectResponse
@@ -442,15 +527,22 @@ class LessonController extends Controller implements HasMiddleware
         $userScore = 0;
         $scoreCalculated = false;
 
+        $attempts = app(SurveyAttemptService::class);
+        $courseLessonIds = $ordered->pluck('id')->map(fn ($id) => (string) $id)->all();
+
         if ($lesson->prerequisite_survey_id) {
             $prereqSurvey = \App\Models\Survey::find($lesson->prerequisite_survey_id);
-            $prereqResp = SurveyResponse::where('survey_id', $lesson->prerequisite_survey_id)
-                ->where('user_id', $user->id)
+            // Nilai resmi (percobaan aktif, sesuai kebijakan); utamakan materi di kursus ini.
+            $official = $attempts->officialBySurveys($user, [(string) $lesson->prerequisite_survey_id]);
+            $inCourse = $official->filter(fn ($r, $key) => in_array((string) $key, $courseLessonIds, true));
+            $prereqResp = ($inCourse->isNotEmpty() ? $inCourse : $official)
+                ->sortByDesc(fn ($r) => SurveyScoring::percentage($r))
                 ->first();
+
             if ($prereqResp) {
                 $surveyRequirementCompleted = true;
                 if ($prereqResp->max_possible_score > 0) {
-                    $userScore = ($prereqResp->total_score / $prereqResp->max_possible_score) * 100;
+                    $userScore = SurveyScoring::percentage($prereqResp);
                     $scoreCalculated = true;
                 }
             } else {
@@ -459,14 +551,15 @@ class LessonController extends Controller implements HasMiddleware
         }
 
         if (! $scoreCalculated) {
-            $courseSurveyIds = $ordered->where('survey_id', '!=', null)->pluck('survey_id')->unique()->toArray();
-            if (!empty($courseSurveyIds)) {
-                $responses = SurveyResponse::whereIn('survey_id', $courseSurveyIds)
-                    ->where('user_id', $user->id)
-                    ->where('max_possible_score', '>', 0)
-                    ->get();
+            $courseSurveyIds = $ordered->where('survey_id', '!=', null)->pluck('survey_id')->map(fn ($id) => (string) $id)->unique()->values()->all();
+            if (! empty($courseSurveyIds)) {
+                // Satu nilai resmi per materi di kursus ini (percobaan aktif saja).
+                $responses = $attempts->officialBySurveys($user, $courseSurveyIds)
+                    ->filter(fn ($r, $key) => in_array((string) $key, $courseLessonIds, true))
+                    ->filter(fn ($r) => $r->max_possible_score > 0);
+
                 if ($responses->count() > 0) {
-                    $userScore = $responses->sum(fn($r) => ($r->total_score / $r->max_possible_score) * 100) / $responses->count();
+                    $userScore = $responses->avg(fn ($r) => SurveyScoring::percentage($r));
                     $scoreCalculated = true;
                 }
             }

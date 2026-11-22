@@ -353,7 +353,7 @@ class DataTools
         $allIds = $lessons->flatten()->pluck('id');
         $completed = LessonCompletion::query()->where('user_id', $user->id)->whereIn('course_lesson_id', $allIds)->pluck('course_lesson_id')->flip();
         $submitted = AssignmentSubmission::query()->where('user_id', $user->id)->whereIn('course_lesson_id', $allIds)->pluck('course_lesson_id')->flip();
-        $answered = SurveyResponse::query()->where('user_id', $user->id)->whereIn('course_lesson_id', $allIds)->pluck('course_lesson_id')->flip();
+        $answered = SurveyResponse::query()->active()->where('user_id', $user->id)->whereIn('course_lesson_id', $allIds)->pluck('course_lesson_id')->flip();
 
         $today = $this->quota->now()->startOfDay();
         $items = [];
@@ -387,6 +387,7 @@ class DataTools
     private function quizResults(User $user): array
     {
         $responses = SurveyResponse::query()
+            ->active()
             ->where('user_id', $user->id)
             ->with(['lesson:id,judul,course_module_id,tipe', 'lesson.module:id,course_id', 'lesson.module.course:id,judul'])
             ->latest()
@@ -398,6 +399,7 @@ class DataTools
             'hasil' => $responses->map(fn (SurveyResponse $r) => [
                 'kursus' => $r->lesson?->module?->course?->judul,
                 'aktivitas' => $r->lesson?->judul,
+                'percobaan_ke' => $r->attempt_number ?? 1,
                 'skor' => $r->max_possible_score > 0 ? SurveyScoring::percentage($r) : null,
                 'keterangan' => $r->max_possible_score > 0 ? null : 'Survei tanpa nilai',
                 'dikirim' => $this->date($r->created_at),

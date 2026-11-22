@@ -106,6 +106,9 @@
                                     'external_url' => (string) ($lesson->externalUrl() ?? ''),
                                     'media_url' => (string) ($lesson->resolveMediaUrlPublic() ?? $lesson->externalUrl() ?? ''),
                                     'survey_id' => (string) ($lesson->survey_id ?? ''),
+                                    'survey_mode' => (string) ($lesson->survey_mode ?: 'kuesioner'),
+                                    'max_attempts' => (int) ($lesson->max_attempts ?: 1),
+                                    'attempt_score_policy' => (string) ($lesson->attempt_score_policy ?: 'highest'),
                                     'certificate_template_id' => (string) ($lesson->certificate_template_id ?? ''),
                                     'prerequisite_survey_id' => (string) ($lesson->prerequisite_survey_id ?? ''),
                                     'passing_grade' => (int) ($lesson->passing_grade ?? 0),
@@ -332,6 +335,29 @@
                         <div class="form-text">
                             {{ __('Pilih kuesioner dari Bank Survey. Jika belum ada, buat di menu Data Utama > Bank Survey.') }}
                         </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label fs-13 fw-semibold" for="activitySurveyMode">{{ __('Jenis') }}</label>
+                                <select name="survey_mode" id="activitySurveyMode" class="form-select">
+                                    @foreach (\App\Services\SurveyAttemptService::MODES as $modeKey => $modeLabel)
+                                        <option value="{{ $modeKey }}">{{ __($modeLabel) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fs-13 fw-semibold" for="activityMaxAttempts">{{ __('Maksimal percobaan') }}</label>
+                                <input type="number" name="max_attempts" id="activityMaxAttempts" class="form-control" value="1" min="1" max="{{ \App\Services\SurveyAttemptService::MAX_ATTEMPTS_LIMIT }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fs-13 fw-semibold" for="activityScorePolicy">{{ __('Nilai yang dipakai') }}</label>
+                                <select name="attempt_score_policy" id="activityScorePolicy" class="form-select">
+                                    @foreach (\App\Services\SurveyAttemptService::POLICIES as $policyKey => $policyLabel)
+                                        <option value="{{ $policyKey }}">{{ __($policyLabel) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-text" id="activityAttemptHint">{{ __('Pre test selalu 1 kali. Admin dapat me-reset percobaan peserta dari halaman Rekap.') }}</div>
                     </div>
                     <div class="mb-3 d-none border rounded p-3 bg-light shadow-sm" id="activityFieldSertifikat">
                         <h6 class="fw-bold text-dark mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ __('Gerbang Kelulusan Sertifikat') }}</h6>
