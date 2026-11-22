@@ -190,14 +190,14 @@ return [
         ],
         [
             'header' => 'Utilities',
-            'permissions' => ['user view', 'role & permission view', 'database backup view'],
+            'permissions' => ['user view', 'role & permission view', 'database backup view', 'activity log view'],
             'menus' => [
                 [
                     'title' => 'Utilities',
                     'icon' => '<i class="bi bi-gear"></i>',
                     'route' => null,
                     'permission' => null,
-                    'permissions' => ['user view', 'role & permission view', 'database backup view'],
+                    'permissions' => ['user view', 'role & permission view', 'database backup view', 'activity log view'],
                     'submenus' => [
                         [
                             'title' => 'Users',
@@ -208,6 +208,11 @@ return [
                             'title' => 'Peran & izin',
                             'route' => '/roles',
                             'permission' => 'role & permission view',
+                        ],
+                        [
+                            'title' => 'Log Aktivitas',
+                            'route' => '/activity-logs',
+                            'permission' => 'activity log view',
                         ],
                         [
                             'title' => 'Backup Database',

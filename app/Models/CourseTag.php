@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CourseTag extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'course_id',

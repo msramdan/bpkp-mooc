@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CourseForumReply extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'thread_id',

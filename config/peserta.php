@@ -58,6 +58,14 @@ return [
                     'submenus' => [],
                 ],
                 [
+                    'title' => 'Aktivitas Saya',
+                    'icon' => '<i class="bi bi-clock-history"></i>',
+                    'route' => 'activity.mine',
+                    'permission' => 'peserta dashboard view',
+                    'permissions' => ['peserta dashboard view'],
+                    'submenus' => [],
+                ],
+                [
                     'title' => 'AI Assistant',
                     'icon' => '<i class="bi bi-stars"></i>',
                     'route' => 'ai-assistant.chat',

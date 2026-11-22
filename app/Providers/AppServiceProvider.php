@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->scoped(AiAssistantSettings::class);
+        $this->app->scoped(\App\Support\Activity\RequestContext::class);
 
         // Provider aktif (Anthropic / SumoPod) dipilih dari pengaturan dashboard.
         $this->app->bind(AiProvider::class, fn ($app): AiProvider => $app->make(ProviderFactory::class)->make());
@@ -38,6 +39,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        // Log aktivitas autentikasi (login, logout, gagal, lockout, reset password).
+        \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\LogAuthenticationActivity::class);
 
         // Perlindungan abuse di luar kuota harian: maksimal 6 request/menit per user.
         RateLimiter::for('ai-assistant', function (Request $request): Limit {

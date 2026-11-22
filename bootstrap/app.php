@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(path: __DIR__))
     ->withMiddleware(callback: function (Middleware $middleware): void {
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\SetLocale::class,
+            // Log aktivitas semua request user yang login (ditulis setelah respons terkirim).
+            \App\Http\Middleware\LogRequestActivity::class,
         ]);
         $middleware->alias(aliases: [
             'role' => RoleMiddleware::class,

@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class CourseForumThread extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'course_id',

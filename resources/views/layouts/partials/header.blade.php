@@ -335,6 +335,11 @@
                                     <i class="ti ti-user text-primary me-2 fs-16"></i>{{ __('Profile') }}
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="{{ route('activity.mine') }}">
+                                    <i class="ti ti-history text-primary me-2 fs-16"></i>{{ __('Aktivitas Saya') }}
+                                </a>
+                            </li>
                             <li class="py-2 px-3">
                                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
                                     @csrf

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LearningCategory extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
     protected $fillable = [
         'name',
     ];

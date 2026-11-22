@@ -3,6 +3,12 @@
         <i class="ri-eye-line"></i>
     </button>
 
+    @can('activity log view')
+        <a href="{{ route('activity-logs.index', ['user_id' => $model->id]) }}" class="btn btn-sm btn-info btn-icon btn-wave" title="{{ __('Log aktivitas') }}">
+            <i class="ri-history-line"></i>
+        </a>
+    @endcan
+
     @can('user edit')
         <a href="{{ route('users.edit', $model) }}" class="btn btn-sm btn-primary btn-icon btn-wave" title="{{ __('Edit') }}">
             <i class="ri-pencil-line"></i>

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CertificateTemplate extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'title',

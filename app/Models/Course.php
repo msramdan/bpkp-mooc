@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'kode',

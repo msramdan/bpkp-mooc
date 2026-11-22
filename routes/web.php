@@ -44,6 +44,10 @@ Route::middleware(['auth', 'web'])->group(function () {
         ->where('path', '.*')
         ->name('h5p.assets');
 
+    // Riwayat aktivitas milik user yang login (semua role). Data terisolasi per user.
+    Route::get('/aktivitas-saya', [\App\Http\Controllers\MyActivityController::class, 'index'])->name('activity.mine');
+    Route::get('/aktivitas-saya/{activity}', [\App\Http\Controllers\MyActivityController::class, 'show'])->whereNumber('activity')->name('activity.mine.show');
+
     // AI Assistant (semua role; akses final ditentukan pengaturan global & per-role di backend).
     Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
         Route::get('/', [AiChatController::class, 'index'])->name('chat');
@@ -150,6 +154,12 @@ Route::middleware(['auth', 'web'])->group(function () {
         Route::post('surveys/responses/{response}/reset', [\App\Http\Controllers\SurveyRecapController::class, 'resetAttempts'])->name('surveys.recap.reset-attempts');
         Route::get('surveys/{survey}/recap/export-participants', [\App\Http\Controllers\SurveyRecapController::class, 'exportParticipants'])->name('surveys.recap.export-participants');
         Route::get('surveys/{survey}/recap/export-courses', [\App\Http\Controllers\SurveyRecapController::class, 'exportCourses'])->name('surveys.recap.export-courses');
+
+        // Log aktivitas seluruh user (Super Admin)
+        Route::get('activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs/export', [\App\Http\Controllers\ActivityLogController::class, 'export'])->name('activity-logs.export');
+        Route::post('activity-logs/prune', [\App\Http\Controllers\ActivityLogController::class, 'prune'])->name('activity-logs.prune');
+        Route::get('activity-logs/{activityLog}', [\App\Http\Controllers\ActivityLogController::class, 'show'])->whereNumber('activityLog')->name('activity-logs.show');
 
         // AI Assistant — monitoring & audit (Super Admin saja)
         Route::middleware('permission:ai assistant monitor view')->group(function () {

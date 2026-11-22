@@ -258,6 +258,14 @@ return [
             ],
         ],
         [
+            'group' => 'activity log',
+            'access' => [
+                'activity log view',
+                'activity log export',
+                'activity log manage',
+            ],
+        ],
+        [
             'group' => 'ai assistant',
             'access' => [
                 'ai assistant monitor view',

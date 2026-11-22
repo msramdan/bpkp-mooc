@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CourseEnrollment extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
     protected $fillable = [
         'user_id',
         'course_id',

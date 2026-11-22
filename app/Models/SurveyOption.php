@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class SurveyOption extends Model
 {
-    use HasUuids;
+    use HasUuids, Concerns\RecordsActivity;
 
     protected $fillable = ['survey_question_id', 'option_text', 'urutan', 'score_value', 'is_correct'];
 

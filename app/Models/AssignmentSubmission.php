@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AssignmentSubmission extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     protected $fillable = [
         'user_id',

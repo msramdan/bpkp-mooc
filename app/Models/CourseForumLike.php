@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CourseForumLike extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     public const TYPE_THREAD = 'thread';
 

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CourseLesson extends Model
 {
-    use HasUuid;
+    use HasUuid, Concerns\RecordsActivity;
 
     /** @deprecated Use ActivityTypes::keys() / enabledKeys() */
     public const TYPES = ['berkas', 'video', 'url', 'pre_test', 'h5p', 'scorm', 'penugasan', 'forum', 'survey', 'post_test', 'sertifikat'];

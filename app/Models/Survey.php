@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Survey extends Model
 {
-    use HasUuids;
+    use HasUuids, Concerns\RecordsActivity;
 
     protected $fillable = ['title', 'description', 'is_active'];
 

@@ -1,0 +1,75 @@
+/* Log Aktivitas (admin & "Aktivitas Saya") */
+.alog { --al-navy: #22396f; --al-gold: #e8a91c; --al-line: #e6e8ef; --al-ink: #1e293b; --al-muted: #64748b; --al-card: #fff; --al-soft: #f6f7fb; }
+[data-theme-mode="dark"] .alog { --al-line: rgba(148,163,184,.16); --al-ink: #e2e8f0; --al-muted: #94a3b8; --al-card: #1a2234; --al-soft: rgba(148,163,184,.06); }
+
+.alog-hero { position: relative; overflow: hidden; border-radius: 20px; padding: 20px 24px; margin-bottom: 16px; color: #eef2fb;
+  background: radial-gradient(70% 140% at 100% 0%, rgba(232,169,28,.25), transparent 60%), linear-gradient(135deg, #2b488b, #1b2f5e 70%); }
+.alog-hero h2 { color: #fff; font-size: 20px; font-weight: 800; margin: 0; }
+.alog-hero p { margin: 4px 0 0; font-size: 13px; color: rgba(238,242,251,.75); }
+.alog-hero__stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.alog-hero__stat { padding: 8px 14px; border-radius: 12px; background: rgba(255,255,255,.1); min-width: 120px; }
+.alog-hero__stat strong { display: block; font-size: 20px; color: #fff; line-height: 1.1; }
+.alog-hero__stat span { font-size: 11.5px; color: rgba(238,242,251,.72); }
+.alog-hero__stat.is-warn strong { color: #fbbf24; }
+
+.alog-filter { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; padding: 14px 16px; border-radius: 16px; background: var(--al-card); border: 1px solid var(--al-line); margin-bottom: 16px; }
+.alog-filter .form-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--al-muted); margin-bottom: 4px; }
+.alog-filter .form-control, .alog-filter .form-select { min-width: 130px; border-radius: 10px; font-size: 13px; }
+.alog-filter__grow { flex: 1 1 200px; }
+
+.alog-panel { border-radius: 18px; background: var(--al-card); border: 1px solid var(--al-line); overflow: hidden; }
+.alog-table { margin: 0; font-size: 13px; }
+.alog-table thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--al-muted); background: var(--al-soft); white-space: nowrap; border-color: var(--al-line); }
+.alog-table td { vertical-align: top; border-color: var(--al-line); }
+.alog-time { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--al-muted); font-size: 12px; }
+.alog-time b { display: block; color: var(--al-ink); font-weight: 600; font-size: 13px; }
+.alog-desc { font-weight: 600; color: var(--al-ink); }
+.alog-meta { font-size: 11.5px; color: var(--al-muted); word-break: break-all; }
+.alog-who { min-width: 170px; }
+.alog-who b { color: var(--al-ink); }
+
+.alog-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.alog-tag--request { background: rgba(43,72,139,.1); color: #2b488b; }
+.alog-tag--auth { background: rgba(8,145,178,.12); color: #0e7490; }
+.alog-tag--data { background: rgba(232,169,28,.16); color: #8a5d00; }
+[data-theme-mode="dark"] .alog-tag--request { color: #a9bdf0; }
+.alog-ev { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; background: var(--al-soft); color: var(--al-muted); }
+.alog-ev--created { background: rgba(22,163,74,.1); color: #15803d; }
+.alog-ev--updated { background: rgba(43,72,139,.1); color: #2b488b; }
+.alog-ev--deleted, .alog-ev--failed, .alog-ev--lockout { background: rgba(220,38,38,.1); color: #b91c1c; }
+.alog-ev--login { background: rgba(22,163,74,.1); color: #15803d; }
+.alog-status { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 12px; }
+.alog-status--ok { color: #15803d; } .alog-status--warn { color: #b45309; } .alog-status--bad { color: #b91c1c; }
+
+/* Ringkasan perubahan inline */
+.alog-chg { margin-top: 6px; display: flex; flex-direction: column; gap: 3px; }
+.alog-chg div { font-size: 12px; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.alog-chg code { font-size: 11.5px; color: var(--al-navy); background: rgba(43,72,139,.07); padding: 0 5px; border-radius: 4px; }
+.alog-chg del { color: #b91c1c; text-decoration: line-through; opacity: .85; }
+.alog-chg ins { color: #15803d; text-decoration: none; font-weight: 600; }
+
+/* Detail: tabel before/after */
+.alog-diff { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.alog-diff th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--al-muted); padding: 8px 12px; background: var(--al-soft); }
+.alog-diff td { padding: 10px 12px; border-top: 1px solid var(--al-line); vertical-align: top; word-break: break-word; }
+.alog-diff td:first-child { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--al-navy); width: 22%; }
+.alog-diff .is-before { background: rgba(220,38,38,.05); color: #991b1b; }
+.alog-diff .is-after { background: rgba(22,163,74,.06); color: #166534; }
+.alog-diff .is-null { color: var(--al-muted); font-style: italic; }
+.alog-kv { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 6px 14px; font-size: 13px; margin: 0; }
+.alog-kv dt { color: var(--al-muted); font-weight: 400; }
+.alog-kv dd { margin: 0; word-break: break-word; color: var(--al-ink); }
+.alog-json { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--al-soft); border-radius: 10px; padding: 10px 12px; margin: 0; max-height: 360px; overflow: auto; }
+
+/* Timeline "Aktivitas Saya" */
+.alog-timeline { list-style: none; margin: 0; padding: 4px 0; }
+.alog-timeline li { position: relative; padding: 12px 16px 12px 44px; border-bottom: 1px dashed var(--al-line); }
+.alog-timeline li:last-child { border-bottom: 0; }
+.alog-timeline li::before { content: ""; position: absolute; left: 22px; top: 0; bottom: 0; width: 2px; background: var(--al-line); }
+.alog-dot { position: absolute; left: 13px; top: 15px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #fff; background: #2b488b; box-shadow: 0 0 0 3px var(--al-card); }
+.alog-dot--auth { background: #0e7490; } .alog-dot--data { background: #e8a91c; color: #1b2f5e; } .alog-dot--bad { background: #dc2626; }
+.alog-day { padding: 10px 16px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--al-muted); background: var(--al-soft); }
+.alog-empty { text-align: center; padding: 40px 16px; color: var(--al-muted); }
+.alog-empty i { font-size: 32px; display: block; margin-bottom: 6px; opacity: .6; }
+@media (max-width: 767.98px) { .alog-kv { grid-template-columns: 1fr; } .alog-diff td:first-child { width: auto; } }
+.alog-who .alog-meta { word-break: normal; overflow-wrap: anywhere; }
