@@ -400,8 +400,13 @@ class DataTools
                 'kursus' => $r->lesson?->module?->course?->judul,
                 'aktivitas' => $r->lesson?->judul,
                 'percobaan_ke' => $r->attempt_number ?? 1,
-                'skor' => $r->max_possible_score > 0 ? SurveyScoring::percentage($r) : null,
-                'keterangan' => $r->max_possible_score > 0 ? null : 'Survei tanpa nilai',
+                'nilai_pg' => $r->max_possible_score > 0 ? SurveyScoring::percentage($r) : null,
+                'nilai_esai' => match (SurveyScoring::essayStatus($r)) {
+                    'graded' => (float) $r->essay_score,
+                    'pending' => 'menunggu penilaian pengajar',
+                    default => null,
+                },
+                'keterangan' => $r->max_possible_score > 0 || $r->essay_answered_count > 0 ? null : 'Survei tanpa nilai',
                 'dikirim' => $this->date($r->created_at),
             ])->values()->all(),
         ];

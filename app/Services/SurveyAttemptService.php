@@ -31,9 +31,9 @@ class SurveyAttemptService
         'post_test' => 'Post Test',
     ];
 
+    /** Keputusan user (Nov 2026): nilai yang dipakai selalu yang tertinggi. */
     public const POLICIES = [
         'highest' => 'Nilai tertinggi',
-        'latest' => 'Nilai terakhir',
     ];
 
     public const MAX_ATTEMPTS_LIMIT = 20;
@@ -54,7 +54,8 @@ class SurveyAttemptService
 
     public function policy(CourseLesson $lesson): string
     {
-        return array_key_exists((string) $lesson->attempt_score_policy, self::POLICIES) ? (string) $lesson->attempt_score_policy : 'highest';
+        // Selalu nilai tertinggi, apa pun yang tersimpan di data lama.
+        return 'highest';
     }
 
     /** @return Collection<int, SurveyResponse> percobaan aktif, urut dari yang pertama. */
@@ -185,12 +186,11 @@ class SurveyAttemptService
             ->where('user_id', $user->id)
             ->whereIn('survey_id', $surveyIds)
             ->active()
-            ->with('lesson:id,attempt_score_policy')
             ->get();
 
         return $responses
             ->groupBy(fn (SurveyResponse $r) => $r->course_lesson_id ?? 'survey:'.$r->survey_id)
-            ->map(fn (Collection $group) => $this->pickOfficial($group, $group->first()->lesson?->attempt_score_policy ?? 'highest'))
+            ->map(fn (Collection $group) => $this->pickOfficial($group, 'highest'))
             ->filter();
     }
 }

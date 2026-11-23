@@ -301,22 +301,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="bg-white px-3 py-2 rounded shadow-sm text-end border">
-                                        @if ($surveyResponse->max_possible_score > 0)
-                                            <div class="text-muted fs-11 text-uppercase fw-semibold">{{ __('Skor Anda') }}</div>
-                                            <div class="fs-20 fw-bold text-primary mb-1">
-                                                {{ number_format(\App\Services\SurveyScoring::percentage($surveyResponse), 1) }} <span class="fs-13 text-muted fw-normal">/ 100</span>
-                                            </div>
-                                            <div class="text-muted fs-11 border-top pt-1">
-                                                {{ __('Jawaban benar:') }} <strong>{{ number_format($surveyResponse->total_score / 100, 0) }} / {{ number_format($surveyResponse->max_possible_score / 100, 0) }}</strong> {{ __('soal') }}
-                                            </div>
-                                        @else
-                                            {{-- Survei / essay saja: tidak ada skor otomatis --}}
-                                            <div class="badge bg-success-transparent text-success" style="font-size: 0.8rem;">
-                                                <i class="bi bi-check-all me-1"></i>{{ __('Terkirim') }}
-                                            </div>
-                                        @endif
-                                    </div>
+                                    @include('peserta.kursus.partials.score-cards', ['response' => $surveyResponse])
                                 </div>
                             @endif
 
@@ -325,7 +310,12 @@
                                     @foreach ($attemptInfo['attempts'] as $att)
                                         <div class="{{ $att->id === $surveyResponse->id ? 'is-official' : '' }}">
                                             <span>{{ __('Percobaan ke-:n', ['n' => $att->attempt_number]) }}</span>
-                                            <strong>{{ $att->max_possible_score > 0 ? number_format(\App\Services\SurveyScoring::percentage($att), 1) : __('Terkirim') }}</strong>
+                                            <strong>{{ $att->max_possible_score > 0 ? 'PG '.number_format(\App\Services\SurveyScoring::percentage($att), 1) : __('Terkirim') }}</strong>
+                                            @if (\App\Services\SurveyScoring::essayStatus($att) === 'graded')
+                                                <small>{{ __('Esai :n', ['n' => number_format((float) $att->essay_score, 1)]) }}</small>
+                                            @elseif (\App\Services\SurveyScoring::essayStatus($att) === 'pending')
+                                                <small class="text-warning">{{ __('Esai menunggu') }}</small>
+                                            @endif
                                             @if ($att->id === $surveyResponse->id)
                                                 <em>{{ __('dipakai') }}</em>
                                             @endif
@@ -552,8 +542,18 @@
                             </li>
                             @if ($surveyResponse && $surveyResponse->max_possible_score > 0)
                                 <li>
-                                    <span>{{ __('Nilai Akhir') }}</span>
-                                    <strong class="text-primary">{{ number_format(($surveyResponse->max_possible_score > 0 ? ($surveyResponse->total_score / $surveyResponse->max_possible_score) * 100 : 0), 1) }} / 100</strong>
+                                    <span>{{ __('Nilai PG') }}</span>
+                                    <strong class="text-primary">{{ number_format(\App\Services\SurveyScoring::percentage($surveyResponse), 1) }} / 100</strong>
+                                </li>
+                            @endif
+                            @if ($surveyResponse && \App\Services\SurveyScoring::essayStatus($surveyResponse) !== 'none')
+                                <li>
+                                    <span>{{ __('Nilai Esai') }}</span>
+                                    @if (\App\Services\SurveyScoring::essayStatus($surveyResponse) === 'graded')
+                                        <strong class="text-primary">{{ number_format((float) $surveyResponse->essay_score, 1) }} / 100</strong>
+                                    @else
+                                        <strong class="text-warning">{{ __('Menunggu penilaian') }}</strong>
+                                    @endif
                                 </li>
                             @endif
                         @endif

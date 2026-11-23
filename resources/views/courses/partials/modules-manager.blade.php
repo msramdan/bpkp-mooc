@@ -350,14 +350,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fs-13 fw-semibold" for="activityScorePolicy">{{ __('Nilai yang dipakai') }}</label>
-                                <select name="attempt_score_policy" id="activityScorePolicy" class="form-select">
-                                    @foreach (\App\Services\SurveyAttemptService::POLICIES as $policyKey => $policyLabel)
-                                        <option value="{{ $policyKey }}">{{ __($policyLabel) }}</option>
-                                    @endforeach
-                                </select>
+                                <input type="text" id="activityScorePolicy" class="form-control" value="{{ __('Nilai tertinggi') }}" readonly tabindex="-1" aria-readonly="true">
                             </div>
                         </div>
-                        <div class="form-text" id="activityAttemptHint">{{ __('Pre test selalu 1 kali. Admin dapat me-reset percobaan peserta dari halaman Rekap.') }}</div>
+                        <div class="form-text" id="activityAttemptHint">{{ __('Pre test selalu 1 kali. Bila lebih dari 1 percobaan, yang dipakai nilai PG tertinggi. Nilai esai dinilai terpisah. Admin dapat me-reset percobaan peserta dari halaman Rekap.') }}</div>
                     </div>
                     <div class="mb-3 d-none border rounded p-3 bg-light shadow-sm" id="activityFieldSertifikat">
                         <h6 class="fw-bold text-dark mb-2"><i class="bi bi-award-fill text-warning me-2"></i>{{ __('Gerbang Kelulusan Sertifikat') }}</h6>

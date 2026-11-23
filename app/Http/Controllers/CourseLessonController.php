@@ -259,9 +259,8 @@ class CourseLessonController extends Controller implements HasMiddleware
         $mode = array_key_exists((string) $request->input('survey_mode'), \App\Services\SurveyAttemptService::MODES)
             ? (string) $request->input('survey_mode') : 'kuesioner';
         $max = $mode === 'pre_test' ? 1 : max(1, min(\App\Services\SurveyAttemptService::MAX_ATTEMPTS_LIMIT, (int) $request->input('max_attempts', 1)));
-        $policy = array_key_exists((string) $request->input('attempt_score_policy'), \App\Services\SurveyAttemptService::POLICIES)
-            ? (string) $request->input('attempt_score_policy') : 'highest';
 
-        return ['survey_mode' => $mode, 'max_attempts' => $max, 'attempt_score_policy' => $policy];
+        // Nilai yang dipakai selalu tertinggi (keputusan user); input lama diabaikan.
+        return ['survey_mode' => $mode, 'max_attempts' => $max, 'attempt_score_policy' => 'highest'];
     }
 }

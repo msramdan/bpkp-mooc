@@ -61,7 +61,7 @@ class SurveyAttemptsTest extends TestCase
         $this->assertCount(1, $this->responses($lesson));
     }
 
-    public function test_official_score_policy_highest_and_latest(): void
+    public function test_official_score_is_always_highest_even_if_db_says_latest(): void
     {
         $service = app(SurveyAttemptService::class);
 
@@ -72,10 +72,13 @@ class SurveyAttemptsTest extends TestCase
         $this->assertSame(1, $official->attempt_number);
         $this->assertSame(100.0, SurveyScoring::percentage($official));
 
-        $latest = $this->surveyLesson('post_test', 3, 'latest');
-        $this->submitSurvey($latest, $this->answers(true));   // 100
-        $this->submitSurvey($latest, $this->answers(false));  // 0
-        $this->assertSame(2, $service->officialResponse($this->peserta, $latest)->attempt_number);
+        // Keputusan user: selalu nilai tertinggi, data lama 'latest' tidak berpengaruh.
+        $legacy = $this->surveyLesson('post_test', 3, 'latest');
+        $this->submitSurvey($legacy, $this->answers(true));   // 100
+        $this->submitSurvey($legacy, $this->answers(false));  // 0
+        $this->assertSame('highest', $service->policy($legacy));
+        $this->assertSame(1, $service->officialResponse($this->peserta, $legacy)->attempt_number);
+        $this->assertSame(1, $service->officialBySurveys($this->peserta, [(string) $this->survey->id])->get((string) $legacy->id)->attempt_number);
     }
 
     public function test_lesson_page_shows_attempt_info_retake_button_and_no_prefill(): void
@@ -244,11 +247,11 @@ class SurveyAttemptsTest extends TestCase
     {
         $this->actingAs($this->admin)->post(route('courses.modules.lessons.store', [$this->course, $this->module]), [
             'judul' => 'Post Test Bab 1', 'tipe' => 'survey', 'survey_id' => $this->survey->id,
-            'survey_mode' => 'post_test', 'max_attempts' => 3, 'attempt_score_policy' => 'latest', 'durasi_menit' => 10,
+            'survey_mode' => 'post_test', 'max_attempts' => 3, 'attempt_score_policy' => 'latest', 'durasi_menit' => 10, // input lama diabaikan
         ])->assertRedirect();
 
         $post = $this->module->lessons()->where('judul', 'Post Test Bab 1')->firstOrFail();
-        $this->assertSame(['post_test', 3, 'latest'], [$post->survey_mode, $post->max_attempts, $post->attempt_score_policy]);
+        $this->assertSame(['post_test', 3, 'highest'], [$post->survey_mode, $post->max_attempts, $post->attempt_score_policy]);
 
         $this->actingAs($this->admin)->post(route('courses.modules.lessons.store', [$this->course, $this->module]), [
             'judul' => 'Pre Test Bab 1', 'tipe' => 'survey', 'survey_id' => $this->survey->id,
@@ -258,7 +261,7 @@ class SurveyAttemptsTest extends TestCase
 
         $this->actingAs($this->admin)->post(route('courses.modules.lessons.store', [$this->course, $this->module]), [
             'judul' => 'Salah', 'tipe' => 'survey', 'survey_id' => $this->survey->id, 'max_attempts' => 99, 'attempt_score_policy' => 'random',
-        ])->assertSessionHasErrors(['max_attempts', 'attempt_score_policy']);
+        ])->assertSessionHasErrors(['max_attempts']);
 
         // Regresi bug: UUID survey prasyarat dulu ter-cast menjadi angka.
         $this->actingAs($this->admin)->post(route('courses.modules.lessons.store', [$this->course, $this->module]), [

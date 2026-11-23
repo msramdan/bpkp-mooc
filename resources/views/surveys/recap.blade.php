@@ -51,8 +51,13 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="d-block mb-2 text-muted fs-13">{{ __('Rata-Rata Skor Keseluruhan') }}</span>
-                            <h4 class="mb-0 fw-semibold text-success">{{ number_format($overallStats['average_score'], 1) }} <span class="fs-14 fw-normal text-muted">{{ __('Poin') }}</span></h4>
+                            <span class="d-block mb-2 text-muted fs-13">{{ __('Rata-Rata Nilai PG / Esai') }}</span>
+                            <h4 class="mb-0 fw-semibold text-success">
+                                {{ $overallStats['average_pg'] !== null ? number_format($overallStats['average_pg'], 1) : '-' }}
+                                <span class="fs-14 fw-normal text-muted">/</span>
+                                <span class="text-warning">{{ $overallStats['average_essay'] !== null ? number_format($overallStats['average_essay'], 1) : '-' }}</span>
+                            </h4>
+                            <span class="fs-11 text-muted">{{ __('Skala 0 - 100, dihitung terpisah') }}</span>
                         </div>
                         <div class="avatar avatar-md bg-success-transparent text-success">
                             <i class="ri-pie-chart-2-line fs-20"></i>
@@ -116,8 +121,9 @@
                                     <th scope="col" style="width: 50px;">{{ __('No') }}</th>
                                     <th scope="col">{{ __('Peserta') }}</th>
                                     <th scope="col">{{ __('Kursus & Materi') }}</th>
-                                    <th scope="col" class="text-center">{{ __('Skor Diperoleh') }}</th>
-                                    <th scope="col" class="text-center">{{ __('Nilai (0 - 100)') }}</th>
+                                    <th scope="col" class="text-center">{{ __('Benar PG') }}</th>
+                                    <th scope="col" class="text-center">{{ __('Nilai PG') }}</th>
+                                    <th scope="col" class="text-center">{{ __('Nilai Esai') }}</th>
                                     <th scope="col" class="text-center">{{ __('Status Penilaian') }}</th>
                                     <th scope="col">{{ __('Waktu Submit') }}</th>
                                     <th scope="col" class="text-center">{{ __('Aksi / Penilaian Esai') }}</th>
@@ -144,14 +150,34 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        @php $essayStatus = \App\Services\SurveyScoring::essayStatus($res); @endphp
                                         <td class="text-center">
-                                            <span class="fs-15 fw-bold text-dark">{{ number_format($res->total_score, 0) }}</span>
-                                            <span class="text-muted fs-12"> / {{ number_format($res->max_possible_score, 0) }}</span>
+                                            @if ($res->max_possible_score > 0)
+                                                <span class="fs-15 fw-bold text-dark">{{ number_format($res->total_score / 100, 0) }}</span>
+                                                <span class="text-muted fs-12"> / {{ number_format($res->max_possible_score / 100, 0) }} {{ __('soal') }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge {{ $nilaiAkhir >= 70 ? 'bg-primary' : ($nilaiAkhir >= 50 ? 'bg-warning' : 'bg-danger') }} fs-13 px-3 py-2">
-                                                {{ number_format($nilaiAkhir, 1) }}
-                                            </span>
+                                            @if ($res->max_possible_score > 0)
+                                                <span class="badge {{ $nilaiAkhir >= 70 ? 'bg-primary' : ($nilaiAkhir >= 50 ? 'bg-warning' : 'bg-danger') }} fs-13 px-3 py-2">
+                                                    {{ number_format($nilaiAkhir, 1) }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($essayStatus === 'graded')
+                                                <span class="badge bg-warning-transparent text-dark fs-13 px-3 py-2" style="border:1px solid rgba(232,169,28,.5)">
+                                                    {{ number_format((float) $res->essay_score, 1) }}
+                                                </span>
+                                            @elseif ($essayStatus === 'pending')
+                                                <span class="fs-12 text-warning fw-semibold">{{ __('Belum dinilai') }} ({{ $res->essay_graded_count }}/{{ $res->essay_answered_count }})</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             @if($res->grading_status === 'pending_essay')
@@ -182,7 +208,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center p-4 text-muted">
+                                        <td colspan="9" class="text-center p-4 text-muted">
                                             <i class="ri-inbox-archive-line fs-2 d-block mb-2"></i>
                                             {{ __('Belum ada data respons / pengisian pada soal atau kuesioner ini.') }}
                                         </td>
@@ -214,32 +240,31 @@
                                     <th scope="col" style="width: 50px;">{{ __('No') }}</th>
                                     <th scope="col">{{ __('Nama Kursus') }}</th>
                                     <th scope="col" class="text-center">{{ __('Jumlah Peserta') }}</th>
-                                    <th scope="col" class="text-center">{{ __('Rata-Rata Skor Diperoleh') }}</th>
-                                    <th scope="col" class="text-center">{{ __('Rata-Rata Skor Maksimal') }}</th>
-                                    <th scope="col" class="text-center">{{ __('Persentase Keberhasilan') }}</th>
+                                    <th scope="col" class="text-center">{{ __('Rata-Rata Nilai PG') }}</th>
+                                    <th scope="col" class="text-center">{{ __('Rata-Rata Nilai Esai') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($courseRecap as $idx => $row)
-                                    @php
-                                        $percentage = $row['max_possible'] > 0 ? ($row['average_score'] / $row['max_possible']) * 100 : 0;
-                                    @endphp
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td class="fw-medium">{{ $row['course_title'] }}</td>
                                         <td class="text-center">{{ number_format($row['total_participants']) }} {{ __('Peserta') }}</td>
-                                        <td class="text-center fw-semibold text-primary">{{ number_format($row['average_score'], 1) }}</td>
-                                        <td class="text-center">{{ number_format($row['max_possible'], 1) }}</td>
                                         <td class="text-center">
-                                            <div class="progress progress-xs mb-1 d-inline-block w-50 align-middle me-2">
-                                                <div class="progress-bar {{ $percentage >= 70 ? 'bg-success' : ($percentage >= 50 ? 'bg-warning' : 'bg-danger') }}" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <span class="fs-12">{{ number_format($percentage, 1) }}%</span>
+                                            @if ($row['average_pg'] !== null)
+                                                <div class="progress progress-xs mb-1 d-inline-block w-50 align-middle me-2">
+                                                    <div class="progress-bar {{ $row['average_pg'] >= 70 ? 'bg-success' : ($row['average_pg'] >= 50 ? 'bg-warning' : 'bg-danger') }}" role="progressbar" style="width: {{ $row['average_pg'] }}%" aria-valuenow="{{ $row['average_pg'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="fw-semibold">{{ number_format($row['average_pg'], 1) }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
+                                        <td class="text-center fw-semibold">{{ $row['average_essay'] !== null ? number_format($row['average_essay'], 1) : '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center p-4 text-muted">{{ __('Belum ada data kursus untuk kuesioner ini.') }}</td>
+                                        <td colspan="5" class="text-center p-4 text-muted">{{ __('Belum ada data kursus untuk kuesioner ini.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -267,77 +292,100 @@
                             <div class="alert alert-info py-2 d-flex align-items-center mb-4">
                                 <i class="ri-information-line fs-18 me-2"></i>
                                 <div>
-                                    {{ __('Pertanyaan objektif (Radio, Checkbox, Rating) dinilai otomatis oleh sistem. Untuk pertanyaan Esai (Isian Teks), silakan beri nilai 0 sampai 100.') }}
+                                    {{ __('Soal PG (pilihan ganda / checkbox) dinilai otomatis menjadi Nilai PG. Esai diberi nilai 0 - 100 dan direkap TERPISAH sebagai Nilai Esai (rata-rata), tidak mengubah Nilai PG.') }}
                                 </div>
                             </div>
 
+                            @php $hasEssayInput = false; @endphp
                             @foreach($survey->questions as $qIndex => $q)
                                 @php
                                     $ans = $res->answers->where('survey_question_id', $q->id);
                                     $firstAns = $ans->first();
+                                    $hasKey = in_array($q->type, ['radio', 'checkbox'], true) && $q->options->contains('is_correct', true);
+                                    $isCorrect = $hasKey && $ans->isNotEmpty() && $ans->sum('score') > 0;
                                 @endphp
-                                <div class="p-3 border rounded mb-3 bg-light-transparent">
+                                <div class="grade-q p-3 border rounded mb-3">
                                     <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                                         <h6 class="fw-semibold mb-0">{{ $qIndex + 1 }}. {{ $q->question_text }}</h6>
-                                        <span class="badge bg-dark-transparent">{{ strtoupper($q->type) }}</span>
+                                        <span class="badge bg-dark-transparent text-dark">{{ $q->type === 'text' ? __('ESAI') : ($hasKey ? __('PG') : strtoupper($q->type)) }}</span>
                                     </div>
 
-                                    <!-- Tampilkan Jawaban Peserta -->
-                                    <div class="mb-2 ms-3">
+                                    <div class="grade-q__answer">
                                         @if($q->type === 'radio')
-                                            <div class="p-2 bg-white rounded border fs-14">
-                                                <strong>{{ __('Pilihan Peserta:') }}</strong> {{ $firstAns?->option?->option_text ?? __('Tidak menjawab') }}
-                                            </div>
-                                            <div class="mt-1 fs-13 text-muted">
-                                                {{ __('Skor Otomatis:') }} <strong class="text-primary">{{ $firstAns?->score ?? 0 }} Poin</strong>
-                                            </div>
+                                            <span class="grade-q__label">{{ __('Pilihan peserta') }}</span>
+                                            {{ $firstAns?->option?->option_text ?? __('Tidak menjawab') }}
                                         @elseif($q->type === 'checkbox')
-                                            <div class="p-2 bg-white rounded border fs-14">
-                                                <strong>{{ __('Pilihan Peserta:') }}</strong><br>
+                                            <span class="grade-q__label">{{ __('Pilihan peserta') }}</span>
+                                            @if ($ans->isEmpty())
+                                                {{ __('Tidak menjawab') }}
+                                            @else
                                                 <ul class="mb-0 ps-3">
                                                     @foreach($ans as $cAns)
                                                         <li>{{ $cAns->option?->option_text ?? '-' }}</li>
                                                     @endforeach
                                                 </ul>
-                                            </div>
-                                            <div class="mt-1 fs-13 text-muted">
-                                                {{ __('Skor Otomatis (All-or-Nothing):') }} <strong class="text-primary">{{ $ans->sum('score') }} Poin</strong>
-                                            </div>
+                                            @endif
                                         @elseif($q->type === 'rating')
-                                            <div class="p-2 bg-white rounded border fs-14">
-                                                <strong>{{ __('Rating Pilihan:') }}</strong> {{ $firstAns?->answer_text ?? '-' }} / 5 Bintang
-                                            </div>
-                                            <div class="mt-1 fs-13 text-muted">
-                                                {{ __('Skor Otomatis:') }} <strong class="text-primary">{{ $firstAns?->score ?? 0 }} Poin</strong>
-                                            </div>
+                                            <span class="grade-q__label">{{ __('Rating') }}</span>
+                                            {{ $firstAns?->answer_text ? $firstAns->answer_text.' / 5' : __('Tidak menjawab') }}
                                         @elseif($q->type === 'text')
-                                            <div class="p-3 bg-white rounded border fs-14 mb-2">
-                                                <strong>{{ __('Jawaban Esai Peserta:') }}</strong><br>
-                                                <p class="mb-0 mt-1 fst-italic text-dark" style="white-space: pre-wrap;">{{ $firstAns?->answer_text ?: __('(Tidak menjawab / kosong)') }}</p>
-                                            </div>
-                                            <div class="d-flex align-items-center gap-2 mt-2">
-                                                <label class="form-label fw-semibold mb-0 text-primary">{{ __('Beri Nilai Esai (0 - 100):') }}</label>
-                                                @if($firstAns)
-                                                    <input type="number" name="scores[{{ $firstAns->id }}]" class="form-control text-center fw-bold" style="max-width: 100px;" min="0" max="100" value="{{ $firstAns->score ?? 0 }}" required>
-                                                @else
-                                                    <span class="text-danger fs-12">{{ __('Peserta tidak menjawab soal ini.') }}</span>
-                                                @endif
-                                            </div>
+                                            <span class="grade-q__label">{{ __('Jawaban esai peserta') }}</span>
+                                            <p class="mb-0" style="white-space: pre-wrap;">{{ filled($firstAns?->answer_text) ? $firstAns->answer_text : __('(Tidak menjawab / kosong)') }}</p>
                                         @endif
                                     </div>
+
+                                    @if ($hasKey)
+                                        <div class="mt-2 fs-13">
+                                            @if ($isCorrect)
+                                                <span class="badge bg-success-transparent text-success"><i class="ri-check-line me-1"></i>{{ __('Benar (otomatis)') }}</span>
+                                            @else
+                                                <span class="badge bg-danger-transparent text-danger"><i class="ri-close-line me-1"></i>{{ __('Salah (otomatis)') }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if ($q->type === 'text' && $firstAns && filled($firstAns->answer_text))
+                                        @php $hasEssayInput = true; @endphp
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                                            <label for="score-{{ $firstAns->id }}" class="form-label fw-semibold mb-0 text-primary">{{ __('Nilai esai (0 - 100)') }}</label>
+                                            <input type="number" id="score-{{ $firstAns->id }}" name="scores[{{ $firstAns->id }}]" class="form-control text-center fw-bold" style="max-width: 110px;"
+                                                   min="0" max="100" step="1" inputmode="numeric" placeholder="0 - 100"
+                                                   value="{{ $firstAns->is_graded ? (int) $firstAns->score : '' }}">
+                                            @if ($firstAns->is_graded)
+                                                <span class="badge bg-success-transparent text-success">{{ __('Sudah dinilai') }}</span>
+                                            @else
+                                                <span class="badge bg-warning-transparent text-warning">{{ __('Belum dinilai') }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
+                        </div>
                         <div class="modal-footer">
+                            @if ($hasEssayInput)
+                                <span class="me-auto fs-12 text-muted">{{ __('Kosongkan bila belum ingin dinilai.') }}</span>
+                            @endif
                             <button type="button" class="btn btn-light btn-wave" data-bs-dismiss="modal">{{ __('Tutup') }}</button>
-                            <button type="submit" class="btn btn-primary btn-wave">
-                                <i class="ri-save-line me-1"></i>{{ __('Simpan Nilai Esai & Update Skor') }}
-                            </button>
+                            @if ($hasEssayInput)
+                                <button type="submit" class="btn btn-primary btn-wave">
+                                    <i class="ri-save-line me-1"></i>{{ __('Simpan Nilai Esai') }}
+                                </button>
+                            @endif
                         </div>
                 </form>
             </div>
         </div>
     @endforeach
 @endsection
+
+@push('css')
+    <style>
+        .grade-q { background: rgba(var(--light-rgb, 243,246,248), .45); }
+        .grade-q__answer { background: #fff; color: #212529; border: 1px solid rgba(0,0,0,.08); border-radius: .5rem; padding: .6rem .8rem; font-size: 14px; }
+        .grade-q__label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6c757d; margin-bottom: 2px; }
+        [data-theme-mode=dark] .grade-q__answer { background: rgba(255,255,255,.04); color: #e9ecef; border-color: rgba(255,255,255,.1); }
+    </style>
+@endpush
 
 @push('scripts')
     <script>

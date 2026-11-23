@@ -13,6 +13,7 @@ class SurveyResponse extends Model
     protected $fillable = [
         'survey_id', 'user_id', 'course_lesson_id', 'attempt_number',
         'total_score', 'max_possible_score', 'grading_status',
+        'essay_score', 'essay_answered_count', 'essay_graded_count', 'essay_graded_at', 'essay_graded_by',
         'reset_at', 'reset_by', 'reset_reason',
     ];
 
@@ -21,6 +22,10 @@ class SurveyResponse extends Model
         'max_possible_score' => 'decimal:2',
         'attempt_number' => 'integer',
         'reset_at' => 'datetime',
+        'essay_score' => 'decimal:2',
+        'essay_answered_count' => 'integer',
+        'essay_graded_count' => 'integer',
+        'essay_graded_at' => 'datetime',
     ];
 
     /** Percobaan yang masih berlaku (belum di-reset admin). */
