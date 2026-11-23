@@ -137,6 +137,16 @@ class ActivityDescriber
         'ai-assistant-logs.requests.export' => 'Export log AI',
         'ai-assistant-logs.users.export' => 'Export aktivitas AI per user',
         'ai-assistant-settings.index' => 'Membuka AI Assistant Settings',
+        'announcements.index' => 'Membuka kelola pengumuman',
+        'announcements.create' => 'Membuka form tambah pengumuman',
+        'announcements.store' => 'Membuat pengumuman',
+        'announcements.edit' => 'Membuka form ubah pengumuman',
+        'announcements.update' => 'Mengubah pengumuman',
+        'announcements.toggle' => 'Menyalakan / mematikan pengumuman',
+        'announcements.destroy' => 'Menghapus pengumuman',
+        'announcements.feed' => 'Membuka daftar pengumuman',
+        'announcements.dismiss' => 'Menutup pop up pengumuman',
+        'announcements.attachment' => 'Membuka lampiran pengumuman',
         'activity-logs.index' => 'Membuka log aktivitas (admin)',
         'activity-logs.show' => 'Membuka detail log aktivitas',
         'activity-logs.export' => 'Export log aktivitas',
@@ -164,6 +174,7 @@ class ActivityDescriber
         'CourseForumReply' => 'Balasan Forum',
         'CourseForumLike' => 'Suka Forum',
         'AiAssistantSetting' => 'Pengaturan AI Assistant',
+        'Announcement' => 'Pengumuman',
     ];
 
     private const EVENTS = [

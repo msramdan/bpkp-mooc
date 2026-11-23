@@ -202,6 +202,22 @@
 
 
 
+                    @auth
+                        <li class="header-element">
+                            <a href="{{ route('announcements.feed') }}" class="header-link position-relative"
+                               aria-label="{{ ($announcementUnseen ?? 0) > 0 ? __(':n pengumuman baru', ['n' => $announcementUnseen]) : __('Pengumuman') }}"
+                               title="{{ __('Pengumuman') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" viewBox="0 0 256 256" aria-hidden="true">
+                                    <rect width="256" height="256" fill="none" />
+                                    <path d="M160,80V200.67a8,8,0,0,0,3.56,6.65l11,7.33a8,8,0,0,0,12.2-4.72L200,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                    <path d="M40,200a8,8,0,0,0,13.15,6.12C105.55,162.16,160,160,160,160h40a40,40,0,0,0,0-80H160S105.55,77.84,53.15,33.89A8,8,0,0,0,40,40Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                </svg>
+                                @if (($announcementUnseen ?? 0) > 0)
+                                    <span class="bpkp-notif-badge">{{ $announcementUnseen > 9 ? '9+' : $announcementUnseen }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endauth
                     <li class="header-element notifications-dropdown d-xl-block d-none dropdown" id="bpkpNotificationsRoot"
                         data-poll-url="{{ route('notifications.index') }}"
                         data-read-all-url="{{ route('notifications.read-all') }}"

@@ -164,6 +164,20 @@ return [
             ],
         ],
         [
+            'header' => 'Informasi',
+            'permissions' => ['announcement manage'],
+            'menus' => [
+                [
+                    'title' => 'Pengumuman',
+                    'icon' => '<i class="bi bi-megaphone"></i>',
+                    'route' => '/announcements',
+                    'permission' => 'announcement manage',
+                    'permissions' => [],
+                    'submenus' => [],
+                ],
+            ],
+        ],
+        [
             'header' => 'AI Assistant',
             'permissions' => ['ai assistant monitor view', 'ai assistant setting manage'],
             'menus' => [

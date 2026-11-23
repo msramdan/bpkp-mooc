@@ -48,6 +48,11 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/aktivitas-saya', [\App\Http\Controllers\MyActivityController::class, 'index'])->name('activity.mine');
     Route::get('/aktivitas-saya/{activity}', [\App\Http\Controllers\MyActivityController::class, 'show'])->whereNumber('activity')->name('activity.mine.show');
 
+    // Pengumuman untuk pengguna yang login (peserta / admin sesuai audiens).
+    Route::get('/pengumuman', [\App\Http\Controllers\AnnouncementFeedController::class, 'index'])->name('announcements.feed');
+    Route::post('/pengumuman/tutup', [\App\Http\Controllers\AnnouncementFeedController::class, 'dismiss'])->middleware('throttle:30,1')->name('announcements.dismiss');
+    Route::get('/pengumuman/{announcement}/lampiran', [\App\Http\Controllers\AnnouncementFeedController::class, 'attachment'])->whereUuid('announcement')->middleware('throttle:60,1')->name('announcements.attachment');
+
     // AI Assistant (semua role; akses final ditentukan pengaturan global & per-role di backend).
     Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
         Route::get('/', [AiChatController::class, 'index'])->name('chat');
@@ -189,6 +194,17 @@ Route::middleware(['auth', 'web'])->group(function () {
             Route::put('/security', [AiSettingsController::class, 'updateSecurity'])->name('security');
             Route::put('/access', [AiSettingsController::class, 'updateAccess'])->name('access');
             Route::post('/prune', [AiSettingsController::class, 'prune'])->name('prune');
+        });
+
+        // Pengumuman (Super Admin)
+        Route::middleware('permission:announcement manage')->prefix('announcements')->name('announcements.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\AnnouncementController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\AnnouncementController::class, 'store'])->name('store');
+            Route::get('/{announcement}/edit', [\App\Http\Controllers\AnnouncementController::class, 'edit'])->whereUuid('announcement')->name('edit');
+            Route::put('/{announcement}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->whereUuid('announcement')->name('update');
+            Route::patch('/{announcement}/toggle', [\App\Http\Controllers\AnnouncementController::class, 'toggle'])->whereUuid('announcement')->name('toggle');
+            Route::delete('/{announcement}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->whereUuid('announcement')->name('destroy');
         });
 
         Route::get('database-backups', [DatabaseBackupController::class, 'index'])->name('database-backups.index');

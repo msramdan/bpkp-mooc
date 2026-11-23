@@ -266,6 +266,13 @@ return [
             ],
         ],
         [
+            'group' => 'announcements',
+            'access' => [
+                'announcement view',
+                'announcement manage',
+            ],
+        ],
+        [
             'group' => 'ai assistant',
             'access' => [
                 'ai assistant monitor view',

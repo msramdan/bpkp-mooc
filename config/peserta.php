@@ -58,6 +58,14 @@ return [
                     'submenus' => [],
                 ],
                 [
+                    'title' => 'Pengumuman',
+                    'icon' => '<i class="bi bi-megaphone"></i>',
+                    'route' => 'announcements.feed',
+                    'permission' => 'peserta dashboard view',
+                    'permissions' => ['peserta dashboard view'],
+                    'submenus' => [],
+                ],
+                [
                     'title' => 'Aktivitas Saya',
                     'icon' => '<i class="bi bi-clock-history"></i>',
                     'route' => 'activity.mine',

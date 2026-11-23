@@ -53,6 +53,38 @@ class AppServiceProvider extends ServiceProvider
                 ], 429));
         });
 
+        // Pop up pengumuman: tampil penuh sekali setelah login.
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (): void {
+            if (app()->bound('session')) {
+                session()->put(\App\Services\AnnouncementService::SESSION_FLAG, true);
+            }
+        });
+
+        View::composer('layouts.app', function ($view): void {
+            $user = auth()->user();
+            $popup = collect();
+            $unseen = 0;
+
+            if ($user && ! request()->expectsJson()) {
+                try {
+                    $service = app(\App\Services\AnnouncementService::class);
+                    $afterLogin = (bool) session()->pull(\App\Services\AnnouncementService::SESSION_FLAG, false);
+                    // Halaman daftar pengumuman sendiri tidak perlu pop up.
+                    if (! request()->routeIs('announcements.*')) {
+                        $popup = $service->popupFor($user, $afterLogin);
+                        if ($popup->isNotEmpty()) {
+                            $service->markSeen($user, $popup->pluck('id'));
+                        }
+                    }
+                    $unseen = $service->unseenCount($user);
+                } catch (Throwable) {
+                    $popup = collect();
+                }
+            }
+
+            $view->with('announcementPopup', $popup)->with('announcementUnseen', $unseen);
+        });
+
         View::composer('layouts.app', function ($view): void {
             $user = auth()->user();
             $available = false;

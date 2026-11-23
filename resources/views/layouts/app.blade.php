@@ -46,6 +46,9 @@
     @if ($aiAssistantAvailable ?? false)
         <link href="{{ asset('backend') }}/assets/css/ai-assistant.css?v={{ @filemtime(public_path('backend/assets/css/ai-assistant.css')) ?: time() }}" rel="stylesheet">
     @endif
+    @if (($announcementPopup ?? collect())->isNotEmpty() || request()->routeIs('announcements.*'))
+        <link href="{{ asset('backend') }}/assets/css/announcements.css?v={{ @filemtime(public_path('backend/assets/css/announcements.css')) ?: time() }}" rel="stylesheet">
+    @endif
     @stack('css')
     <script src="{{ asset('backend') }}/assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="{{ asset('backend') }}/assets/js/main.js"></script>
@@ -113,6 +116,9 @@
         }
     </script>
     @stack('scripts')
+    @if (($announcementPopup ?? collect())->isNotEmpty())
+        @include('announcements.partials.popup')
+    @endif
     @include('layouts.partials.flash-toast')
 </body>
 </html>
